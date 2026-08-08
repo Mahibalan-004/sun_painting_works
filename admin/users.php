@@ -24,7 +24,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } elseif ($password !== $confirm_password) {
             $error = "Password and confirm password do not match.";
         } else {
-            // Check username & employee_id uniqueness
             $chk = $pdo->prepare("SELECT id FROM users WHERE username = ? OR employee_id = ?");
             $chk->execute([$username, $employee_id]);
             if ($chk->fetch()) {
@@ -35,30 +34,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $ins->execute([$employee_id, $name, $phone, $username, $hashedPass, $role, $joining_date, $status]);
                 $success = "User '{$name}' created successfully!";
             }
-        }
-    }
-
-    if ($action === 'edit_user') {
-        $user_id = (int)($_POST['user_id'] ?? 0);
-        $name = trim($_POST['name'] ?? '');
-        $phone = trim($_POST['phone'] ?? '');
-        $role = $_POST['role'] ?? 'User';
-        $status = $_POST['status'] ?? 'Active';
-        $joining_date = $_POST['joining_date'] ?? date('Y-m-d');
-
-        $upd = $pdo->prepare("UPDATE users SET name = ?, phone = ?, role = ?, status = ?, joining_date = ? WHERE id = ?");
-        $upd->execute([$name, $phone, $role, $status, $joining_date, $user_id]);
-        $success = "User updated successfully.";
-    }
-
-    if ($action === 'change_password') {
-        $user_id = (int)($_POST['user_id'] ?? 0);
-        $new_password = $_POST['new_password'] ?? '';
-        if (!empty($new_password)) {
-            $hashedPass = password_hash($new_password, PASSWORD_BCRYPT);
-            $upd = $pdo->prepare("UPDATE users SET password = ? WHERE id = ?");
-            $upd->execute([$hashedPass, $user_id]);
-            $success = "Password changed successfully.";
         }
     }
 
@@ -73,12 +48,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($action === 'delete_user') {
         $user_id = (int)($_POST['user_id'] ?? 0);
-        if ($user_id !== (int)$_SESSION['user_id']) {
-            $del = $pdo->prepare("DELETE FROM users WHERE id = ?");
-            $del->execute([$user_id]);
-            $success = "User deleted.";
-        } else {
+        if ($user_id <= 0) {
+            $error = "Invalid user ID.";
+        } elseif ($user_id === (int)$_SESSION['user_id']) {
             $error = "You cannot delete your own admin account while logged in.";
+        } else {
+            $usrStmt = $pdo->prepare("SELECT id, name FROM users WHERE id = ?");
+            $usrStmt->execute([$user_id]);
+            $targetUser = $usrStmt->fetch();
+
+            if (!$targetUser) {
+                $error = "Target staff user not found.";
+            } else {
+                // Check related records safely
+                $attCnt = (int)$pdo->query("SELECT COUNT(*) FROM attendance WHERE user_id = {$user_id}")->fetchColumn();
+                $carsCnt = (int)$pdo->query("SELECT COUNT(*) FROM cars WHERE created_by = {$user_id}")->fetchColumn();
+                $histCnt = (int)$pdo->query("SELECT COUNT(*) FROM work_history WHERE updated_by = {$user_id}")->fetchColumn();
+                $photoCnt = (int)$pdo->query("SELECT COUNT(*) FROM car_photos WHERE uploaded_by = {$user_id}")->fetchColumn();
+
+                if ($attCnt > 0 || $carsCnt > 0 || $histCnt > 0 || $photoCnt > 0) {
+                    // Safe deactivation to prevent foreign key errors
+                    $deactStmt = $pdo->prepare("UPDATE users SET status = 'Inactive' WHERE id = ?");
+                    $deactStmt->execute([$user_id]);
+                    $success = "Staff member '{$targetUser['name']}' has historical attendance/work logs. Account safely set to Inactive.";
+                } else {
+                    // Safe permanent deletion
+                    $delStmt = $pdo->prepare("DELETE FROM users WHERE id = ?");
+                    $delStmt->execute([$user_id]);
+                    $success = "Staff member '{$targetUser['name']}' successfully deleted.";
+                }
+            }
         }
     }
 }
@@ -227,7 +226,7 @@ $users = $pdo->query("SELECT * FROM users ORDER BY id DESC")->fetchAll();
         </form>
       </div>
 
-      <!-- Users Table -->
+      <!-- Workshop Staff Directory -->
       <div class="card-box">
         <div class="card-box-header">
           <div class="card-box-title"><i class="fa-solid fa-address-book text-gold"></i> Workshop Staff Directory</div>
@@ -264,24 +263,24 @@ $users = $pdo->query("SELECT * FROM users ORDER BY id DESC")->fetchAll();
                     <span class="badge badge-<?php echo e($u['status']); ?>"><?php echo e($u['status']); ?></span>
                   </td>
                   <td>
-                    <div style="display: flex; gap: 6px;">
+                    <div style="display: flex; gap: 8px;">
                       <!-- Toggle Status Form -->
                       <form action="users.php" method="POST">
                         <input type="hidden" name="action" value="toggle_status">
                         <input type="hidden" name="user_id" value="<?php echo $u['id']; ?>">
                         <input type="hidden" name="current_status" value="<?php echo $u['status']; ?>">
-                        <button type="submit" class="btn btn-silver" style="padding: 4px 8px; font-size: 0.75rem;" title="Activate / Deactivate Account">
-                          <i class="fa-solid fa-power-off"></i>
+                        <button type="submit" class="btn btn-silver" style="padding: 6px 10px; font-size: 0.8rem;" title="Toggle Status">
+                          <i class="fa-solid fa-power-off"></i> <?php echo $u['status'] === 'Active' ? 'Deactivate' : 'Activate'; ?>
                         </button>
                       </form>
 
                       <!-- Delete Form -->
                       <?php if ($u['id'] !== (int)$_SESSION['user_id']): ?>
-                        <form action="users.php" method="POST" onsubmit="return confirm('Delete employee account <?php echo e($u['name']); ?>?');">
+                        <form action="users.php" method="POST" onsubmit="return confirm('Are you sure you want to delete this staff member?');">
                           <input type="hidden" name="action" value="delete_user">
                           <input type="hidden" name="user_id" value="<?php echo $u['id']; ?>">
-                          <button type="submit" class="btn btn-silver" style="padding: 4px 8px; font-size: 0.75rem; color: #E74C3C;" title="Delete User">
-                            <i class="fa-solid fa-trash"></i>
+                          <button type="submit" class="btn btn-silver" style="padding: 6px 12px; font-size: 0.8rem; color: #E74C3C;" title="Delete Staff Member">
+                            <i class="fa-solid fa-trash"></i> Delete
                           </button>
                         </form>
                       <?php endif; ?>

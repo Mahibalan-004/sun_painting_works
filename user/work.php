@@ -120,9 +120,9 @@ if ($car_id > 0) {
       <li class="sidebar-item active">
         <a href="work.php"><i class="fa-solid fa-spray-can"></i> Car Work</a>
       </li>
-      <li class="sidebar-item">
+      <!-- <li class="sidebar-item">
         <a href="attendance.php"><i class="fa-solid fa-calendar-check"></i> My Attendance</a>
-      </li>
+      </li> -->
       <li class="sidebar-item">
         <a href="profile.php"><i class="fa-solid fa-user-circle"></i> My Profile</a>
       </li>
@@ -210,11 +210,20 @@ if ($car_id > 0) {
               </div>
 
               <div class="form-group">
-                <label class="form-label">Select Photo File *</label>
-                <input type="file" name="work_photo" class="form-control" accept="image/*" required>
+                <label class="form-label">Select Photo Source *</label>
+                <div style="display: flex; gap: 10px;">
+                  <button type="button" class="btn btn-gold" style="flex: 1; padding: 10px; font-size: 0.85rem;" onclick="document.getElementById('user-photo-file').click();">
+                    <i class="fa-solid fa-folder-open"></i> Upload File
+                  </button>
+                  <button type="button" class="btn btn-outline-gold" style="flex: 1; padding: 10px; font-size: 0.85rem;" onclick="document.getElementById('user-photo-camera').click();">
+                    <i class="fa-solid fa-camera"></i> 📷 Take Photo
+                  </button>
+                </div>
+                <input type="file" id="user-photo-file" name="work_photo" accept="image/*" style="display: none;" onchange="this.form.submit();">
+                <input type="file" id="user-photo-camera" name="work_photo" accept="image/*" capture="environment" style="display: none;" onchange="this.form.submit();">
               </div>
 
-              <button type="submit" class="btn btn-gold" style="width: 100%; margin-top: 25px;"><i class="fa-solid fa-camera"></i> UPLOAD WORK PHOTO</button>
+              <button type="submit" class="btn btn-gold" style="width: 100%; margin-top: 15px;"><i class="fa-solid fa-cloud-arrow-up"></i> SUBMIT PHOTO</button>
             </form>
           </div>
 

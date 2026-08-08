@@ -10,14 +10,16 @@ $nextCustomerId = generateNextCustomerID($pdo);
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $customer_id = trim($_POST['customer_id'] ?? '');
     $customer_no = trim($_POST['customer_no'] ?? '');
+    $alternate_phone = trim($_POST['alternate_phone'] ?? '');
     $customer_name = trim($_POST['customer_name'] ?? '');
+    $city = trim($_POST['city'] ?? '');
     
     $car_number = strtoupper(trim($_POST['car_number'] ?? ''));
     $car_name = trim($_POST['car_name'] ?? '');
     $car_color = trim($_POST['car_color'] ?? '');
     
-    $estimate_amount = (float)($_POST['estimate_amount'] ?? 0);
-    $final_amount = (float)($_POST['final_amount'] ?? 0);
+    $estimate_amount = isset($_POST['estimate_amount']) && $_POST['estimate_amount'] !== '' ? (float)$_POST['estimate_amount'] : 0.00;
+    $final_amount = isset($_POST['final_amount']) && $_POST['final_amount'] !== '' ? (float)$_POST['final_amount'] : 0.00;
 
     if (empty($customer_id) || empty($customer_no) || empty($customer_name) || empty($car_number) || empty($car_name)) {
         $error = "Please fill in all required customer and car fields.";
@@ -29,12 +31,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $custCheck = $pdo->prepare("SELECT customer_id FROM customers WHERE customer_id = ?");
             $custCheck->execute([$customer_id]);
             if ($custCheck->fetch()) {
-                // Customer ID already exists, regenerate
                 $customer_id = generateNextCustomerID($pdo);
             }
 
-            $stmtCust = $pdo->prepare("INSERT INTO customers (customer_id, customer_no, customer_name) VALUES (?, ?, ?)");
-            $stmtCust->execute([$customer_id, $customer_no, $customer_name]);
+            $stmtCust = $pdo->prepare("INSERT INTO customers (customer_id, customer_no, alternate_phone, customer_name, city) VALUES (?, ?, ?, ?, ?)");
+            $stmtCust->execute([$customer_id, $customer_no, $alternate_phone, $customer_name, $city]);
 
             // 2. Financial Calculations
             $total_amount = $estimate_amount;
@@ -64,7 +65,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ]);
             $car_id = $pdo->lastInsertId();
 
-            // 4. Handle Damage Photo Uploads
+            // 4. Handle Damage Photo Uploads (both file picker & camera inputs)
             $allowedExts = ['jpg', 'jpeg', 'png', 'webp'];
             $uploadDir = __DIR__ . '/../uploads/damage/';
 
@@ -78,6 +79,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     if ($fileError === UPLOAD_ERR_OK) {
                         $ext = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+                        if (empty($ext)) $ext = 'jpg';
                         if (in_array($ext, $allowedExts) && $fileSize <= 5 * 1024 * 1024) {
                             $uniqueName = 'dmg_' . time() . '_' . rand(1000, 9999) . '.' . $ext;
                             $targetPath = $uploadDir . $uniqueName;
@@ -191,13 +193,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
 
             <div class="form-group">
-              <label class="form-label">Customer Phone Number *</label>
-              <input type="text" name="customer_no" class="form-control" placeholder="e.g. 9876543210" required value="<?php echo e($_POST['customer_no'] ?? ''); ?>">
+              <label class="form-label">Customer Number *</label>
+              <input type="text" name="customer_no" class="form-control" placeholder="e.g. 9442399079" required value="<?php echo e($_POST['customer_no'] ?? ''); ?>">
             </div>
 
             <div class="form-group">
+              <label class="form-label">Alternate Phone (Optional)</label>
+              <input type="text" name="alternate_phone" class="form-control" placeholder="e.g. 9842299079" value="<?php echo e($_POST['alternate_phone'] ?? ''); ?>">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
               <label class="form-label">Customer Name *</label>
               <input type="text" name="customer_name" class="form-control" placeholder="e.g. Ramesh Kumar" required value="<?php echo e($_POST['customer_name'] ?? ''); ?>">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">City (Optional)</label>
+              <input type="text" name="city" class="form-control" placeholder="e.g. Gobichettipalayam" value="<?php echo e($_POST['city'] ?? ''); ?>">
             </div>
           </div>
         </div>
@@ -234,13 +248,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
           <div class="form-row">
             <div class="form-group">
-              <label class="form-label">Initial Estimate Amount (₹)</label>
-              <input type="number" step="0.01" id="estimate_amount" name="estimate_amount" class="form-control" placeholder="0.00" value="<?php echo e($_POST['estimate_amount'] ?? '0.00'); ?>">
+              <label class="form-label">Initial Financial Estimate</label>
+              <div style="position: relative;">
+                <span style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--gold-primary); font-weight: 700; font-size: 1rem;">₹</span>
+                <input type="number" step="0.01" id="estimate_amount" name="estimate_amount" class="form-control" style="padding-left: 32px;" placeholder="0.00" value="<?php echo isset($_POST['estimate_amount']) && $_POST['estimate_amount'] !== '' ? e($_POST['estimate_amount']) : '0.00'; ?>" onfocus="if(this.value==='0.00' || this.value==='0') this.value='';" onblur="if(this.value.trim()==='') this.value='0.00';">
+              </div>
             </div>
 
             <div class="form-group">
-              <label class="form-label">Advance / Final Amount Received (₹)</label>
-              <input type="number" step="0.01" id="final_amount" name="final_amount" class="form-control" placeholder="0.00" value="<?php echo e($_POST['final_amount'] ?? '0.00'); ?>">
+              <label class="form-label">Advance / Final Amount Received</label>
+              <div style="position: relative;">
+                <span style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #2ECC71; font-weight: 700; font-size: 1rem;">₹</span>
+                <input type="number" step="0.01" id="final_amount" name="final_amount" class="form-control" style="padding-left: 32px;" placeholder="0.00" value="<?php echo isset($_POST['final_amount']) && $_POST['final_amount'] !== '' ? e($_POST['final_amount']) : '0.00'; ?>" onfocus="if(this.value==='0.00' || this.value==='0') this.value='';" onblur="if(this.value.trim()==='') this.value='0.00';">
+              </div>
             </div>
 
             <div class="form-group">
@@ -255,18 +275,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           </div>
         </div>
 
-        <!-- SECTION 4: DAMAGE PHOTOS UPLOAD -->
+        <!-- SECTION 4: DAMAGE PHOTOS UPLOAD (FILE UPLOAD & CAMERA OPTIONS) -->
         <div class="card-box">
           <div class="card-box-header">
-            <div class="card-box-title"><i class="fa-solid fa-camera text-gold"></i> 4. Upload Damage Photos</div>
+            <div class="card-box-title"><i class="fa-solid fa-camera text-gold"></i> 4. Damage Photos (Upload & Camera)</div>
           </div>
 
-          <div class="upload-dropzone" onclick="document.getElementById('photo-upload-input').click();">
-            <i class="fa-solid fa-cloud-arrow-up" style="font-size: 2.5rem; color: var(--gold-primary); margin-bottom: 10px;"></i>
-            <h4 style="color: var(--silver-light);">Click to Select Vehicle Damage Photos</h4>
-            <p style="color: var(--text-muted); font-size: 0.85rem;">Formats allowed: JPG, JPEG, PNG, WEBP (Max 5 MB per image)</p>
+          <div style="display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 20px;">
+            <!-- Button 1: Upload Photos -->
+            <button type="button" class="btn btn-gold" onclick="document.getElementById('photo-upload-input').click();">
+              <i class="fa-solid fa-folder-open"></i> Upload Photos
+            </button>
             <input type="file" id="photo-upload-input" name="damage_photos[]" multiple accept="image/*" style="display: none;">
+
+            <!-- Button 2: Take Photo (Camera) -->
+            <button type="button" class="btn btn-outline-gold" onclick="document.getElementById('photo-camera-input').click();">
+              <i class="fa-solid fa-camera"></i> 📷 Take Photo
+            </button>
+            <input type="file" id="photo-camera-input" accept="image/*" capture="environment" style="display: none;">
           </div>
+
+          <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 15px;">
+            Formats allowed: JPG, JPEG, PNG, WEBP (Max 5 MB per image). Use "Take Photo" on mobile devices to open camera directly.
+          </p>
 
           <!-- Live Preview Gallery -->
           <div id="preview-gallery" class="preview-gallery"></div>
@@ -284,5 +315,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </div>
 
 <script src="../assets/js/main.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const cameraInput = document.getElementById('photo-camera-input');
+  const uploadInput = document.getElementById('photo-upload-input');
+  const previewGallery = document.getElementById('preview-gallery');
+
+  if (cameraInput && uploadInput && previewGallery) {
+    cameraInput.addEventListener('change', (e) => {
+      if (!e.target.files || e.target.files.length === 0) return;
+      const file = e.target.files[0];
+      
+      const dt = new DataTransfer();
+      if (uploadInput.files) {
+        for (let i = 0; i < uploadInput.files.length; i++) {
+          dt.items.add(uploadInput.files[i]);
+        }
+      }
+      dt.items.add(file);
+      uploadInput.files = dt.files;
+
+      // Trigger change event on upload input to refresh preview
+      const event = new Event('change', { bubbles: true });
+      uploadInput.dispatchEvent(event);
+      cameraInput.value = '';
+    });
+  }
+});
+</script>
 </body>
 </html>

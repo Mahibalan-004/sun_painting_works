@@ -124,7 +124,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 // Fetch Car & Customer Details
-$stmt = $pdo->prepare("SELECT c.*, cust.customer_name, cust.customer_no FROM cars c JOIN customers cust ON c.customer_id = cust.customer_id WHERE c.id = ?");
+$stmt = $pdo->prepare("SELECT c.*, cust.customer_name, cust.customer_no, cust.alternate_phone, cust.city FROM cars c JOIN customers cust ON c.customer_id = cust.customer_id WHERE c.id = ?");
 $stmt->execute([$car_id]);
 $car = $stmt->fetch();
 
@@ -257,6 +257,16 @@ $workHistory = $stmtHistory->fetchAll();
             <div class="form-group">
               <label class="form-label">Customer Phone</label>
               <input type="text" class="form-control" value="<?php echo e($car['customer_no']); ?>" readonly>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Alternate Phone</label>
+              <input type="text" class="form-control" value="<?php echo e($car['alternate_phone'] ?? 'N/A'); ?>" readonly>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">City</label>
+              <input type="text" class="form-control" value="<?php echo e($car['city'] ?? 'N/A'); ?>" readonly>
             </div>
           </div>
 
@@ -418,15 +428,23 @@ $workHistory = $stmtHistory->fetchAll();
           <div class="card-box-title"><i class="fa-solid fa-wand-magic-sparkles text-gold"></i> After Paint Photos Gallery</div>
         </div>
 
-        <form action="update_car.php?id=<?php echo $car_id; ?>" method="POST" enctype="multipart/form-data" style="margin-bottom: 25px;">
+        <form id="after-paint-form" action="update_car.php?id=<?php echo $car_id; ?>" method="POST" enctype="multipart/form-data" style="margin-bottom: 25px;">
           <input type="hidden" name="action" value="upload_after_paint_photos">
           
-          <div class="upload-dropzone" onclick="document.getElementById('after-paint-input').click();">
-            <i class="fa-solid fa-camera-retro" style="font-size: 2.2rem; color: var(--gold-primary); margin-bottom: 8px;"></i>
-            <h4 style="color: var(--silver-light);">Click to Select After-Paint Finished Photos</h4>
-            <p style="color: var(--text-muted); font-size: 0.85rem;">Upload pristine completed photos of the vehicle</p>
-            <input type="file" id="after-paint-input" name="after_paint_photos[]" multiple accept="image/*" style="display: none;" onchange="this.form.submit();">
+          <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 15px;">
+            <button type="button" class="btn btn-gold" onclick="document.getElementById('after-paint-file-input').click();">
+              <i class="fa-solid fa-folder-open"></i> Upload Photos
+            </button>
+            <input type="file" id="after-paint-file-input" name="after_paint_photos[]" multiple accept="image/*" style="display: none;" onchange="this.form.submit();">
+
+            <button type="button" class="btn btn-outline-gold" onclick="document.getElementById('after-paint-camera-input').click();">
+              <i class="fa-solid fa-camera"></i> 📷 Take Photo
+            </button>
+            <input type="file" id="after-paint-camera-input" name="after_paint_photos[]" accept="image/*" capture="environment" style="display: none;" onchange="this.form.submit();">
           </div>
+          <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 15px;">
+            Upload finished vehicle photos or use "Take Photo" to capture directly using device camera.
+          </p>
         </form>
 
         <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 20px;">

@@ -142,6 +142,12 @@ $workHistory = $stmtHistory->fetchAll();
               <tr><td style="color: var(--text-muted); width: 40%;">Customer ID:</td><td style="font-weight: 700; color: var(--gold-light);"><?php echo e($car['customer_id']); ?></td></tr>
               <tr><td style="color: var(--text-muted);">Customer Name:</td><td style="font-weight: 700;"><?php echo e($car['customer_name']); ?></td></tr>
               <tr><td style="color: var(--text-muted);">Phone Number:</td><td style="font-weight: 700;"><?php echo e($car['customer_no']); ?></td></tr>
+              <?php if (!empty($car['alternate_phone'])): ?>
+                <tr><td style="color: var(--text-muted);">Alt Phone:</td><td><?php echo e($car['alternate_phone']); ?></td></tr>
+              <?php endif; ?>
+              <?php if (!empty($car['city'])): ?>
+                <tr><td style="color: var(--text-muted);">City:</td><td><?php echo e($car['city']); ?></td></tr>
+              <?php endif; ?>
             </table>
           </div>
 

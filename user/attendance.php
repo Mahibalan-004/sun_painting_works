@@ -42,9 +42,9 @@ $myAttendance = $stmt->fetchAll();
       <li class="sidebar-item">
         <a href="work.php"><i class="fa-solid fa-spray-can"></i> Car Work</a>
       </li>
-      <li class="sidebar-item active">
+      <!-- <li class="sidebar-item active">
         <a href="attendance.php"><i class="fa-solid fa-calendar-check"></i> My Attendance</a>
-      </li>
+      </li> -->
       <li class="sidebar-item">
         <a href="profile.php"><i class="fa-solid fa-user-circle"></i> My Profile</a>
       </li>

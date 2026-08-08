@@ -151,7 +151,7 @@ require_once __DIR__ . '/includes/header.php';
       <a href="https://wa.me/919442399079?text=Hello%20Sun%20Painting%20Works,%20I%20want%20an%20estimate%20for%20my%20car" target="_blank" class="contact-btn-item btn-whatsapp">
         <i class="fa-brands fa-whatsapp"></i> WHATSAPP US
       </a>
-      <a href="https://maps.google.com/?q=Kullampalayam+Pirivu,+Gobichettipalayam,+Erode+638453" target="_blank" class="contact-btn-item btn-maps">
+      <a href="https://maps.app.goo.gl/ebu2WLZGgK1B8vfp9?g_st=aw" target="_blank" class="contact-btn-item btn-maps">
         <i class="fa-solid fa-location-arrow"></i> GOOGLE MAPS LOCATION
       </a>
     </div>

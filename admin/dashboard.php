@@ -1,36 +1,34 @@
 <?php
 require_once __DIR__ . '/../includes/admin_auth.php';
 
-// Calculate Dashboard Metrics
+// Calculate Operational Metrics
 $totalCars = $pdo->query("SELECT COUNT(*) FROM cars")->fetchColumn();
-$newCars = $pdo->query("SELECT COUNT(*) FROM cars WHERE status = 'New'")->fetchColumn();
-$paintingCars = $pdo->query("SELECT COUNT(*) FROM cars WHERE status = 'Painting'")->fetchColumn();
-$completedCars = $pdo->query("SELECT COUNT(*) FROM cars WHERE status IN ('Completed', 'Delivered')")->fetchColumn();
 $totalCustomers = $pdo->query("SELECT COUNT(*) FROM customers")->fetchColumn();
 
-// Financial Totals
+// Status Breakdown Data for Operational Cards
+$statusCounts = [];
+$statuses = ['New', 'Inspection', 'Denting', 'Painting', 'Polishing', 'Extra Work', 'Completed', 'Delivered'];
+foreach ($statuses as $st) {
+    $stStmt = $pdo->prepare("SELECT COUNT(*) FROM cars WHERE status = ?");
+    $stStmt->execute([$st]);
+    $statusCounts[$st] = (int)$stStmt->fetchColumn();
+}
+
+// Financial Totals (FOR BOTTOM SECTION ONLY)
 $totalsRow = $pdo->query("SELECT SUM(estimate_amount) AS est, SUM(total_amount) AS tot, SUM(final_amount) AS fin, SUM(balance_amount) AS bal FROM cars")->fetch();
 $totalEstimate = (float)($totalsRow['est'] ?? 0);
 $totalAmount = (float)($totalsRow['tot'] ?? 0);
 $finalReceived = (float)($totalsRow['fin'] ?? 0);
 $pendingBalance = (float)($totalsRow['bal'] ?? 0);
 
+$totalExtraWorkAmount = (float)$pdo->query("SELECT SUM(amount) FROM extra_work")->fetchColumn();
+
 // Today's Attendance Summary
 $today = date('Y-m-d');
 $todayAtt = $pdo->prepare("SELECT COUNT(*) FROM attendance WHERE attendance_date = ? AND status = 'Present'");
 $todayAtt->execute([$today]);
 $presentToday = $todayAtt->fetchColumn();
-
 $totalEmployees = $pdo->query("SELECT COUNT(*) FROM users WHERE status = 'Active'")->fetchColumn();
-
-// Status Breakdown Data for Chart/Visuals
-$statusCounts = [];
-$statuses = ['New', 'Inspection', 'Denting', 'Painting', 'Polishing', 'Extra Work', 'Completed', 'Delivered'];
-foreach ($statuses as $st) {
-    $stStmt = $pdo->prepare("SELECT COUNT(*) FROM cars WHERE status = ?");
-    $stStmt->execute([$st]);
-    $statusCounts[$st] = $stStmt->fetchColumn();
-}
 
 // Recent Car Jobs
 $recentCars = $pdo->query("SELECT c.*, cust.customer_name, cust.customer_no FROM cars c JOIN customers cust ON c.customer_id = cust.customer_id ORDER BY c.id DESC LIMIT 5")->fetchAll();
@@ -98,7 +96,7 @@ $recentCars = $pdo->query("SELECT c.*, cust.customer_name, cust.customer_no FROM
   <main class="main-content">
     <!-- Top Bar -->
     <header class="top-bar">
-      <h1 class="top-bar-title"><i class="fa-solid fa-chart-pie text-gold"></i> Executive Workshop Dashboard</h1>
+      <h1 class="top-bar-title"><i class="fa-solid fa-chart-pie text-gold"></i> Operational Workshop Dashboard</h1>
       <div class="user-profile-menu">
         <div class="user-avatar">AD</div>
         <div>
@@ -110,8 +108,12 @@ $recentCars = $pdo->query("SELECT c.*, cust.customer_name, cust.customer_no FROM
 
     <div class="content-body">
 
-      <!-- Metrics Grid -->
-      <div class="metrics-grid">
+      <!-- TOP SECTION: OPERATIONAL CARDS ONLY -->
+      <div style="margin-bottom: 15px; font-size: 1.1rem; font-weight: 700; color: var(--gold-primary); display: flex; align-items: center; gap: 8px;">
+        <i class="fa-solid fa-list-check"></i> Operational Status Cards
+      </div>
+
+      <div class="metrics-grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));">
         <div class="metric-card">
           <div class="metric-info">
             <div class="metric-label">Total Cars</div>
@@ -125,7 +127,7 @@ $recentCars = $pdo->query("SELECT c.*, cust.customer_name, cust.customer_no FROM
         <div class="metric-card">
           <div class="metric-info">
             <div class="metric-label">New Cars</div>
-            <div class="metric-value"><?php echo $newCars; ?></div>
+            <div class="metric-value"><?php echo $statusCounts['New']; ?></div>
           </div>
           <div class="metric-icon-box metric-icon-silver">
             <i class="fa-solid fa-sparkles"></i>
@@ -134,8 +136,28 @@ $recentCars = $pdo->query("SELECT c.*, cust.customer_name, cust.customer_no FROM
 
         <div class="metric-card">
           <div class="metric-info">
-            <div class="metric-label">Painting Cars</div>
-            <div class="metric-value"><?php echo $paintingCars; ?></div>
+            <div class="metric-label">Inspection</div>
+            <div class="metric-value"><?php echo $statusCounts['Inspection']; ?></div>
+          </div>
+          <div class="metric-icon-box metric-icon-silver">
+            <i class="fa-solid fa-magnifying-glass"></i>
+          </div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-info">
+            <div class="metric-label">Denting</div>
+            <div class="metric-value"><?php echo $statusCounts['Denting']; ?></div>
+          </div>
+          <div class="metric-icon-box metric-icon-silver">
+            <i class="fa-solid fa-hammer"></i>
+          </div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-info">
+            <div class="metric-label">Painting</div>
+            <div class="metric-value"><?php echo $statusCounts['Painting']; ?></div>
           </div>
           <div class="metric-icon-box metric-icon-gold">
             <i class="fa-solid fa-spray-can"></i>
@@ -144,8 +166,28 @@ $recentCars = $pdo->query("SELECT c.*, cust.customer_name, cust.customer_no FROM
 
         <div class="metric-card">
           <div class="metric-info">
-            <div class="metric-label">Completed Cars</div>
-            <div class="metric-value"><?php echo $completedCars; ?></div>
+            <div class="metric-label">Polishing</div>
+            <div class="metric-value"><?php echo $statusCounts['Polishing']; ?></div>
+          </div>
+          <div class="metric-icon-box metric-icon-silver">
+            <i class="fa-solid fa-wand-magic-sparkles"></i>
+          </div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-info">
+            <div class="metric-label">Extra Work</div>
+            <div class="metric-value"><?php echo $statusCounts['Extra Work']; ?></div>
+          </div>
+          <div class="metric-icon-box metric-icon-silver">
+            <i class="fa-solid fa-wrench"></i>
+          </div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-info">
+            <div class="metric-label">Completed</div>
+            <div class="metric-value"><?php echo $statusCounts['Completed']; ?></div>
           </div>
           <div class="metric-icon-box metric-icon-green">
             <i class="fa-solid fa-circle-check"></i>
@@ -154,60 +196,17 @@ $recentCars = $pdo->query("SELECT c.*, cust.customer_name, cust.customer_no FROM
 
         <div class="metric-card">
           <div class="metric-info">
-            <div class="metric-label">Total Customers</div>
-            <div class="metric-value"><?php echo $totalCustomers; ?></div>
-          </div>
-          <div class="metric-icon-box metric-icon-silver">
-            <i class="fa-solid fa-address-book"></i>
-          </div>
-        </div>
-      </div>
-
-      <!-- Financial Metrics Grid -->
-      <div class="metrics-grid">
-        <div class="metric-card">
-          <div class="metric-info">
-            <div class="metric-label">Total Estimate</div>
-            <div class="metric-value" style="color: var(--silver-light);"><?php echo formatRupee($totalEstimate); ?></div>
-          </div>
-          <div class="metric-icon-box metric-icon-silver">
-            <i class="fa-solid fa-calculator"></i>
-          </div>
-        </div>
-
-        <div class="metric-card">
-          <div class="metric-info">
-            <div class="metric-label">Total Amount</div>
-            <div class="metric-value" style="color: var(--gold-primary);"><?php echo formatRupee($totalAmount); ?></div>
+            <div class="metric-label">Delivered</div>
+            <div class="metric-value"><?php echo $statusCounts['Delivered']; ?></div>
           </div>
           <div class="metric-icon-box metric-icon-gold">
-            <i class="fa-solid fa-file-invoice-dollar"></i>
+            <i class="fa-solid fa-truck-ramp-box"></i>
           </div>
         </div>
 
         <div class="metric-card">
           <div class="metric-info">
-            <div class="metric-label">Final Received</div>
-            <div class="metric-value" style="color: #2ECC71;"><?php echo formatRupee($finalReceived); ?></div>
-          </div>
-          <div class="metric-icon-box metric-icon-green">
-            <i class="fa-solid fa-hand-holding-dollar"></i>
-          </div>
-        </div>
-
-        <div class="metric-card">
-          <div class="metric-info">
-            <div class="metric-label">Pending Balance</div>
-            <div class="metric-value" style="color: #E74C3C;"><?php echo formatRupee($pendingBalance); ?></div>
-          </div>
-          <div class="metric-icon-box metric-icon-red">
-            <i class="fa-solid fa-scale-unbalanced"></i>
-          </div>
-        </div>
-
-        <div class="metric-card">
-          <div class="metric-info">
-            <div class="metric-label">Today's Attendance</div>
+            <div class="metric-label">Today's Staff Attendance</div>
             <div class="metric-value"><?php echo $presentToday; ?> / <?php echo $totalEmployees; ?></div>
           </div>
           <div class="metric-icon-box metric-icon-gold">
@@ -217,11 +216,11 @@ $recentCars = $pdo->query("SELECT c.*, cust.customer_name, cust.customer_no FROM
       </div>
 
       <!-- Charts & Quick Overview Row -->
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin-bottom: 30px;">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin-bottom: 35px;">
         <!-- Status Breakdown Chart -->
         <div class="card-box" style="margin-bottom: 0;">
           <div class="card-box-header">
-            <div class="card-box-title"><i class="fa-solid fa-chart-donut text-gold"></i> Cars by Work Status</div>
+            <div class="card-box-title"><i class="fa-solid fa-chart-pie text-gold"></i> Cars by Work Stage</div>
           </div>
           <div style="max-height: 280px; position: relative;">
             <canvas id="statusChart"></canvas>
@@ -260,7 +259,7 @@ $recentCars = $pdo->query("SELECT c.*, cust.customer_name, cust.customer_no FROM
       </div>
 
       <!-- Recent Cars Table -->
-      <div class="card-box">
+      <div class="card-box" style="margin-bottom: 40px;">
         <div class="card-box-header">
           <div class="card-box-title"><i class="fa-solid fa-clock-rotate-left text-gold"></i> Recent Vehicles Registered</div>
           <a href="car_list.php" class="btn btn-outline-gold" style="padding: 6px 14px; font-size: 0.85rem;">View All Cars</a>
@@ -305,6 +304,68 @@ $recentCars = $pdo->query("SELECT c.*, cust.customer_name, cust.customer_no FROM
               <?php endif; ?>
             </tbody>
           </table>
+        </div>
+      </div>
+
+      <!-- BOTTOM SECTION: SEPARATE FINANCIAL SUMMARY SECTION -->
+      <div class="card-box" style="border: 2px solid var(--border-gold); background: rgba(212, 175, 55, 0.04); margin-top: 20px;">
+        <div class="card-box-header" style="border-bottom: 1px solid var(--border-gold); padding-bottom: 15px; margin-bottom: 20px;">
+          <div class="card-box-title" style="font-size: 1.4rem; color: var(--gold-primary);">
+            <i class="fa-solid fa-coins text-gold"></i> FINANCIAL SUMMARY
+          </div>
+          <span style="font-size: 0.85rem; color: var(--silver-light);">Total Workshop Billing & Revenue Overview</span>
+        </div>
+
+        <div class="metrics-grid" style="grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); margin-bottom: 0;">
+          <div class="metric-card" style="background: var(--bg-card);">
+            <div class="metric-info">
+              <div class="metric-label">Total Estimate Amount</div>
+              <div class="metric-value" style="color: var(--silver-light);"><?php echo formatRupee($totalEstimate); ?></div>
+            </div>
+            <div class="metric-icon-box metric-icon-silver">
+              <i class="fa-solid fa-calculator"></i>
+            </div>
+          </div>
+
+          <div class="metric-card" style="background: var(--bg-card);">
+            <div class="metric-info">
+              <div class="metric-label">Total Extra Work Amount</div>
+              <div class="metric-value" style="color: #E67E22;"><?php echo formatRupee($totalExtraWorkAmount); ?></div>
+            </div>
+            <div class="metric-icon-box metric-icon-silver">
+              <i class="fa-solid fa-wrench"></i>
+            </div>
+          </div>
+
+          <div class="metric-card" style="background: var(--bg-card);">
+            <div class="metric-info">
+              <div class="metric-label">Total Amount</div>
+              <div class="metric-value" style="color: var(--gold-primary);"><?php echo formatRupee($totalAmount); ?></div>
+            </div>
+            <div class="metric-icon-box metric-icon-gold">
+              <i class="fa-solid fa-file-invoice-dollar"></i>
+            </div>
+          </div>
+
+          <div class="metric-card" style="background: var(--bg-card);">
+            <div class="metric-info">
+              <div class="metric-label">Total Amount Received</div>
+              <div class="metric-value" style="color: #2ECC71;"><?php echo formatRupee($finalReceived); ?></div>
+            </div>
+            <div class="metric-icon-box metric-icon-green">
+              <i class="fa-solid fa-hand-holding-dollar"></i>
+            </div>
+          </div>
+
+          <div class="metric-card" style="background: var(--bg-card);">
+            <div class="metric-info">
+              <div class="metric-label">Total Outstanding Balance</div>
+              <div class="metric-value" style="color: #E74C3C;"><?php echo formatRupee($pendingBalance); ?></div>
+            </div>
+            <div class="metric-icon-box metric-icon-red">
+              <i class="fa-solid fa-scale-unbalanced"></i>
+            </div>
+          </div>
         </div>
       </div>
 

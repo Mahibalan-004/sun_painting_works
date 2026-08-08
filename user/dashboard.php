@@ -71,9 +71,9 @@ $completedCarsCount = $pdo->query("SELECT COUNT(*) FROM cars WHERE status IN ('C
       <li class="sidebar-item">
         <a href="work.php"><i class="fa-solid fa-spray-can"></i> Car Work</a>
       </li>
-      <li class="sidebar-item">
+      <!-- <li class="sidebar-item">
         <a href="attendance.php"><i class="fa-solid fa-calendar-check"></i> My Attendance</a>
-      </li>
+      </li> -->
       <li class="sidebar-item">
         <a href="profile.php"><i class="fa-solid fa-user-circle"></i> My Profile</a>
       </li>
@@ -110,7 +110,7 @@ $completedCarsCount = $pdo->query("SELECT COUNT(*) FROM cars WHERE status IN ('C
       <?php endif; ?>
 
       <!-- Attendance Punch Card -->
-      <div class="card-box" style="background: radial-gradient(circle at top right, rgba(212, 175, 55, 0.1), var(--bg-card)); border-color: var(--border-gold);">
+      <!-- <div class="card-box" style="background: radial-gradient(circle at top right, rgba(212, 175, 55, 0.1), var(--bg-card)); border-color: var(--border-gold);">
         <div class="card-box-header">
           <div class="card-box-title"><i class="fa-solid fa-clock text-gold"></i> Today's Attendance Clock</div>
           <div style="font-size: 0.9rem; color: var(--gold-light); font-weight: 700;"><?php echo date('d F Y (l)'); ?></div>
@@ -150,7 +150,7 @@ $completedCarsCount = $pdo->query("SELECT COUNT(*) FROM cars WHERE status IN ('C
             </form>
           </div>
         </div>
-      </div>
+      </div> -->
 
       <!-- Quick Work Metrics -->
       <div class="metrics-grid">
