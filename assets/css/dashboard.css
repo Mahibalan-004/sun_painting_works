@@ -1,0 +1,491 @@
+/* ============================================================
+   SUN PAINTING WORKS - DASHBOARD STYLESHEET
+   Admin & User Portal Layout, Cards, Tables & Badges
+   ============================================================ */
+
+.app-wrapper {
+  display: flex;
+  min-height: 100vh;
+  background-color: var(--bg-primary);
+}
+
+/* ================= Sidebar Navigation ================= */
+.sidebar {
+  width: 270px;
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border-gold);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 100;
+  transition: var(--transition);
+}
+
+.sidebar-header {
+  padding: 25px 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.sidebar-logo {
+  height: 40px;
+  width: auto;
+}
+
+.sidebar-brand-name {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--gold-primary);
+  letter-spacing: 0.5px;
+}
+
+.sidebar-role-badge {
+  display: inline-block;
+  font-size: 0.65rem;
+  padding: 2px 8px;
+  background: rgba(212, 175, 55, 0.15);
+  color: var(--gold-light);
+  border-radius: var(--radius-sm);
+  text-transform: uppercase;
+}
+
+.sidebar-menu {
+  padding: 20px 0;
+  list-style: none;
+  flex-grow: 1;
+  overflow-y: auto;
+}
+
+.sidebar-menu-category {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--silver-dark);
+  padding: 15px 25px 5px;
+}
+
+.sidebar-item a {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 14px 25px;
+  color: var(--silver-primary);
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.95rem;
+  transition: var(--transition);
+  border-left: 3px solid transparent;
+}
+
+.sidebar-item a i {
+  font-size: 1.1rem;
+  color: var(--text-muted);
+  width: 22px;
+  text-align: center;
+  transition: var(--transition);
+}
+
+.sidebar-item a:hover {
+  background: rgba(255, 255, 255, 0.04);
+  color: #FFF;
+}
+
+.sidebar-item a:hover i {
+  color: var(--gold-primary);
+}
+
+.sidebar-item.active a {
+  background: rgba(212, 175, 55, 0.12);
+  color: var(--gold-primary);
+  border-left-color: var(--gold-primary);
+  font-weight: 700;
+}
+
+.sidebar-item.active a i {
+  color: var(--gold-primary);
+}
+
+/* ================= Main Content Area ================= */
+.main-content {
+  margin-left: 270px;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.top-bar {
+  height: 75px;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-light);
+  padding: 0 30px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.top-bar-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+.user-profile-menu {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.user-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: var(--radius-full);
+  background: linear-gradient(135deg, var(--gold-primary), var(--gold-dark));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  color: var(--text-dark);
+}
+
+.content-body {
+  padding: 30px;
+  flex-grow: 1;
+}
+
+/* ================= Stat Cards Grid ================= */
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 22px;
+  margin-bottom: 35px;
+}
+
+.metric-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  padding: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: var(--transition);
+  position: relative;
+  overflow: hidden;
+}
+
+.metric-card:hover {
+  border-color: var(--border-gold);
+  transform: translateY(-4px);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+}
+
+.metric-info .metric-value {
+  font-size: 1.9rem;
+  font-weight: 800;
+  margin-top: 5px;
+}
+
+.metric-info .metric-label {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.metric-icon-box {
+  width: 54px;
+  height: 54px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+}
+
+.metric-icon-gold {
+  background: rgba(212, 175, 55, 0.15);
+  color: var(--gold-primary);
+  border: 1px solid var(--border-gold);
+}
+
+.metric-icon-silver {
+  background: rgba(192, 192, 192, 0.15);
+  color: var(--silver-light);
+  border: 1px solid rgba(192, 192, 192, 0.3);
+}
+
+.metric-icon-green {
+  background: rgba(46, 204, 113, 0.15);
+  color: #2ECC71;
+  border: 1px solid rgba(46, 204, 113, 0.3);
+}
+
+.metric-icon-red {
+  background: rgba(231, 76, 60, 0.15);
+  color: #E74C3C;
+  border: 1px solid rgba(231, 76, 60, 0.3);
+}
+
+/* ================= Status Badges ================= */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  border-radius: var(--radius-full);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Car Work Statuses */
+.badge-status-New { background: rgba(52, 152, 219, 0.2); color: #3498DB; border: 1px solid #3498DB; }
+.badge-status-Inspection { background: rgba(155, 89, 182, 0.2); color: #9B59B6; border: 1px solid #9B59B6; }
+.badge-status-Denting { background: rgba(230, 126, 34, 0.2); color: #E67E22; border: 1px solid #E67E22; }
+.badge-status-Painting { background: rgba(241, 196, 15, 0.2); color: #F1C40F; border: 1px solid #F1C40F; }
+.badge-status-Polishing { background: rgba(26, 188, 156, 0.2); color: #1ABC9C; border: 1px solid #1ABC9C; }
+.badge-status-Extra\ Work { background: rgba(231, 76, 60, 0.2); color: #E74C3C; border: 1px solid #E74C3C; }
+.badge-status-Completed { background: rgba(46, 204, 113, 0.2); color: #2ECC71; border: 1px solid #2ECC71; }
+.badge-status-Delivered { background: rgba(212, 175, 55, 0.25); color: #FFD700; border: 1px solid #D4AF37; }
+
+/* Payment Statuses */
+.badge-pay-Paid { background: rgba(46, 204, 113, 0.2); color: #2ECC71; border: 1px solid #2ECC71; }
+.badge-pay-Partial { background: rgba(241, 196, 15, 0.2); color: #F1C40F; border: 1px solid #F1C40F; }
+.badge-pay-Pending { background: rgba(231, 76, 60, 0.2); color: #E74C3C; border: 1px solid #E74C3C; }
+
+/* Attendance Statuses */
+.badge-att-Present { background: rgba(46, 204, 113, 0.2); color: #2ECC71; }
+.badge-att-Absent { background: rgba(231, 76, 60, 0.2); color: #E74C3C; }
+.badge-att-Half\ Day { background: rgba(241, 196, 15, 0.2); color: #F1C40F; }
+.badge-att-Leave { background: rgba(52, 152, 219, 0.2); color: #3498DB; }
+
+/* User Status */
+.badge-Active { background: rgba(46, 204, 113, 0.2); color: #2ECC71; }
+.badge-Inactive { background: rgba(149, 165, 166, 0.2); color: #95A5A6; }
+
+/* ================= Custom Tables ================= */
+.card-box {
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  padding: 25px;
+  margin-bottom: 30px;
+}
+
+.card-box-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 25px;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.card-box-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.custom-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.custom-table th {
+  padding: 16px 18px;
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--silver-light);
+  font-weight: 700;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid var(--border-gold);
+}
+
+.custom-table td {
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--border-light);
+  font-size: 0.95rem;
+  color: var(--text-main);
+  vertical-align: middle;
+}
+
+.custom-table tbody tr {
+  transition: var(--transition);
+}
+
+.custom-table tbody tr:hover {
+  background: rgba(212, 175, 55, 0.04);
+}
+
+/* ================= Form Controls ================= */
+.form-group {
+  margin-bottom: 22px;
+}
+
+.form-label {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: var(--silver-light);
+}
+
+.form-control {
+  width: 100%;
+  padding: 12px 16px;
+  background: rgba(10, 11, 14, 0.8);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-sm);
+  color: var(--text-main);
+  font-family: inherit;
+  font-size: 0.95rem;
+  transition: var(--transition);
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: var(--gold-primary);
+  box-shadow: 0 0 10px var(--gold-glow);
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+}
+
+/* Photo Upload Box & Previews */
+.upload-dropzone {
+  border: 2px dashed var(--border-gold);
+  border-radius: var(--radius-md);
+  padding: 30px;
+  text-align: center;
+  background: rgba(212, 175, 55, 0.03);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.upload-dropzone:hover {
+  background: rgba(212, 175, 55, 0.08);
+  border-color: var(--gold-light);
+}
+
+.preview-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 15px;
+  margin-top: 15px;
+}
+
+.preview-item {
+  position: relative;
+  height: 100px;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  border: 1px solid var(--border-gold);
+}
+
+.preview-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.preview-remove-btn {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background: rgba(231, 76, 60, 0.9);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+}
+
+/* Work History Timeline */
+.timeline {
+  position: relative;
+  padding-left: 30px;
+  margin-top: 20px;
+}
+
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 10px;
+  top: 5px;
+  bottom: 5px;
+  width: 2px;
+  background: var(--border-gold);
+}
+
+.timeline-item {
+  position: relative;
+  margin-bottom: 25px;
+}
+
+.timeline-marker {
+  position: absolute;
+  left: -30px;
+  top: 3px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--gold-primary);
+  border: 3px solid var(--bg-card);
+  box-shadow: 0 0 10px var(--gold-glow);
+}
+
+.timeline-content {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-sm);
+  padding: 15px 20px;
+}
+
+.timeline-date {
+  font-size: 0.8rem;
+  color: var(--gold-primary);
+  font-weight: 600;
+}
+
+.timeline-title {
+  font-weight: 700;
+  font-size: 1rem;
+  margin: 4px 0;
+}
+
+/* Mobile Sidebar Responsiveness */
+@media (max-width: 992px) {
+  .sidebar {
+    left: -270px;
+  }
+  .sidebar.mobile-open {
+    left: 0;
+  }
+  .main-content {
+    margin-left: 0;
+  }
+}
