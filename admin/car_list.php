@@ -5,6 +5,7 @@ require_once __DIR__ . '/../includes/admin_auth.php';
 $search = trim($_GET['search'] ?? '');
 $statusFilter = trim($_GET['status'] ?? '');
 $paymentFilter = trim($_GET['payment'] ?? '');
+$typeFilter = trim($_GET['type'] ?? '');
 $dateFilter = trim($_GET['date'] ?? '');
 
 $page = max(1, (int)($_GET['page'] ?? 1));
@@ -16,13 +17,11 @@ $where = ["1=1"];
 $params = [];
 
 if (!empty($search)) {
-    $where[] = "(c.customer_id LIKE ? OR cust.customer_no LIKE ? OR cust.customer_name LIKE ? OR c.car_number LIKE ? OR c.car_name LIKE ?)";
+    $where[] = "(c.customer_id LIKE ? OR cust.customer_no LIKE ? OR cust.customer_name LIKE ? OR c.car_number LIKE ? OR c.car_name LIKE ? OR c.workshop_name LIKE ? OR c.mechanic_name LIKE ? OR c.mechanic_contact LIKE ? OR c.customer_contact LIKE ?)";
     $searchTerm = "%{$search}%";
-    $params[] = $searchTerm;
-    $params[] = $searchTerm;
-    $params[] = $searchTerm;
-    $params[] = $searchTerm;
-    $params[] = $searchTerm;
+    for ($i = 0; $i < 9; $i++) {
+        $params[] = $searchTerm;
+    }
 }
 
 if (!empty($statusFilter)) {
@@ -33,6 +32,14 @@ if (!empty($statusFilter)) {
 if (!empty($paymentFilter)) {
     $where[] = "c.payment_status = ?";
     $params[] = $paymentFilter;
+}
+
+if (!empty($typeFilter)) {
+    if ($typeFilter === 'Mechanic') {
+        $where[] = "c.is_mechanic_vehicle = 'Yes'";
+    } elseif ($typeFilter === 'Customer') {
+        $where[] = "c.is_mechanic_vehicle = 'No'";
+    }
 }
 
 if (!empty($dateFilter)) {
@@ -97,6 +104,9 @@ $cars = $stmt->fetchAll();
       <li class="sidebar-item active">
         <a href="car_list.php"><i class="fa-solid fa-list-check"></i> Car List</a>
       </li>
+      <li class="sidebar-item">
+        <a href="mechanics.php"><i class="fa-solid fa-screwdriver-wrench"></i> Mechanics & Workshops</a>
+      </li>
       
       <li class="sidebar-menu-category">Management</li>
       <li class="sidebar-item">
@@ -146,6 +156,15 @@ $cars = $stmt->fetchAll();
             </select>
           </div>
 
+          <div style="flex: 1; min-width: 150px;">
+            <label class="form-label" style="font-size: 0.8rem;">Vehicle Type / Source</label>
+            <select name="type" class="form-control">
+              <option value="">All Vehicles</option>
+              <option value="Mechanic" <?php echo $typeFilter === 'Mechanic' ? 'selected' : ''; ?>>Mechanic / Workshop Only</option>
+              <option value="Customer" <?php echo $typeFilter === 'Customer' ? 'selected' : ''; ?>>Customer Direct Only</option>
+            </select>
+          </div>
+
           <div style="flex: 1; min-width: 140px;">
             <label class="form-label" style="font-size: 0.8rem;">Payment Status</label>
             <select name="payment" class="form-control">
@@ -156,7 +175,7 @@ $cars = $stmt->fetchAll();
             </select>
           </div>
 
-          <div style="flex: 1; min-width: 140px;">
+          <div style="flex: 1; min-width: 130px;">
             <label class="form-label" style="font-size: 0.8rem;">Date</label>
             <input type="date" name="date" class="form-control" value="<?php echo e($dateFilter); ?>">
           </div>
@@ -183,12 +202,12 @@ $cars = $stmt->fetchAll();
               <tr>
                 <th>Customer ID</th>
                 <th>Customer No</th>
-                <th>Customer Name</th>
+                <th>Customer / Workshop</th>
                 <th>Car Number</th>
                 <th>Car Name</th>
                 <th>Total Amount</th>
-                <th>Final Amount</th>
-                <th>Balance</th>
+                <th>Advance / Paid</th>
+                <th>Balance Due</th>
                 <th>Status</th>
                 <th>Date</th>
                 <th>Actions</th>
@@ -205,11 +224,25 @@ $cars = $stmt->fetchAll();
                     <!-- REQUIRED COLUMNS FIRST -->
                     <td style="font-weight: 800; color: var(--gold-primary);"><?php echo e($c['customer_id']); ?></td>
                     <td style="font-weight: 600;"><?php echo e($c['customer_no']); ?></td>
-                    <td><?php echo e($c['customer_name']); ?></td>
+                    <td>
+                      <div style="font-weight: 700;"><?php echo e($c['customer_name']); ?></div>
+                      <?php if (($c['is_mechanic_vehicle'] ?? 'No') === 'Yes'): ?>
+                        <div style="margin-top: 4px;">
+                          <span class="badge" style="background: rgba(212,175,55,0.2); border: 1px solid var(--gold-primary); color: var(--gold-primary); font-size: 0.7rem; padding: 2px 6px;">
+                            <i class="fa-solid fa-screwdriver-wrench"></i> <?php echo e($c['workshop_name'] ?: ($c['mechanic_name'] ?: 'Mechanic')); ?>
+                          </span>
+                        </div>
+                        <?php if (!empty($c['mechanic_given_amount']) && $c['mechanic_given_amount'] > 0): ?>
+                          <div style="font-size: 0.72rem; color: var(--gold-light); margin-top: 2px;">
+                            Given to Mech: <strong><?php echo formatRupee($c['mechanic_given_amount']); ?></strong>
+                          </div>
+                        <?php endif; ?>
+                      <?php endif; ?>
+                    </td>
                     <td style="font-weight: 800;"><?php echo e($c['car_number']); ?></td>
                     <td><?php echo e($c['car_name']); ?> <small style="color: var(--text-muted);">(<?php echo e($c['car_color']); ?>)</small></td>
                     <td style="font-weight: 700; color: var(--gold-light);"><?php echo formatRupee($c['total_amount']); ?></td>
-                    <td style="font-weight: 700; color: #2ECC71;"><?php echo formatRupee($c['final_amount']); ?></td>
+                    <td style="font-weight: 700; color: #2ECC71;"><?php echo formatRupee($c['advance_amount'] > 0 ? $c['advance_amount'] : $c['final_amount']); ?></td>
                     <td style="font-weight: 700; color: #E74C3C;"><?php echo formatRupee($c['balance_amount']); ?></td>
                     <td>
                       <span class="badge badge-status-<?php echo e($c['status']); ?>"><?php echo e($c['status']); ?></span>

@@ -22,16 +22,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $new_status = $_POST['status'] ?? '';
         $work_remarks = trim($_POST['work_remarks'] ?? '');
         
-        $estimate_amount = (float)($_POST['estimate_amount'] ?? 0);
-        $final_amount = (float)($_POST['final_amount'] ?? 0);
+        $is_mechanic_vehicle = trim($_POST['is_mechanic_vehicle'] ?? 'No');
+        $mechanic_name       = trim($_POST['mechanic_name'] ?? '');
+        $workshop_name       = trim($_POST['workshop_name'] ?? '');
+        $mechanic_contact    = trim($_POST['mechanic_contact'] ?? '');
+        $mechanic_location   = trim($_POST['mechanic_location'] ?? '');
+        $customer_contact    = trim($_POST['customer_contact'] ?? '');
+
+        $estimate_amount        = (float)($_POST['estimate_amount'] ?? 0);
+        $advance_amount         = isset($_POST['advance_amount']) ? (float)$_POST['advance_amount'] : (float)($_POST['final_amount'] ?? 0);
+        $final_amount           = $advance_amount;
+
+        $mechanic_total_amount  = (float)($_POST['mechanic_total_amount'] ?? 0);
+        $mechanic_given_amount  = (float)($_POST['mechanic_given_amount'] ?? 0);
+        $mechanic_balance_amount= max(0, $mechanic_total_amount - $mechanic_given_amount);
 
         // Fetch current status
         $curCar = $pdo->prepare("SELECT status FROM cars WHERE id = ?");
         $curCar->execute([$car_id]);
         $old_status = $curCar->fetchColumn();
 
-        $updateStmt = $pdo->prepare("UPDATE cars SET car_number = ?, car_name = ?, car_color = ?, status = ?, estimate_amount = ?, final_amount = ? WHERE id = ?");
-        $updateStmt->execute([$car_number, $car_name, $car_color, $new_status, $estimate_amount, $final_amount, $car_id]);
+        $updateStmt = $pdo->prepare("UPDATE cars SET 
+            car_number = ?, car_name = ?, car_color = ?, status = ?, 
+            is_mechanic_vehicle = ?, mechanic_name = ?, workshop_name = ?, mechanic_contact = ?, mechanic_location = ?, customer_contact = ?,
+            estimate_amount = ?, advance_amount = ?, final_amount = ?, 
+            mechanic_total_amount = ?, mechanic_given_amount = ?, mechanic_balance_amount = ? 
+            WHERE id = ?");
+        $updateStmt->execute([
+            $car_number, $car_name, $car_color, $new_status,
+            $is_mechanic_vehicle, $mechanic_name, $workshop_name, $mechanic_contact, $mechanic_location, $customer_contact,
+            $estimate_amount, $advance_amount, $final_amount,
+            $mechanic_total_amount, $mechanic_given_amount, $mechanic_balance_amount,
+            $car_id
+        ]);
 
         // If status changed or remarks provided, add to work history
         if ($new_status !== $old_status || !empty($work_remarks)) {
@@ -187,8 +210,11 @@ $workHistory = $stmtHistory->fetchAll();
       <li class="sidebar-item">
         <a href="add_car.php"><i class="fa-solid fa-car-tunnel"></i> Add Car / Job</a>
       </li>
-      <li class="sidebar-item active">
+      <li class="sidebar-item">
         <a href="car_list.php"><i class="fa-solid fa-list-check"></i> Car List</a>
+      </li>
+      <li class="sidebar-item">
+        <a href="mechanics.php"><i class="fa-solid fa-screwdriver-wrench"></i> Mechanics & Workshops</a>
       </li>
       
       <li class="sidebar-menu-category">Management</li>
@@ -240,7 +266,14 @@ $workHistory = $stmtHistory->fetchAll();
         <div class="card-box">
           <div class="card-box-header">
             <div class="card-box-title"><i class="fa-solid fa-car text-gold"></i> Customer & Car Information</div>
-            <span class="badge badge-status-<?php echo e($car['status']); ?>"><?php echo e($car['status']); ?></span>
+            <div style="display: flex; gap: 10px; align-items: center;">
+              <?php if (($car['is_mechanic_vehicle'] ?? 'No') === 'Yes'): ?>
+                <span class="badge" style="background: rgba(212,175,55,0.2); border: 1px solid var(--gold-primary); color: var(--gold-primary); font-weight: 700; padding: 6px 12px;">
+                  <i class="fa-solid fa-screwdriver-wrench"></i> MECHANIC VEHICLE: <?php echo e($car['workshop_name'] ?: ($car['mechanic_name'] ?: 'Mechanic')); ?>
+                </span>
+              <?php endif; ?>
+              <span class="badge badge-status-<?php echo e($car['status']); ?>"><?php echo e($car['status']); ?></span>
+            </div>
           </div>
 
           <div class="form-row">
@@ -287,7 +320,63 @@ $workHistory = $stmtHistory->fetchAll();
             </div>
           </div>
 
-          <div class="form-row">
+          <!-- Vehicle Classification Toggle -->
+          <div class="form-row" style="margin-top: 15px; padding-top: 15px; border-top: 1px dashed var(--border-light);">
+            <div class="form-group" style="flex: 1 1 100%;">
+              <label class="form-label" style="font-weight: 700; color: var(--gold-light);">
+                <i class="fa-solid fa-wrench"></i> Vehicle Source / Classification:
+              </label>
+              <div style="display: flex; gap: 20px; margin-top: 8px; flex-wrap: wrap;">
+                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; background: rgba(255,255,255,0.05); padding: 10px 20px; border-radius: var(--radius-sm); border: 1px solid var(--border-light);">
+                  <input type="radio" name="is_mechanic_vehicle" value="No" <?php echo ($car['is_mechanic_vehicle'] ?? 'No') === 'No' ? 'checked' : ''; ?> onchange="toggleMechanicSection(false)">
+                  <span><i class="fa-solid fa-user"></i> Direct Customer Vehicle</span>
+                </label>
+                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; background: rgba(212,175,55,0.1); padding: 10px 20px; border-radius: var(--radius-sm); border: 1px solid var(--border-gold); color: var(--gold-primary); font-weight: 600;">
+                  <input type="radio" name="is_mechanic_vehicle" value="Yes" <?php echo ($car['is_mechanic_vehicle'] ?? '') === 'Yes' ? 'checked' : ''; ?> onchange="toggleMechanicSection(true)">
+                  <span><i class="fa-solid fa-screwdriver-wrench"></i> Mechanic / Workshop Vehicle</span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Mechanic & Workshop Details Section -->
+          <div id="mechanic-details-box" style="display: <?php echo ($car['is_mechanic_vehicle'] ?? '') === 'Yes' ? 'block' : 'none'; ?>; margin-top: 15px; padding: 20px; border-radius: var(--radius-sm); border: 1px solid var(--border-gold); background: rgba(212, 175, 55, 0.03);">
+            <div style="font-weight: 700; color: var(--gold-primary); margin-bottom: 15px; font-size: 1rem;">
+              <i class="fa-solid fa-screwdriver-wrench"></i> Mechanic & Workshop Information
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Workshop Name</label>
+                <input type="text" name="workshop_name" class="form-control" placeholder="e.g. Sri Ram Auto Tech / Express Motors" value="<?php echo e($car['workshop_name'] ?? ''); ?>">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Mechanic Name</label>
+                <input type="text" name="mechanic_name" class="form-control" placeholder="e.g. Shanmugam Mechanic" value="<?php echo e($car['mechanic_name'] ?? ''); ?>">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Mechanic Contact Number</label>
+                <input type="text" name="mechanic_contact" class="form-control" placeholder="e.g. 9876543210" value="<?php echo e($car['mechanic_contact'] ?? ''); ?>">
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Mechanic / Workshop Location</label>
+                <input type="text" name="mechanic_location" class="form-control" placeholder="e.g. Sathyamangalam Main Road, Erode" value="<?php echo e($car['mechanic_location'] ?? ''); ?>">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Customer Contact Number (End Customer)</label>
+                <input type="text" name="customer_contact" class="form-control" placeholder="e.g. Vehicle Owner Phone Number" value="<?php echo e($car['customer_contact'] ?? ''); ?>">
+              </div>
+            </div>
+          </div>
+
+          <!-- Work Stage & Financial Inputs -->
+          <div class="form-row" style="margin-top: 15px;">
             <div class="form-group">
               <label class="form-label">Work Stage / Status *</label>
               <select name="status" class="form-control" style="border-color: var(--border-gold); font-weight: 700;">
@@ -301,23 +390,41 @@ $workHistory = $stmtHistory->fetchAll();
             </div>
 
             <div class="form-group">
-              <label class="form-label">Estimate Amount (₹)</label>
-              <input type="number" step="0.01" id="estimate_amount" name="estimate_amount" class="form-control" value="<?php echo e($car['estimate_amount']); ?>">
+              <label class="form-label">Total Vehicle Estimate Amount (₹)</label>
+              <input type="number" step="0.01" id="estimate_amount" name="estimate_amount" class="form-control" value="<?php echo e($car['estimate_amount']); ?>" oninput="calculateUpdateAmounts()">
             </div>
 
             <div class="form-group">
-              <label class="form-label">Final Amount Received (₹)</label>
-              <input type="number" step="0.01" id="final_amount" name="final_amount" class="form-control" value="<?php echo e($car['final_amount']); ?>">
+              <label class="form-label">Advance Amount Paid (₹)</label>
+              <input type="number" step="0.01" id="advance_amount" name="advance_amount" class="form-control" value="<?php echo e($car['advance_amount'] > 0 ? $car['advance_amount'] : $car['final_amount']); ?>" oninput="calculateUpdateAmounts()">
             </div>
           </div>
 
-          <div class="form-group">
+          <!-- Mechanic Financial Inputs -->
+          <div id="mechanic-financials-box" style="display: <?php echo ($car['is_mechanic_vehicle'] ?? '') === 'Yes' ? 'block' : 'none'; ?>; margin-top: 15px; padding-top: 15px; border-top: 1px dashed var(--border-gold);">
+            <div style="font-weight: 700; color: var(--gold-primary); margin-bottom: 12px; font-size: 0.95rem;">
+              <i class="fa-solid fa-coins"></i> Mechanic Financial Amounts
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Mechanic Total / Agreed Amount (₹)</label>
+                <input type="number" step="0.01" id="mechanic_total_amount" name="mechanic_total_amount" class="form-control" value="<?php echo e($car['mechanic_total_amount']); ?>" oninput="calculateUpdateAmounts()">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Given Amount to Mechanic (₹)</label>
+                <input type="number" step="0.01" id="mechanic_given_amount" name="mechanic_given_amount" class="form-control" value="<?php echo e($car['mechanic_given_amount']); ?>" oninput="calculateUpdateAmounts()">
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-top: 15px;">
             <label class="form-label">Work Progress Log Remarks (Optional)</label>
             <input type="text" name="work_remarks" class="form-control" placeholder="Add optional log entry note for this update...">
           </div>
 
-          <div style="text-align: right; margin-top: 10px;">
-            <button type="submit" class="btn btn-gold"><i class="fa-solid fa-floppy-disk"></i> SAVE CAR CHANGES</button>
+          <div style="text-align: right; margin-top: 15px;">
+            <button type="submit" class="btn btn-gold" style="padding: 12px 30px; font-size: 1rem;"><i class="fa-solid fa-floppy-disk"></i> SAVE CAR CHANGES</button>
           </div>
         </div>
       </form>
@@ -325,29 +432,43 @@ $workHistory = $stmtHistory->fetchAll();
       <!-- 2. Financial Breakdown Display -->
       <div class="card-box" style="background: rgba(212, 175, 55, 0.04); border-color: var(--border-gold);">
         <div class="card-box-header">
-          <div class="card-box-title"><i class="fa-solid fa-wallet text-gold"></i> Live Payment & Total Breakdown</div>
+          <div class="card-box-title"><i class="fa-solid fa-wallet text-gold"></i> Live Payment & Financial Summary</div>
           <span class="badge badge-pay-<?php echo e($car['payment_status']); ?>"><?php echo e($car['payment_status']); ?></span>
         </div>
 
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px; text-align: center;">
           <div style="background: var(--bg-card); padding: 15px; border-radius: var(--radius-sm); border: 1px solid var(--border-light);">
-            <div style="font-size: 0.8rem; color: var(--text-muted);">Estimate Amount</div>
-            <div style="font-size: 1.3rem; font-weight: 700; color: var(--silver-light);"><?php echo formatRupee($car['estimate_amount']); ?></div>
+            <div style="font-size: 0.8rem; color: var(--text-muted);">Vehicle Total Amount</div>
+            <div style="font-size: 1.3rem; font-weight: 700; color: var(--gold-primary);"><?php echo formatRupee($car['total_amount']); ?></div>
           </div>
 
-          <div style="background: var(--bg-card); padding: 15px; border-radius: var(--radius-sm); border: 1px solid var(--border-light);">
-            <div style="font-size: 0.8rem; color: var(--text-muted);">Extra Work Total</div>
-            <?php 
-            $exSum = 0;
-            foreach ($extraWorks as $ew) $exSum += (float)$ew['amount'];
-            ?>
-            <div style="font-size: 1.3rem; font-weight: 700; color: #E67E22;"><?php echo formatRupee($exSum); ?></div>
+          <div style="background: var(--bg-card); padding: 15px; border-radius: var(--radius-sm); border: 1px solid rgba(46,204,113,0.3);">
+            <div style="font-size: 0.8rem; color: var(--text-muted);">Advance Paid</div>
+            <div style="font-size: 1.3rem; font-weight: 700; color: #2ECC71;"><?php echo formatRupee($car['advance_amount'] > 0 ? $car['advance_amount'] : $car['final_amount']); ?></div>
           </div>
 
-          <div style="background: var(--bg-card); padding: 15px; border-radius: var(--radius-sm); border: 1px solid var(--border-gold);">
-            <div style="font-size: 0.8rem; color: var(--text-muted);">Total Amount</div>
-            <div style="font-size: 1.4rem; font-weight: 800; color: var(--gold-primary);"><?php echo formatRupee($car['total_amount']); ?></div>
+          <div style="background: var(--bg-card); padding: 15px; border-radius: var(--radius-sm); border: 1px solid rgba(231,76,60,0.3);">
+            <div style="font-size: 0.8rem; color: var(--text-muted);">Vehicle Balance Due</div>
+            <div style="font-size: 1.3rem; font-weight: 700; color: #E74C3C;"><?php echo formatRupee($car['balance_amount']); ?></div>
           </div>
+
+          <?php if (($car['is_mechanic_vehicle'] ?? 'No') === 'Yes'): ?>
+            <div style="background: var(--bg-card); padding: 15px; border-radius: var(--radius-sm); border: 1px solid var(--border-gold);">
+              <div style="font-size: 0.8rem; color: var(--text-muted);">Mechanic Total Amount</div>
+              <div style="font-size: 1.3rem; font-weight: 700; color: var(--gold-light);"><?php echo formatRupee($car['mechanic_total_amount']); ?></div>
+            </div>
+
+            <div style="background: var(--bg-card); padding: 15px; border-radius: var(--radius-sm); border: 1px solid rgba(46,204,113,0.3);">
+              <div style="font-size: 0.8rem; color: var(--text-muted);">Given to Mechanic</div>
+              <div style="font-size: 1.3rem; font-weight: 700; color: #2ECC71;"><?php echo formatRupee($car['mechanic_given_amount']); ?></div>
+            </div>
+
+            <div style="background: var(--bg-card); padding: 15px; border-radius: var(--radius-sm); border: 1px solid rgba(243,156,18,0.4);">
+              <div style="font-size: 0.8rem; color: var(--text-muted);">Mechanic Balance Payable</div>
+              <div style="font-size: 1.3rem; font-weight: 700; color: #F39C12;"><?php echo formatRupee($car['mechanic_balance_amount']); ?></div>
+            </div>
+          <?php endif; ?>
+        </div>
 
           <div style="background: var(--bg-card); padding: 15px; border-radius: var(--radius-sm); border: 1px solid rgba(46,204,113,0.3);">
             <div style="font-size: 0.8rem; color: var(--text-muted);">Final Received</div>
@@ -515,5 +636,20 @@ $workHistory = $stmtHistory->fetchAll();
 </div>
 
 <script src="../assets/js/main.js"></script>
+<script>
+function toggleMechanicSection(show) {
+  const mechDetailsBox = document.getElementById('mechanic-details-box');
+  const mechFinancialsBox = document.getElementById('mechanic-financials-box');
+  if (mechDetailsBox) mechDetailsBox.style.display = show ? 'block' : 'none';
+  if (mechFinancialsBox) mechFinancialsBox.style.display = show ? 'block' : 'none';
+}
+
+function calculateUpdateAmounts() {
+  const estimate = parseFloat(document.getElementById('estimate_amount')?.value || 0);
+  const advance = parseFloat(document.getElementById('advance_amount')?.value || 0);
+  const mechTotal = parseFloat(document.getElementById('mechanic_total_amount')?.value || 0);
+  const mechGiven = parseFloat(document.getElementById('mechanic_given_amount')?.value || 0);
+}
+</script>
 </body>
 </html>

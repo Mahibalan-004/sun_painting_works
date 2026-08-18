@@ -32,6 +32,13 @@ $totalEmployees = $pdo->query("SELECT COUNT(*) FROM users WHERE status = 'Active
 
 // Recent Car Jobs
 $recentCars = $pdo->query("SELECT c.*, cust.customer_name, cust.customer_no FROM cars c JOIN customers cust ON c.customer_id = cust.customer_id ORDER BY c.id DESC LIMIT 5")->fetchAll();
+
+// Mechanic Vehicle Metrics
+$totalMechanicVehicles = (int)$pdo->query("SELECT COUNT(*) FROM cars WHERE is_mechanic_vehicle = 'Yes'")->fetchColumn();
+$mechanicTotalsRow = $pdo->query("SELECT SUM(mechanic_total_amount) AS mech_tot, SUM(mechanic_given_amount) AS mech_giv, SUM(mechanic_balance_amount) AS mech_bal FROM cars WHERE is_mechanic_vehicle = 'Yes'")->fetch();
+$totalMechanicAmount = (float)($mechanicTotalsRow['mech_tot'] ?? 0);
+$totalMechanicGiven = (float)($mechanicTotalsRow['mech_giv'] ?? 0);
+$totalMechanicBalance = (float)($mechanicTotalsRow['mech_bal'] ?? 0);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -72,6 +79,9 @@ $recentCars = $pdo->query("SELECT c.*, cust.customer_name, cust.customer_no FROM
       </li>
       <li class="sidebar-item">
         <a href="car_list.php"><i class="fa-solid fa-list-check"></i> Car List</a>
+      </li>
+      <li class="sidebar-item">
+        <a href="mechanics.php"><i class="fa-solid fa-screwdriver-wrench"></i> Mechanics & Workshops</a>
       </li>
       
       <li class="sidebar-menu-category">Management</li>
@@ -364,6 +374,36 @@ $recentCars = $pdo->query("SELECT c.*, cust.customer_name, cust.customer_no FROM
             </div>
             <div class="metric-icon-box metric-icon-red">
               <i class="fa-solid fa-scale-unbalanced"></i>
+            </div>
+          </div>
+
+          <div class="metric-card" style="background: var(--bg-card); border-left: 3px solid var(--gold-primary);">
+            <div class="metric-info">
+              <div class="metric-label">Mechanic Vehicles Count</div>
+              <div class="metric-value" style="color: var(--gold-light);"><?php echo $totalMechanicVehicles; ?> Jobs</div>
+            </div>
+            <div class="metric-icon-box metric-icon-gold">
+              <i class="fa-solid fa-screwdriver-wrench"></i>
+            </div>
+          </div>
+
+          <div class="metric-card" style="background: var(--bg-card); border-left: 3px solid #2ECC71;">
+            <div class="metric-info">
+              <div class="metric-label">Total Given to Mechanics</div>
+              <div class="metric-value" style="color: #2ECC71;"><?php echo formatRupee($totalMechanicGiven); ?></div>
+            </div>
+            <div class="metric-icon-box metric-icon-green">
+              <i class="fa-solid fa-hand-holding-dollar"></i>
+            </div>
+          </div>
+
+          <div class="metric-card" style="background: var(--bg-card); border-left: 3px solid #F39C12;">
+            <div class="metric-info">
+              <div class="metric-label">Mechanic Balance Payable</div>
+              <div class="metric-value" style="color: #F39C12;"><?php echo formatRupee($totalMechanicBalance); ?></div>
+            </div>
+            <div class="metric-icon-box metric-icon-silver">
+              <i class="fa-solid fa-scale-balanced"></i>
             </div>
           </div>
         </div>

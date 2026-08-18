@@ -18,8 +18,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $car_name = trim($_POST['car_name'] ?? '');
     $car_color = trim($_POST['car_color'] ?? '');
     
-    $estimate_amount = isset($_POST['estimate_amount']) && $_POST['estimate_amount'] !== '' ? (float)$_POST['estimate_amount'] : 0.00;
-    $final_amount = isset($_POST['final_amount']) && $_POST['final_amount'] !== '' ? (float)$_POST['final_amount'] : 0.00;
+    // Mechanic Vehicle Fields
+    $is_mechanic_vehicle = trim($_POST['is_mechanic_vehicle'] ?? 'No');
+    $mechanic_name       = trim($_POST['mechanic_name'] ?? '');
+    $workshop_name       = trim($_POST['workshop_name'] ?? '');
+    $mechanic_contact    = trim($_POST['mechanic_contact'] ?? '');
+    $mechanic_location   = trim($_POST['mechanic_location'] ?? '');
+    $customer_contact    = trim($_POST['customer_contact'] ?? '');
+
+    // Financial Amounts
+    $estimate_amount        = isset($_POST['estimate_amount']) && $_POST['estimate_amount'] !== '' ? (float)$_POST['estimate_amount'] : 0.00;
+    $advance_amount         = isset($_POST['advance_amount']) && $_POST['advance_amount'] !== '' ? (float)$_POST['advance_amount'] : (isset($_POST['final_amount']) && $_POST['final_amount'] !== '' ? (float)$_POST['final_amount'] : 0.00);
+    $final_amount           = $advance_amount;
+    
+    $mechanic_total_amount  = isset($_POST['mechanic_total_amount']) && $_POST['mechanic_total_amount'] !== '' ? (float)$_POST['mechanic_total_amount'] : 0.00;
+    $mechanic_given_amount  = isset($_POST['mechanic_given_amount']) && $_POST['mechanic_given_amount'] !== '' ? (float)$_POST['mechanic_given_amount'] : 0.00;
+    $mechanic_balance_amount= max(0, $mechanic_total_amount - $mechanic_given_amount);
 
     if (empty($customer_id) || empty($customer_no) || empty($customer_name) || empty($car_number) || empty($car_name)) {
         $error = "Please fill in all required customer and car fields.";
@@ -39,27 +53,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             // 2. Financial Calculations
             $total_amount = $estimate_amount;
-            $balance_amount = max(0, $total_amount - $final_amount);
-            if ($final_amount >= $total_amount && $total_amount > 0) {
+            $balance_amount = max(0, $total_amount - $advance_amount);
+            if ($advance_amount >= $total_amount && $total_amount > 0) {
                 $payment_status = 'Paid';
                 $balance_amount = 0.00;
-            } elseif ($final_amount > 0) {
+            } elseif ($advance_amount > 0) {
                 $payment_status = 'Partial';
             } else {
                 $payment_status = 'Pending';
             }
 
             // 3. Insert Car Record
-            $stmtCar = $pdo->prepare("INSERT INTO cars (customer_id, car_number, car_name, car_color, estimate_amount, total_amount, final_amount, balance_amount, payment_status, status, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'New', ?)");
+            $stmtCar = $pdo->prepare("INSERT INTO cars (
+                customer_id, car_number, car_name, car_color, 
+                is_mechanic_vehicle, mechanic_name, workshop_name, mechanic_contact, mechanic_location, customer_contact,
+                estimate_amount, total_amount, final_amount, advance_amount, balance_amount, 
+                mechanic_total_amount, mechanic_given_amount, mechanic_balance_amount,
+                payment_status, status, created_by
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'New', ?)");
             $stmtCar->execute([
                 $customer_id,
                 $car_number,
                 $car_name,
                 $car_color,
+                $is_mechanic_vehicle,
+                $mechanic_name,
+                $workshop_name,
+                $mechanic_contact,
+                $mechanic_location,
+                $customer_contact,
                 $estimate_amount,
                 $total_amount,
                 $final_amount,
+                $advance_amount,
                 $balance_amount,
+                $mechanic_total_amount,
+                $mechanic_given_amount,
+                $mechanic_balance_amount,
                 $payment_status,
                 $_SESSION['user_id']
             ]);
@@ -145,6 +175,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       <li class="sidebar-item">
         <a href="car_list.php"><i class="fa-solid fa-list-check"></i> Car List</a>
       </li>
+      <li class="sidebar-item">
+        <a href="mechanics.php"><i class="fa-solid fa-screwdriver-wrench"></i> Mechanics & Workshops</a>
+      </li>
       
       <li class="sidebar-menu-category">Management</li>
       <li class="sidebar-item">
@@ -216,10 +249,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           </div>
         </div>
 
-        <!-- SECTION 2: CAR DETAILS -->
+        <!-- SECTION 2: CAR DETAILS & CLASSIFICATION -->
         <div class="card-box">
           <div class="card-box-header">
-            <div class="card-box-title"><i class="fa-solid fa-car-side text-gold"></i> 2. Vehicle Details</div>
+            <div class="card-box-title"><i class="fa-solid fa-car-side text-gold"></i> 2. Vehicle Details & Classification</div>
           </div>
 
           <div class="form-row">
@@ -238,47 +271,125 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               <input type="text" name="car_color" class="form-control" placeholder="e.g. Pearl White / Midnight Black" value="<?php echo e($_POST['car_color'] ?? ''); ?>">
             </div>
           </div>
+
+          <div class="form-row" style="margin-top: 15px; padding-top: 15px; border-top: 1px dashed var(--border-light);">
+            <div class="form-group" style="flex: 1 1 100%;">
+              <label class="form-label" style="font-weight: 700; color: var(--gold-light);">
+                <i class="fa-solid fa-wrench"></i> Vehicle Source / Type:
+              </label>
+              <div style="display: flex; gap: 20px; margin-top: 8px; flex-wrap: wrap;">
+                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; background: rgba(255,255,255,0.05); padding: 10px 20px; border-radius: var(--radius-sm); border: 1px solid var(--border-light);">
+                  <input type="radio" name="is_mechanic_vehicle" value="No" <?php echo ($_POST['is_mechanic_vehicle'] ?? 'No') === 'No' ? 'checked' : ''; ?> onchange="toggleMechanicSection(false)">
+                  <span><i class="fa-solid fa-user"></i> Direct Customer Vehicle</span>
+                </label>
+                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; background: rgba(212,175,55,0.1); padding: 10px 20px; border-radius: var(--radius-sm); border: 1px solid var(--border-gold); color: var(--gold-primary); font-weight: 600;">
+                  <input type="radio" name="is_mechanic_vehicle" value="Yes" <?php echo ($_POST['is_mechanic_vehicle'] ?? '') === 'Yes' ? 'checked' : ''; ?> onchange="toggleMechanicSection(true)">
+                  <span><i class="fa-solid fa-screwdriver-wrench"></i> Mechanic / Workshop Vehicle</span>
+                </label>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <!-- SECTION 3: WORK & FINANCIAL ESTIMATE -->
-        <div class="card-box">
+        <!-- SECTION 3: MECHANIC & WORKSHOP DETAILS -->
+        <div class="card-box" id="mechanic-details-box" style="display: <?php echo ($_POST['is_mechanic_vehicle'] ?? '') === 'Yes' ? 'block' : 'none'; ?>; border: 1px solid var(--border-gold); background: rgba(212, 175, 55, 0.03);">
           <div class="card-box-header">
-            <div class="card-box-title"><i class="fa-solid fa-calculator text-gold"></i> 3. Initial Financial Estimate</div>
+            <div class="card-box-title"><i class="fa-solid fa-screwdriver-wrench text-gold"></i> 3. Mechanic & Workshop Information</div>
           </div>
 
           <div class="form-row">
             <div class="form-group">
-              <label class="form-label">Initial Financial Estimate</label>
-              <div style="position: relative;">
-                <span style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--gold-primary); font-weight: 700; font-size: 1rem;">₹</span>
-                <input type="number" step="0.01" id="estimate_amount" name="estimate_amount" class="form-control" style="padding-left: 32px;" placeholder="0.00" value="<?php echo isset($_POST['estimate_amount']) && $_POST['estimate_amount'] !== '' ? e($_POST['estimate_amount']) : '0.00'; ?>" onfocus="if(this.value==='0.00' || this.value==='0') this.value='';" onblur="if(this.value.trim()==='') this.value='0.00';">
-              </div>
+              <label class="form-label">Workshop Name</label>
+              <input type="text" name="workshop_name" id="workshop_name" class="form-control" placeholder="e.g. Sri Ram Auto Tech / Express Motors" value="<?php echo e($_POST['workshop_name'] ?? ''); ?>">
             </div>
 
             <div class="form-group">
-              <label class="form-label">Advance / Final Amount Received</label>
-              <div style="position: relative;">
-                <span style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #2ECC71; font-weight: 700; font-size: 1rem;">₹</span>
-                <input type="number" step="0.01" id="final_amount" name="final_amount" class="form-control" style="padding-left: 32px;" placeholder="0.00" value="<?php echo isset($_POST['final_amount']) && $_POST['final_amount'] !== '' ? e($_POST['final_amount']) : '0.00'; ?>" onfocus="if(this.value==='0.00' || this.value==='0') this.value='';" onblur="if(this.value.trim()==='') this.value='0.00';">
-              </div>
+              <label class="form-label">Mechanic Name</label>
+              <input type="text" name="mechanic_name" id="mechanic_name" class="form-control" placeholder="e.g. Shanmugam Mechanic" value="<?php echo e($_POST['mechanic_name'] ?? ''); ?>">
             </div>
 
             <div class="form-group">
-              <label class="form-label">Estimated Total Amount</label>
-              <div id="calc_total_display" style="font-size: 1.4rem; font-weight: 800; color: var(--gold-primary); padding: 10px 0;">₹0.00</div>
+              <label class="form-label">Mechanic Contact Number</label>
+              <input type="text" name="mechanic_contact" id="mechanic_contact" class="form-control" placeholder="e.g. 9876543210" value="<?php echo e($_POST['mechanic_contact'] ?? ''); ?>">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Mechanic / Workshop Location</label>
+              <input type="text" name="mechanic_location" id="mechanic_location" class="form-control" placeholder="e.g. Sathyamangalam Main Road, Erode" value="<?php echo e($_POST['mechanic_location'] ?? ''); ?>">
             </div>
 
             <div class="form-group">
-              <label class="form-label">Calculated Balance Due</label>
-              <div id="calc_balance_display" style="font-size: 1.4rem; font-weight: 800; color: #E74C3C; padding: 10px 0;">₹0.00</div>
+              <label class="form-label">Customer Contact Number (End Customer)</label>
+              <input type="text" name="customer_contact" id="customer_contact" class="form-control" placeholder="e.g. Vehicle Owner Phone Number" value="<?php echo e($_POST['customer_contact'] ?? ''); ?>">
             </div>
           </div>
         </div>
 
-        <!-- SECTION 4: DAMAGE PHOTOS UPLOAD (FILE UPLOAD & CAMERA OPTIONS) -->
+        <!-- SECTION 4: WORK & FINANCIAL ESTIMATE -->
         <div class="card-box">
           <div class="card-box-header">
-            <div class="card-box-title"><i class="fa-solid fa-camera text-gold"></i> 4. Damage Photos (Upload & Camera)</div>
+            <div class="card-box-title"><i class="fa-solid fa-calculator text-gold"></i> 4. Financial Amounts & Payment Details</div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Total Vehicle Amount (Estimate)</label>
+              <div style="position: relative;">
+                <span style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--gold-primary); font-weight: 700; font-size: 1rem;">₹</span>
+                <input type="number" step="0.01" id="estimate_amount" name="estimate_amount" class="form-control" style="padding-left: 32px;" placeholder="0.00" value="<?php echo isset($_POST['estimate_amount']) && $_POST['estimate_amount'] !== '' ? e($_POST['estimate_amount']) : '0.00'; ?>" oninput="calculateVehicleAmounts()">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Advance Amount Paid</label>
+              <div style="position: relative;">
+                <span style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #2ECC71; font-weight: 700; font-size: 1rem;">₹</span>
+                <input type="number" step="0.01" id="advance_amount" name="advance_amount" class="form-control" style="padding-left: 32px;" placeholder="0.00" value="<?php echo isset($_POST['advance_amount']) && $_POST['advance_amount'] !== '' ? e($_POST['advance_amount']) : (isset($_POST['final_amount']) ? e($_POST['final_amount']) : '0.00'); ?>" oninput="calculateVehicleAmounts()">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Calculated Vehicle Balance Due</label>
+              <div id="calc_balance_display" style="font-size: 1.4rem; font-weight: 800; color: #E74C3C; padding: 10px 0;">₹0.00</div>
+            </div>
+          </div>
+
+          <!-- MECHANIC FINANCIAL BREAKDOWN -->
+          <div id="mechanic-financials-box" style="display: <?php echo ($_POST['is_mechanic_vehicle'] ?? '') === 'Yes' ? 'block' : 'none'; ?>; margin-top: 20px; padding-top: 20px; border-top: 1px dashed var(--border-gold);">
+            <div style="font-weight: 700; color: var(--gold-primary); margin-bottom: 15px; font-size: 1rem;">
+              <i class="fa-solid fa-coins"></i> Workshop / Mechanic Financial Breakdown
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Mechanic Total / Agreed Amount</label>
+                <div style="position: relative;">
+                  <span style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--gold-primary); font-weight: 700; font-size: 1rem;">₹</span>
+                  <input type="number" step="0.01" id="mechanic_total_amount" name="mechanic_total_amount" class="form-control" style="padding-left: 32px;" placeholder="0.00" value="<?php echo isset($_POST['mechanic_total_amount']) ? e($_POST['mechanic_total_amount']) : '0.00'; ?>" oninput="calculateVehicleAmounts()">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Given Amount to Mechanic</label>
+                <div style="position: relative;">
+                  <span style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #2ECC71; font-weight: 700; font-size: 1rem;">₹</span>
+                  <input type="number" step="0.01" id="mechanic_given_amount" name="mechanic_given_amount" class="form-control" style="padding-left: 32px;" placeholder="0.00" value="<?php echo isset($_POST['mechanic_given_amount']) ? e($_POST['mechanic_given_amount']) : '0.00'; ?>" oninput="calculateVehicleAmounts()">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Mechanic Balance Payable</label>
+                <div id="calc_mech_balance_display" style="font-size: 1.4rem; font-weight: 800; color: #F39C12; padding: 10px 0;">₹0.00</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECTION 5: DAMAGE PHOTOS UPLOAD -->
+        <div class="card-box">
+          <div class="card-box-header">
+            <div class="card-box-title"><i class="fa-solid fa-camera text-gold"></i> 5. Damage Photos (Upload & Camera)</div>
           </div>
 
           <div style="display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 20px;">
@@ -316,7 +427,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <script src="../assets/js/main.js"></script>
 <script>
+function toggleMechanicSection(show) {
+  const mechDetailsBox = document.getElementById('mechanic-details-box');
+  const mechFinancialsBox = document.getElementById('mechanic-financials-box');
+  if (mechDetailsBox) mechDetailsBox.style.display = show ? 'block' : 'none';
+  if (mechFinancialsBox) mechFinancialsBox.style.display = show ? 'block' : 'none';
+}
+
+function calculateVehicleAmounts() {
+  const estimate = parseFloat(document.getElementById('estimate_amount')?.value || 0);
+  const advance = parseFloat(document.getElementById('advance_amount')?.value || 0);
+  const vehicleBalance = Math.max(0, estimate - advance);
+
+  const calcBalDisp = document.getElementById('calc_balance_display');
+  if (calcBalDisp) {
+    calcBalDisp.textContent = '₹' + vehicleBalance.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  const mechTotal = parseFloat(document.getElementById('mechanic_total_amount')?.value || 0);
+  const mechGiven = parseFloat(document.getElementById('mechanic_given_amount')?.value || 0);
+  const mechBalance = Math.max(0, mechTotal - mechGiven);
+
+  const calcMechBalDisp = document.getElementById('calc_mech_balance_display');
+  if (calcMechBalDisp) {
+    calcMechBalDisp.textContent = '₹' + mechBalance.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
+  calculateVehicleAmounts();
+
   const cameraInput = document.getElementById('photo-camera-input');
   const uploadInput = document.getElementById('photo-upload-input');
   const previewGallery = document.getElementById('preview-gallery');

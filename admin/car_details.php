@@ -85,6 +85,9 @@ $workHistory = $stmtHistory->fetchAll();
       <li class="sidebar-item active">
         <a href="car_list.php"><i class="fa-solid fa-list-check"></i> Car List</a>
       </li>
+      <li class="sidebar-item">
+        <a href="mechanics.php"><i class="fa-solid fa-screwdriver-wrench"></i> Mechanics & Workshops</a>
+      </li>
       
       <li class="sidebar-menu-category">Management</li>
       <li class="sidebar-item">
@@ -134,14 +137,17 @@ $workHistory = $stmtHistory->fetchAll();
           </div>
         </div>
 
-        <!-- Customer & Car Two-Column Grid -->
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 30px;">
+        <!-- Customer, Vehicle & Mechanic Grid -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-bottom: 30px;">
           <div style="background: rgba(255,255,255,0.02); padding: 20px; border-radius: var(--radius-sm); border: 1px solid var(--border-light);">
             <h4 style="color: var(--gold-primary); margin-bottom: 12px; border-bottom: 1px solid var(--border-light); padding-bottom: 6px;"><i class="fa-solid fa-user"></i> Customer Information</h4>
             <table style="width: 100%; font-size: 0.95rem; line-height: 1.8;">
               <tr><td style="color: var(--text-muted); width: 40%;">Customer ID:</td><td style="font-weight: 700; color: var(--gold-light);"><?php echo e($car['customer_id']); ?></td></tr>
               <tr><td style="color: var(--text-muted);">Customer Name:</td><td style="font-weight: 700;"><?php echo e($car['customer_name']); ?></td></tr>
               <tr><td style="color: var(--text-muted);">Phone Number:</td><td style="font-weight: 700;"><?php echo e($car['customer_no']); ?></td></tr>
+              <?php if (!empty($car['customer_contact'])): ?>
+                <tr><td style="color: var(--text-muted);">Direct Contact:</td><td style="font-weight: 700; color: var(--gold-light);"><?php echo e($car['customer_contact']); ?></td></tr>
+              <?php endif; ?>
               <?php if (!empty($car['alternate_phone'])): ?>
                 <tr><td style="color: var(--text-muted);">Alt Phone:</td><td><?php echo e($car['alternate_phone']); ?></td></tr>
               <?php endif; ?>
@@ -158,8 +164,27 @@ $workHistory = $stmtHistory->fetchAll();
               <tr><td style="color: var(--text-muted);">Vehicle Model:</td><td style="font-weight: 700;"><?php echo e($car['car_name']); ?></td></tr>
               <tr><td style="color: var(--text-muted);">Color:</td><td><?php echo e($car['car_color']); ?></td></tr>
               <tr><td style="color: var(--text-muted);">Current Status:</td><td><span class="badge badge-status-<?php echo e($car['status']); ?>"><?php echo e($car['status']); ?></span></td></tr>
+              <tr><td style="color: var(--text-muted);">Type:</td><td>
+                <?php if (($car['is_mechanic_vehicle'] ?? 'No') === 'Yes'): ?>
+                  <span class="badge" style="background: rgba(212,175,55,0.2); border: 1px solid var(--gold-primary); color: var(--gold-primary); font-weight: 700;">MECHANIC VEHICLE</span>
+                <?php else: ?>
+                  <span class="badge" style="background: rgba(255,255,255,0.1); color: var(--text-main);">CUSTOMER VEHICLE</span>
+                <?php endif; ?>
+              </td></tr>
             </table>
           </div>
+
+          <?php if (($car['is_mechanic_vehicle'] ?? 'No') === 'Yes'): ?>
+            <div style="background: rgba(212, 175, 55, 0.05); padding: 20px; border-radius: var(--radius-sm); border: 1px solid var(--border-gold);">
+              <h4 style="color: var(--gold-primary); margin-bottom: 12px; border-bottom: 1px solid var(--border-gold); padding-bottom: 6px;"><i class="fa-solid fa-screwdriver-wrench"></i> Mechanic / Workshop Info</h4>
+              <table style="width: 100%; font-size: 0.95rem; line-height: 1.8;">
+                <tr><td style="color: var(--text-muted); width: 45%;">Workshop:</td><td style="font-weight: 800; color: var(--gold-light);"><?php echo e($car['workshop_name'] ?: 'N/A'); ?></td></tr>
+                <tr><td style="color: var(--text-muted);">Mechanic:</td><td style="font-weight: 700;"><?php echo e($car['mechanic_name'] ?: 'N/A'); ?></td></tr>
+                <tr><td style="color: var(--text-muted);">Contact No:</td><td style="font-weight: 700;"><?php echo e($car['mechanic_contact'] ?: 'N/A'); ?></td></tr>
+                <tr><td style="color: var(--text-muted);">Location:</td><td><?php echo e($car['mechanic_location'] ?: 'N/A'); ?></td></tr>
+              </table>
+            </div>
+          <?php endif; ?>
         </div>
 
         <!-- Extra Work & Financial Table -->
@@ -184,17 +209,32 @@ $workHistory = $stmtHistory->fetchAll();
                 </tr>
               <?php endforeach; ?>
               <tr style="background: rgba(212, 175, 55, 0.08); font-size: 1.1rem;">
-                <td style="font-weight: 800; color: var(--gold-primary);">TOTAL AMOUNT</td>
+                <td style="font-weight: 800; color: var(--gold-primary);">TOTAL VEHICLE AMOUNT</td>
                 <td style="text-align: right; font-weight: 800; color: var(--gold-primary);"><?php echo formatRupee($car['total_amount']); ?></td>
               </tr>
               <tr>
-                <td style="font-weight: 700; color: #2ECC71;">Final Amount Received / Paid</td>
-                <td style="text-align: right; font-weight: 800; color: #2ECC71;"><?php echo formatRupee($car['final_amount']); ?></td>
+                <td style="font-weight: 700; color: #2ECC71;">Advance Amount Paid</td>
+                <td style="text-align: right; font-weight: 800; color: #2ECC71;"><?php echo formatRupee($car['advance_amount'] > 0 ? $car['advance_amount'] : $car['final_amount']); ?></td>
               </tr>
               <tr style="font-size: 1.1rem;">
-                <td style="font-weight: 800; color: #E74C3C;">BALANCE DUE AMOUNT</td>
+                <td style="font-weight: 800; color: #E74C3C;">VEHICLE BALANCE DUE</td>
                 <td style="text-align: right; font-weight: 800; color: #E74C3C;"><?php echo formatRupee($car['balance_amount']); ?></td>
               </tr>
+
+              <?php if (($car['is_mechanic_vehicle'] ?? 'No') === 'Yes'): ?>
+                <tr style="border-top: 2px dashed var(--border-gold); background: rgba(212, 175, 55, 0.03);">
+                  <td style="font-weight: 700; color: var(--gold-light);"><i class="fa-solid fa-wrench"></i> Mechanic Total / Agreed Amount</td>
+                  <td style="text-align: right; font-weight: 800; color: var(--gold-light);"><?php echo formatRupee($car['mechanic_total_amount']); ?></td>
+                </tr>
+                <tr style="background: rgba(46, 204, 113, 0.03);">
+                  <td style="font-weight: 700; color: #2ECC71;"><i class="fa-solid fa-hand-holding-dollar"></i> Given Amount to Mechanic</td>
+                  <td style="text-align: right; font-weight: 800; color: #2ECC71;"><?php echo formatRupee($car['mechanic_given_amount']); ?></td>
+                </tr>
+                <tr style="background: rgba(243, 156, 18, 0.05); font-size: 1.05rem;">
+                  <td style="font-weight: 800; color: #F39C12;"><i class="fa-solid fa-scale-balanced"></i> MECHANIC BALANCE PAYABLE</td>
+                  <td style="text-align: right; font-weight: 800; color: #F39C12;"><?php echo formatRupee($car['mechanic_balance_amount']); ?></td>
+                </tr>
+              <?php endif; ?>
             </tbody>
           </table>
         </div>

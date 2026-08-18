@@ -94,14 +94,19 @@ function logWorkHistory($pdo, $car_id, $status, $description = '', $updated_by =
  * Recalculate Car Financial Amounts (Estimate + Extra Work = Total, Balance = Total - Final Amount)
  */
 function recalculateCarAmounts($pdo, $car_id) {
-    // Get car estimate & final_amount
-    $stmt = $pdo->prepare("SELECT estimate_amount, final_amount FROM cars WHERE id = ?");
+    // Get car estimate, final_amount, advance & mechanic amounts
+    $stmt = $pdo->prepare("SELECT estimate_amount, final_amount, advance_amount, mechanic_total_amount, mechanic_given_amount FROM cars WHERE id = ?");
     $stmt->execute([$car_id]);
     $car = $stmt->fetch();
     if (!$car) return;
 
     $estimate = (float)$car['estimate_amount'];
     $final_amount = (float)$car['final_amount'];
+    $advance_amount = (float)($car['advance_amount'] > 0 ? $car['advance_amount'] : $final_amount);
+
+    $mech_total = (float)($car['mechanic_total_amount'] ?? 0);
+    $mech_given = (float)($car['mechanic_given_amount'] ?? 0);
+    $mech_balance = max(0, $mech_total - $mech_given);
 
     // Get total extra work amount
     $stmtExtra = $pdo->prepare("SELECT SUM(amount) AS extra_total FROM extra_work WHERE car_id = ?");
@@ -121,6 +126,6 @@ function recalculateCarAmounts($pdo, $car_id) {
         $payment_status = 'Pending';
     }
 
-    $updateStmt = $pdo->prepare("UPDATE cars SET total_amount = ?, balance_amount = ?, payment_status = ? WHERE id = ?");
-    $updateStmt->execute([$total_amount, $balance_amount, $payment_status, $car_id]);
+    $updateStmt = $pdo->prepare("UPDATE cars SET total_amount = ?, advance_amount = ?, balance_amount = ?, mechanic_balance_amount = ?, payment_status = ? WHERE id = ?");
+    $updateStmt->execute([$total_amount, $advance_amount, $balance_amount, $mech_balance, $payment_status, $car_id]);
 }

@@ -122,6 +122,9 @@ $users = $pdo->query("SELECT * FROM users ORDER BY id DESC")->fetchAll();
       <li class="sidebar-item">
         <a href="car_list.php"><i class="fa-solid fa-list-check"></i> Car List</a>
       </li>
+      <li class="sidebar-item">
+        <a href="mechanics.php"><i class="fa-solid fa-screwdriver-wrench"></i> Mechanics & Workshops</a>
+      </li>
       
       <li class="sidebar-menu-category">Management</li>
       <li class="sidebar-item active">
