@@ -6,27 +6,7 @@ $today = date('Y-m-d');
 $error = '';
 $success = '';
 
-// Handle Attendance Punch In / Punch Out
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $action = $_POST['action'] ?? '';
-    $nowTime = date('H:i:s');
-
-    if ($action === 'punch_in') {
-        $ins = $pdo->prepare("INSERT INTO attendance (user_id, attendance_date, login_time, status, remarks) 
-                              VALUES (?, ?, ?, 'Present', 'Self Punch-In') 
-                              ON DUPLICATE KEY UPDATE login_time = IFNULL(login_time, VALUES(login_time)), status = 'Present'");
-        $ins->execute([$userId, $today, $nowTime]);
-        $success = "Punched IN successfully at " . date('h:i A');
-    }
-
-    if ($action === 'punch_out') {
-        $upd = $pdo->prepare("UPDATE attendance SET logout_time = ? WHERE user_id = ? AND attendance_date = ?");
-        $upd->execute([$nowTime, $userId, $today]);
-        $success = "Punched OUT successfully at " . date('h:i A');
-    }
-}
-
-// Fetch Today's Attendance for Current User
+// Fetch Today's Attendance for Current User (Marked by Admin)
 $attTodayStmt = $pdo->prepare("SELECT * FROM attendance WHERE user_id = ? AND attendance_date = ?");
 $attTodayStmt->execute([$userId, $today]);
 $myTodayAtt = $attTodayStmt->fetch();
@@ -71,9 +51,9 @@ $completedCarsCount = $pdo->query("SELECT COUNT(*) FROM cars WHERE status IN ('C
       <li class="sidebar-item">
         <a href="work.php"><i class="fa-solid fa-spray-can"></i> Car Work</a>
       </li>
-      <!-- <li class="sidebar-item">
+      <li class="sidebar-item">
         <a href="attendance.php"><i class="fa-solid fa-calendar-check"></i> My Attendance</a>
-      </li> -->
+      </li>
       <li class="sidebar-item">
         <a href="profile.php"><i class="fa-solid fa-user-circle"></i> My Profile</a>
       </li>
@@ -96,7 +76,7 @@ $completedCarsCount = $pdo->query("SELECT COUNT(*) FROM cars WHERE status IN ('C
         <div class="user-avatar"><?php echo strtoupper(substr($_SESSION['user_name'], 0, 2)); ?></div>
         <div>
           <div style="font-weight: 700; font-size: 0.95rem;"><?php echo e($_SESSION['user_name']); ?></div>
-          <div style="font-size: 0.75rem; color: var(--silver-light);">Workshop Technician</div>
+          <div style="font-size: 0.75rem; color: var(--silver-primary);">Workshop Technician</div>
         </div>
       </div>
     </header>
@@ -104,53 +84,43 @@ $completedCarsCount = $pdo->query("SELECT COUNT(*) FROM cars WHERE status IN ('C
     <div class="content-body">
 
       <?php if (!empty($success)): ?>
-        <div style="background: rgba(46, 204, 113, 0.15); border: 1px solid #2ECC71; color: #2ECC71; padding: 14px; border-radius: var(--radius-sm); margin-bottom: 25px;">
+        <div style="background: rgba(46, 204, 113, 0.12); border: 1px solid #2ECC71; color: #27AE60; padding: 14px; border-radius: var(--radius-sm); margin-bottom: 25px;">
           <i class="fa-solid fa-circle-check"></i> <?php echo e($success); ?>
         </div>
       <?php endif; ?>
 
-      <!-- Attendance Punch Card -->
-      <!-- <div class="card-box" style="background: radial-gradient(circle at top right, rgba(212, 175, 55, 0.1), var(--bg-card)); border-color: var(--border-gold);">
+      <!-- Attendance Status Card (Read-only view marked by Admin) -->
+      <div class="card-box" style="background: radial-gradient(circle at top right, rgba(212, 175, 55, 0.08), #FFFFFF); border-color: var(--border-gold);">
         <div class="card-box-header">
-          <div class="card-box-title"><i class="fa-solid fa-clock text-gold"></i> Today's Attendance Clock</div>
-          <div style="font-size: 0.9rem; color: var(--gold-light); font-weight: 700;"><?php echo date('d F Y (l)'); ?></div>
+          <div class="card-box-title"><i class="fa-solid fa-clock text-gold"></i> Today's Attendance Status</div>
+          <div style="font-size: 0.9rem; color: var(--gold-dark); font-weight: 700;"><?php echo date('d F Y (l)'); ?></div>
         </div>
 
         <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px;">
           <div>
-            <div style="font-size: 0.9rem; color: var(--text-muted);">Current Status:</div>
+            <div style="font-size: 0.9rem; color: var(--text-muted);">Status (Marked by Workshop Admin):</div>
             <?php if ($myTodayAtt): ?>
-              <span class="badge badge-att-<?php echo e($myTodayAtt['status']); ?>" style="font-size: 1.1rem; padding: 8px 16px; margin-top: 5px;">
+              <span class="badge badge-att-<?php echo e($myTodayAtt['status']); ?>" style="font-size: 1rem; padding: 8px 16px; margin-top: 5px;">
                 <i class="fa-solid fa-circle-check"></i> <?php echo e($myTodayAtt['status']); ?>
               </span>
-              <div style="font-size: 0.85rem; color: var(--silver-light); margin-top: 8px;">
-                Punched In: <strong><?php echo date('h:i A', strtotime($myTodayAtt['login_time'])); ?></strong>
-                <?php if ($myTodayAtt['logout_time']): ?>
-                  | Punched Out: <strong><?php echo date('h:i A', strtotime($myTodayAtt['logout_time'])); ?></strong>
+              <div style="font-size: 0.85rem; color: var(--text-main); margin-top: 8px;">
+                In: <strong><?php echo $myTodayAtt['login_time'] ? date('h:i A', strtotime($myTodayAtt['login_time'])) : '--:--'; ?></strong>
+                | Out: <strong><?php echo $myTodayAtt['logout_time'] ? date('h:i A', strtotime($myTodayAtt['logout_time'])) : '--:--'; ?></strong>
+                <?php if (!empty($myTodayAtt['remarks'])): ?>
+                  | Remarks: <em><?php echo e($myTodayAtt['remarks']); ?></em>
                 <?php endif; ?>
               </div>
             <?php else: ?>
-              <span class="badge badge-att-Absent" style="font-size: 1.1rem; padding: 8px 16px; margin-top: 5px;">Not Punched In Yet</span>
+              <span class="badge badge-att-Leave" style="font-size: 0.95rem; padding: 6px 14px; margin-top: 5px;">Not Recorded Yet by Admin</span>
+              <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 5px;">Attendance is recorded exclusively by the Admin.</div>
             <?php endif; ?>
           </div>
 
-          <div style="display: flex; gap: 15px;">
-            <form action="dashboard.php" method="POST">
-              <input type="hidden" name="action" value="punch_in">
-              <button type="submit" class="btn btn-gold" <?php echo ($myTodayAtt && $myTodayAtt['login_time']) ? 'disabled style="opacity:0.5;"' : ''; ?>>
-                <i class="fa-solid fa-right-to-bracket"></i> PUNCH IN
-              </button>
-            </form>
-
-            <form action="dashboard.php" method="POST">
-              <input type="hidden" name="action" value="punch_out">
-              <button type="submit" class="btn btn-silver" <?php echo (!$myTodayAtt || $myTodayAtt['logout_time']) ? 'disabled style="opacity:0.5;"' : ''; ?>>
-                <i class="fa-solid fa-right-from-bracket"></i> PUNCH OUT
-              </button>
-            </form>
+          <div>
+            <a href="attendance.php" class="btn btn-outline-gold" style="font-size: 0.9rem;"><i class="fa-solid fa-calendar-days"></i> View Attendance Log</a>
           </div>
         </div>
-      </div> -->
+      </div>
 
       <!-- Quick Work Metrics -->
       <div class="metrics-grid">

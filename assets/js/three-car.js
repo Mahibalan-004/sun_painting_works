@@ -10,8 +10,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // 1. Scene, Camera, Renderer Setup
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x0a0b0e);
-  scene.fog = new THREE.FogExp2(0x0a0b0e, 0.025);
+  scene.background = new THREE.Color(0xf4f6f9);
+  scene.fog = new THREE.FogExp2(0xf4f6f9, 0.02);
 
   const camera = new THREE.PerspectiveCamera(
     45,
@@ -41,7 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
   controls.autoRotateSpeed = 1.8;
 
   // 3. Showroom Lighting setup
-  const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+  const ambientLight = new THREE.AmbientLight(0xffffff, 0.9);
   scene.add(ambientLight);
 
   // Gold studio spotlight
@@ -53,7 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
   scene.add(goldSpot);
 
   // Metallic Silver Key Light
-  const keyLight = new THREE.DirectionalLight(0xe8e8e8, 3);
+  const keyLight = new THREE.DirectionalLight(0xffffff, 2.5);
   keyLight.position.set(-6, 8, -4);
   scene.add(keyLight);
 
@@ -65,9 +65,9 @@ document.addEventListener('DOMContentLoaded', () => {
   // 4. Showroom Floor & Grid
   const floorGeo = new THREE.PlaneGeometry(50, 50);
   const floorMat = new THREE.MeshStandardMaterial({
-    color: 0x12141c,
-    roughness: 0.2,
-    metalness: 0.8,
+    color: 0xffffff,
+    roughness: 0.1,
+    metalness: 0.2,
   });
   const floor = new THREE.Mesh(floorGeo, floorMat);
   floor.rotation.x = -Math.PI / 2;
@@ -76,7 +76,7 @@ document.addEventListener('DOMContentLoaded', () => {
   scene.add(floor);
 
   // Floor Gold Grid
-  const gridHelper = new THREE.GridHelper(30, 30, 0xd4af37, 0x222630);
+  const gridHelper = new THREE.GridHelper(30, 30, 0xd4af37, 0xcbd5e1);
   gridHelper.position.y = 0.01;
   scene.add(gridHelper);
 
@@ -125,19 +125,19 @@ document.addEventListener('DOMContentLoaded', () => {
   // Helper Function: Build Realistic Procedural 3D Car
   function buildProceduralCar(group) {
     const bodyMat = new THREE.MeshStandardMaterial({
-      color: 0x1a1c23,
+      color: 0x1e293b,
       metalness: 0.9,
       roughness: 0.1,
     });
 
     const goldAccentMat = new THREE.MeshStandardMaterial({
       color: 0xd4af37,
-      metalness: 0.8,
-      roughness: 0.2,
+      metalness: 0.85,
+      roughness: 0.15,
     });
 
     const glassMat = new THREE.MeshPhysicalMaterial({
-      color: 0x11151c,
+      color: 0x334155,
       metalness: 0.1,
       roughness: 0.1,
       transmission: 0.6,
@@ -145,13 +145,13 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     const chromeMat = new THREE.MeshStandardMaterial({
-      color: 0xe0e0e0,
+      color: 0xf1f5f9,
       metalness: 1.0,
       roughness: 0.05,
     });
 
     const rubberMat = new THREE.MeshStandardMaterial({
-      color: 0x111111,
+      color: 0x1e293b,
       roughness: 0.8,
     });
 

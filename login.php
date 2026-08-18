@@ -34,17 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['user_role'] = $user['role'];
             $_SESSION['user_data'] = $user;
 
-            // Automatically Record Login Attendance for today if not already recorded
-            $today = date('Y-m-d');
-            $nowTime = date('H:i:s');
-            $attStmt = $pdo->prepare("SELECT id FROM attendance WHERE user_id = ? AND attendance_date = ?");
-            $attStmt->execute([$user['id'], $today]);
-            if (!$attStmt->fetch()) {
-                $insAtt = $pdo->prepare("INSERT INTO attendance (user_id, attendance_date, login_time, status, remarks) VALUES (?, ?, ?, 'Present', 'System Login')");
-                $insAtt->execute([$user['id'], $today, $nowTime]);
-            }
-
-            // Redirect according to role
+            // Redirect according to role (Attendance is managed exclusively by Admin)
             if ($user['role'] === 'Admin') {
                 header("Location: admin/dashboard.php");
             } else {
@@ -74,29 +64,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <link rel="stylesheet" href="assets/css/style.css">
   <link rel="stylesheet" href="assets/css/dashboard.css">
 </head>
-<body style="background: radial-gradient(circle at center, #181b24 0%, #0a0b0e 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px;">
+<body style="background: radial-gradient(circle at center, #FFFFFF 0%, #F1F5F9 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px;">
 
-  <div style="width: 100%; max-width: 440px; background: var(--bg-card); border: 1px solid var(--border-gold); border-radius: var(--radius-lg); padding: 45px 35px; box-shadow: 0 20px 50px rgba(0,0,0,0.6); position: relative; overflow: hidden;">
+  <div style="width: 100%; max-width: 440px; background: var(--bg-card); border: 1px solid var(--border-gold); border-radius: var(--radius-lg); padding: 45px 35px; box-shadow: 0 15px 40px rgba(0,0,0,0.08); position: relative; overflow: hidden;">
     
     <!-- Top Decorative Gold Line -->
     <div style="position: absolute; top:0; left:0; width: 100%; height: 4px; background: linear-gradient(90deg, var(--gold-dark), var(--gold-light), var(--gold-dark));"></div>
 
     <div style="text-align: center; margin-bottom: 30px;">
       <a href="index.php">
-        <img src="assets/images/logo.png" alt="Sun Painting Works Logo" style="height: 70px; margin-bottom: 15px; filter: drop-shadow(0 0 10px rgba(212, 175, 55, 0.4));">
+        <img src="assets/images/logo.png" alt="Sun Painting Works Logo" style="height: 70px; margin-bottom: 15px; filter: drop-shadow(0 2px 8px rgba(212, 175, 55, 0.3));">
       </a>
       <h2 style="font-size: 1.6rem; color: var(--gold-primary);">SUN PAINTING WORKS</h2>
       <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 5px;">Workshop Management Portal</p>
     </div>
 
     <?php if (!empty($error)): ?>
-      <div style="background: rgba(231, 76, 60, 0.15); border: 1px solid #E74C3C; color: #FF6B6B; padding: 12px 16px; border-radius: var(--radius-sm); font-size: 0.9rem; margin-bottom: 20px;">
+      <div style="background: rgba(231, 76, 60, 0.12); border: 1px solid #E74C3C; color: #C0392B; padding: 12px 16px; border-radius: var(--radius-sm); font-size: 0.9rem; margin-bottom: 20px;">
         <i class="fa-solid fa-triangle-exclamation"></i> <?php echo e($error); ?>
       </div>
     <?php endif; ?>
 
     <?php if (!empty($success)): ?>
-      <div style="background: rgba(46, 204, 113, 0.15); border: 1px solid #2ECC71; color: #2ECC71; padding: 12px 16px; border-radius: var(--radius-sm); font-size: 0.9rem; margin-bottom: 20px;">
+      <div style="background: rgba(46, 204, 113, 0.12); border: 1px solid #2ECC71; color: #27AE60; padding: 12px 16px; border-radius: var(--radius-sm); font-size: 0.9rem; margin-bottom: 20px;">
         <i class="fa-solid fa-circle-check"></i> <?php echo e($success); ?>
       </div>
     <?php endif; ?>

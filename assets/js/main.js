@@ -4,7 +4,7 @@
    ============================================================ */
 
 document.addEventListener('DOMContentLoaded', () => {
-  // 1. Mobile Navbar Menu Toggle
+  // 1. Mobile Navbar Menu Toggle (Public Site)
   const mobileToggle = document.querySelector('.mobile-toggle');
   const navLinks = document.querySelector('.nav-links');
 
@@ -16,6 +16,33 @@ document.addEventListener('DOMContentLoaded', () => {
         icon.classList.toggle('fa-bars');
         icon.classList.toggle('fa-times');
       }
+    });
+  }
+
+  // 1b. Mobile Dashboard Sidebar Toggle & Backdrop
+  const sidebar = document.querySelector('.sidebar');
+  const sidebarToggleBtns = document.querySelectorAll('.sidebar-toggle-btn');
+  let backdrop = document.querySelector('.sidebar-backdrop');
+
+  if (sidebar && !backdrop) {
+    backdrop = document.createElement('div');
+    backdrop.className = 'sidebar-backdrop';
+    document.body.appendChild(backdrop);
+  }
+
+  if (sidebar && sidebarToggleBtns.length > 0) {
+    sidebarToggleBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        sidebar.classList.toggle('mobile-open');
+        if (backdrop) backdrop.classList.toggle('active');
+      });
+    });
+  }
+
+  if (backdrop && sidebar) {
+    backdrop.addEventListener('click', () => {
+      sidebar.classList.remove('mobile-open');
+      backdrop.classList.remove('active');
     });
   }
 

@@ -104,9 +104,13 @@ $totalMechanicBalance = (float)($mechanicTotalsRow['mech_bal'] ?? 0);
 
   <!-- Main Content -->
   <main class="main-content">
-    <!-- Top Bar -->
     <header class="top-bar">
-      <h1 class="top-bar-title"><i class="fa-solid fa-chart-pie text-gold"></i> Operational Workshop Dashboard</h1>
+      <div style="display: flex; align-items: center; gap: 15px;">
+        <button type="button" class="sidebar-toggle-btn" aria-label="Toggle Sidebar Menu">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+        <h1 class="top-bar-title"><i class="fa-solid fa-chart-column text-gold"></i> Operational Workshop Dashboard</h1>
+      </div>
       <div class="user-profile-menu">
         <div class="user-avatar">AD</div>
         <div>
@@ -230,9 +234,9 @@ $totalMechanicBalance = (float)($mechanicTotalsRow['mech_bal'] ?? 0);
         <!-- Status Breakdown Chart -->
         <div class="card-box" style="margin-bottom: 0;">
           <div class="card-box-header">
-            <div class="card-box-title"><i class="fa-solid fa-chart-pie text-gold"></i> Cars by Work Stage</div>
+            <div class="card-box-title"><i class="fa-solid fa-chart-column text-gold"></i> Cars by Work Stage</div>
           </div>
-          <div style="max-height: 280px; position: relative;">
+          <div style="height: 280px; position: relative;">
             <canvas id="statusChart"></canvas>
           </div>
         </div>
@@ -420,26 +424,41 @@ document.addEventListener('DOMContentLoaded', () => {
   const statusLabels = <?php echo json_encode(array_keys($statusCounts)); ?>;
 
   new Chart(ctx, {
-    type: 'doughnut',
+    type: 'bar',
     data: {
       labels: statusLabels,
       datasets: [{
+        label: 'Number of Cars',
         data: statusData,
         backgroundColor: [
           '#3498DB', '#9B59B6', '#E67E22', '#F1C40F', 
-          '#1ABC9C', '#E74C3C', '#2ECC71', '#D4AF37'
+          '#1ABC9C', '#E74C3C', '#2ECC71', '#D4AF37', '#9A7B1C'
         ],
-        borderWidth: 2,
-        borderColor: '#181B24'
+        borderRadius: 6,
+        borderWidth: 1,
+        borderColor: 'rgba(0,0,0,0.06)'
       }]
     },
     options: {
       responsive: true,
       maintainAspectRatio: false,
       plugins: {
-        legend: {
-          position: 'right',
-          labels: { color: '#F5F6F8', font: { family: 'Outfit' } }
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: (context) => ` ${context.raw} Vehicles`
+          }
+        }
+      },
+      scales: {
+        x: {
+          grid: { display: false },
+          ticks: { color: '#1E293B', font: { family: 'Outfit', weight: '600', size: 11 } }
+        },
+        y: {
+          beginAtZero: true,
+          grid: { color: 'rgba(0, 0, 0, 0.05)' },
+          ticks: { precision: 0, color: '#64748B', font: { family: 'Outfit' } }
         }
       }
     }

@@ -1,35 +1,35 @@
 /* ============================================================
-   SUN PAINTING WORKS - GLOBAL STYLESHEET
+   SUN PAINTING WORKS - GLOBAL STYLESHEET (WHITE ELEGANT THEME)
    Location: Kullampalayam Pirivu, Gobichettipalayam, Erode
-   Colors: Dark Charcoal, Gold, Metallic Silver, White
+   Colors: Soft White, Warm Gold, Slate Charcoal, Off-White
    ============================================================ */
 
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
 
 :root {
-  --bg-primary: #0A0B0E;
-  --bg-secondary: #12141C;
-  --bg-card: #181B24;
-  --bg-card-hover: #202430;
+  --bg-primary: #F8F9FA;
+  --bg-secondary: #FFFFFF;
+  --bg-card: #FFFFFF;
+  --bg-card-hover: #F1F5F9;
   
   --gold-primary: #D4AF37;
-  --gold-light: #FFD700;
+  --gold-light: #E6B800;
   --gold-dark: #9A7B1C;
   --gold-glow: rgba(212, 175, 55, 0.25);
   
-  --silver-primary: #C0C0C0;
-  --silver-light: #E8E8E8;
-  --silver-dark: #707070;
+  --silver-primary: #475569;
+  --silver-light: #334155;
+  --silver-dark: #94A3B8;
   
-  --text-main: #F5F6F8;
-  --text-muted: #9DA4B0;
-  --text-dark: #12141C;
+  --text-main: #1E293B;
+  --text-muted: #64748B;
+  --text-dark: #0F172A;
   
-  --border-gold: rgba(212, 175, 55, 0.35);
-  --border-light: rgba(255, 255, 255, 0.08);
+  --border-gold: rgba(212, 175, 55, 0.4);
+  --border-light: rgba(0, 0, 0, 0.08);
   
-  --shadow-gold: 0 10px 30px rgba(212, 175, 55, 0.15);
-  --shadow-card: 0 12px 32px rgba(0, 0, 0, 0.4);
+  --shadow-gold: 0 8px 25px rgba(212, 175, 55, 0.2);
+  --shadow-card: 0 10px 30px rgba(0, 0, 0, 0.06);
   
   --radius-sm: 6px;
   --radius-md: 12px;
@@ -55,6 +55,8 @@ html {
 body {
   overflow-x: hidden;
   line-height: 1.6;
+  background-color: var(--bg-primary);
+  color: var(--text-main);
 }
 
 /* ================= Custom Scrollbar ================= */
@@ -81,7 +83,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .text-gold {
   color: var(--gold-primary);
-  background: linear-gradient(135deg, #FFD700 0%, #D4AF37 50%, #AA7C11 100%);
+  background: linear-gradient(135deg, #D4AF37 0%, #B8860B 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -109,32 +111,35 @@ h1, h2, h3, h4, h5, h6 {
 .btn-gold {
   background: linear-gradient(135deg, #FFD700 0%, #D4AF37 100%);
   color: var(--text-dark);
-  box-shadow: 0 4px 20px rgba(212, 175, 55, 0.3);
+  box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
 }
 .btn-gold:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(212, 175, 55, 0.5);
+  box-shadow: 0 8px 25px rgba(212, 175, 55, 0.45);
   background: linear-gradient(135deg, #FFE240 0%, #E2BA3C 100%);
 }
 
 .btn-outline-gold {
-  background: transparent;
+  background: #FFFFFF;
   color: var(--gold-primary);
   border-color: var(--gold-primary);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 .btn-outline-gold:hover {
-  background: var(--gold-glow);
-  color: #FFF;
-  border-color: var(--gold-light);
+  background: var(--gold-primary);
+  color: #FFFFFF;
+  border-color: var(--gold-primary);
   transform: translateY(-2px);
+  box-shadow: var(--shadow-gold);
 }
 
 .btn-silver {
-  background: linear-gradient(135deg, #E8E8E8 0%, #A0A0A0 100%);
-  color: var(--text-dark);
+  background: linear-gradient(135deg, #F1F5F9 0%, #E2E8F0 100%);
+  color: var(--text-main);
+  border: 1px solid var(--border-light);
 }
 .btn-silver:hover {
-  background: #FFF;
+  background: #CBD5E1;
   transform: translateY(-2px);
 }
 
@@ -149,10 +154,11 @@ h1, h2, h3, h4, h5, h6 {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: rgba(10, 11, 14, 0.85);
+  background: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(15px);
   border-bottom: 1px solid var(--border-gold);
   transition: var(--transition);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
 }
 
 .navbar-brand {
@@ -165,7 +171,7 @@ h1, h2, h3, h4, h5, h6 {
 .navbar-logo {
   height: 48px;
   width: auto;
-  filter: drop-shadow(0 0 8px rgba(212, 175, 55, 0.4));
+  filter: drop-shadow(0 2px 6px rgba(212, 175, 55, 0.3));
   transition: var(--transition);
 }
 .navbar-logo:hover {
@@ -199,7 +205,7 @@ h1, h2, h3, h4, h5, h6 {
 .nav-links a {
   color: var(--text-main);
   text-decoration: none;
-  font-weight: 500;
+  font-weight: 600;
   font-size: 0.95rem;
   transition: var(--transition);
   position: relative;
@@ -238,7 +244,7 @@ h1, h2, h3, h4, h5, h6 {
   padding-top: 100px;
   display: flex;
   align-items: center;
-  background: radial-gradient(circle at 70% 50%, rgba(212, 175, 55, 0.08) 0%, rgba(10, 11, 14, 1) 70%);
+  background: radial-gradient(circle at 70% 50%, rgba(212, 175, 55, 0.12) 0%, #F8F9FA 70%);
   overflow: hidden;
 }
 
@@ -263,12 +269,12 @@ h1, h2, h3, h4, h5, h6 {
   align-items: center;
   gap: 8px;
   padding: 6px 16px;
-  background: rgba(212, 175, 55, 0.1);
+  background: rgba(212, 175, 55, 0.15);
   border: 1px solid var(--border-gold);
   border-radius: var(--radius-full);
   font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--gold-primary);
+  font-weight: 700;
+  color: var(--gold-dark);
   text-transform: uppercase;
   letter-spacing: 1.5px;
   margin-bottom: 20px;
@@ -280,6 +286,7 @@ h1, h2, h3, h4, h5, h6 {
   line-height: 1.1;
   margin-bottom: 16px;
   text-transform: uppercase;
+  color: var(--text-dark);
 }
 
 .hero-motto {
@@ -293,7 +300,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .hero-subtitle {
   font-size: 1.1rem;
-  color: var(--silver-primary);
+  color: var(--text-muted);
   margin-bottom: 25px;
 }
 
@@ -302,12 +309,13 @@ h1, h2, h3, h4, h5, h6 {
   align-items: center;
   gap: 10px;
   font-size: 0.95rem;
-  color: var(--text-muted);
+  color: var(--text-main);
   margin-bottom: 35px;
-  background: rgba(255, 255, 255, 0.03);
-  padding: 10px 18px;
+  background: #FFFFFF;
+  padding: 12px 18px;
   border-radius: var(--radius-sm);
-  border-left: 3px solid var(--gold-primary);
+  border-left: 4px solid var(--gold-primary);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
 }
 
 .hero-actions {
@@ -322,9 +330,9 @@ h1, h2, h3, h4, h5, h6 {
   width: 100%;
   height: 520px;
   border-radius: var(--radius-lg);
-  background: radial-gradient(circle at center, rgba(30, 35, 45, 0.6) 0%, rgba(12, 14, 20, 0.9) 100%);
+  background: radial-gradient(circle at center, rgba(255, 255, 255, 0.95) 0%, rgba(241, 245, 249, 1) 100%);
   border: 1px solid var(--border-gold);
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), inset 0 0 30px rgba(212, 175, 55, 0.08);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.08), inset 0 0 30px rgba(212, 175, 55, 0.08);
   overflow: hidden;
 }
 
@@ -339,18 +347,20 @@ h1, h2, h3, h4, h5, h6 {
   bottom: 15px;
   left: 50%;
   transform: translateX(-50%);
-  background: rgba(10, 11, 14, 0.75);
+  background: rgba(255, 255, 255, 0.9);
   border: 1px solid var(--border-gold);
   padding: 6px 18px;
   border-radius: var(--radius-full);
   font-size: 0.75rem;
-  color: var(--silver-light);
+  color: var(--text-main);
+  font-weight: 600;
   letter-spacing: 1px;
   pointer-events: none;
   display: flex;
   align-items: center;
   gap: 8px;
   backdrop-filter: blur(5px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
 }
 
 /* ================= Services Section ================= */
@@ -378,6 +388,7 @@ h1, h2, h3, h4, h5, h6 {
 .section-title {
   font-size: 2.5rem;
   font-weight: 800;
+  color: var(--text-dark);
 }
 
 .services-grid {
@@ -396,6 +407,7 @@ h1, h2, h3, h4, h5, h6 {
   transition: var(--transition);
   position: relative;
   overflow: hidden;
+  box-shadow: var(--shadow-card);
 }
 .service-card::before {
   content: '';
@@ -412,7 +424,7 @@ h1, h2, h3, h4, h5, h6 {
   transform: translateY(-8px);
   background: var(--bg-card-hover);
   border-color: var(--border-gold);
-  box-shadow: var(--shadow-gold);
+  box-shadow: 0 15px 35px rgba(212, 175, 55, 0.18);
 }
 .service-card:hover::before {
   opacity: 1;
@@ -422,7 +434,7 @@ h1, h2, h3, h4, h5, h6 {
   width: 65px;
   height: 65px;
   border-radius: var(--radius-md);
-  background: rgba(212, 175, 55, 0.1);
+  background: rgba(212, 175, 55, 0.12);
   border: 1px solid var(--border-gold);
   display: flex;
   align-items: center;
@@ -434,7 +446,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 .service-card:hover .service-icon {
   background: var(--gold-primary);
-  color: var(--text-dark);
+  color: #FFFFFF;
   box-shadow: 0 0 20px var(--gold-glow);
 }
 
@@ -442,6 +454,7 @@ h1, h2, h3, h4, h5, h6 {
   font-size: 1.35rem;
   font-weight: 700;
   margin-bottom: 12px;
+  color: var(--text-dark);
 }
 
 .service-desc {
@@ -468,21 +481,23 @@ h1, h2, h3, h4, h5, h6 {
 .about-image-wrapper {
   position: relative;
   border-radius: var(--radius-lg);
-  padding: 30px;
-  background: radial-gradient(circle at center, rgba(212, 175, 55, 0.1), transparent);
+  padding: 35px;
+  background: #FFFFFF;
   border: 1px solid var(--border-gold);
   text-align: center;
+  box-shadow: var(--shadow-card);
 }
 
 .about-logo {
   max-width: 80%;
   height: auto;
-  filter: drop-shadow(0 0 15px rgba(212, 175, 55, 0.3));
+  filter: drop-shadow(0 4px 15px rgba(212, 175, 55, 0.3));
 }
 
 .about-content h2 {
   font-size: 2.6rem;
   margin-bottom: 20px;
+  color: var(--text-dark);
 }
 
 .about-text {
@@ -503,7 +518,7 @@ h1, h2, h3, h4, h5, h6 {
   align-items: center;
   gap: 12px;
   font-weight: 600;
-  color: var(--silver-light);
+  color: var(--text-main);
 }
 
 .feature-item i {
@@ -523,7 +538,7 @@ h1, h2, h3, h4, h5, h6 {
   border: 1px solid var(--border-gold);
   border-radius: var(--radius-lg);
   padding: 60px 40px;
-  box-shadow: var(--shadow-card);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.06);
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 50px;
@@ -537,7 +552,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .contact-address {
   font-size: 1.1rem;
-  color: var(--silver-light);
+  color: var(--text-muted);
   margin-bottom: 25px;
   line-height: 1.8;
 }
@@ -611,7 +626,7 @@ h1, h2, h3, h4, h5, h6 {
 
 /* ================= Footer ================= */
 .site-footer {
-  background: var(--bg-primary);
+  background: #FFFFFF;
   border-top: 1px solid var(--border-gold);
   padding: 70px 5% 30px;
 }
@@ -639,7 +654,8 @@ h1, h2, h3, h4, h5, h6 {
 
 .footer-title {
   font-size: 1.1rem;
-  color: var(--silver-light);
+  color: var(--text-main);
+  font-weight: 700;
   margin-bottom: 20px;
   position: relative;
 }
@@ -702,12 +718,13 @@ h1, h2, h3, h4, h5, h6 {
     right: -100%;
     width: 280px;
     height: calc(100vh - 78px);
-    background: var(--bg-card);
+    background: #FFFFFF;
     flex-direction: column;
     align-items: flex-start;
     padding: 30px;
     transition: var(--transition);
     border-left: 1px solid var(--border-gold);
+    box-shadow: -5px 0 20px rgba(0,0,0,0.1);
   }
   .nav-links.active {
     right: 0;
