@@ -129,3 +129,16 @@ function recalculateCarAmounts($pdo, $car_id) {
     $updateStmt = $pdo->prepare("UPDATE cars SET total_amount = ?, advance_amount = ?, balance_amount = ?, mechanic_balance_amount = ?, payment_status = ? WHERE id = ?");
     $updateStmt->execute([$total_amount, $advance_amount, $balance_amount, $mech_balance, $payment_status, $car_id]);
 }
+
+/**
+ * Ensures database schema has selected_parts column in cars table
+ */
+function ensureCarsTableSchema($pdo) {
+    try {
+        $pdo->exec("ALTER TABLE cars ADD COLUMN selected_parts TEXT NULL AFTER status");
+    } catch (Exception $e) {
+        // Column already exists or schema already altered
+    }
+}
+ensureCarsTableSchema($pdo);
+

@@ -29,6 +29,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $mechanic_location   = trim($_POST['mechanic_location'] ?? '');
         $customer_contact    = trim($_POST['customer_contact'] ?? '');
 
+        $selected_parts      = trim($_POST['selected_parts'] ?? '');
+
         $estimate_amount        = (float)($_POST['estimate_amount'] ?? 0);
         $advance_amount         = isset($_POST['advance_amount']) ? (float)$_POST['advance_amount'] : (float)($_POST['final_amount'] ?? 0);
         $final_amount           = $advance_amount;
@@ -46,13 +48,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             car_number = ?, car_name = ?, car_color = ?, status = ?, 
             is_mechanic_vehicle = ?, mechanic_name = ?, workshop_name = ?, mechanic_contact = ?, mechanic_location = ?, customer_contact = ?,
             estimate_amount = ?, advance_amount = ?, final_amount = ?, 
-            mechanic_total_amount = ?, mechanic_given_amount = ?, mechanic_balance_amount = ? 
+            mechanic_total_amount = ?, mechanic_given_amount = ?, mechanic_balance_amount = ?, selected_parts = ? 
             WHERE id = ?");
         $updateStmt->execute([
             $car_number, $car_name, $car_color, $new_status,
             $is_mechanic_vehicle, $mechanic_name, $workshop_name, $mechanic_contact, $mechanic_location, $customer_contact,
             $estimate_amount, $advance_amount, $final_amount,
-            $mechanic_total_amount, $mechanic_given_amount, $mechanic_balance_amount,
+            $mechanic_total_amount, $mechanic_given_amount, $mechanic_balance_amount, $selected_parts,
             $car_id
         ]);
 
@@ -395,6 +397,17 @@ $workHistory = $stmtHistory->fetchAll();
             </div>
           </div>
 
+          <!-- Selected Body Work / Damage Parts -->
+          <div class="form-group" style="margin-top: 15px; padding-top: 15px; border-top: 1px dashed var(--border-light);">
+            <label class="form-label" style="font-weight: 700; color: var(--gold-light);">
+              <i class="fa-solid fa-car-burst"></i> Selected Work / Damage Areas & Body Parts:
+            </label>
+            <input type="text" name="selected_parts" class="form-control" placeholder="e.g. Right Side (Right Fronter, Right Front Door) | Front Bumper (Front Bumper Main)" value="<?php echo e($car['selected_parts'] ?? ''); ?>">
+            <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">
+              Specify vehicle sides & parts for painting, denting, or repair.
+            </div>
+          </div>
+
           <!-- Work Stage & Financial Inputs -->
           <div class="form-row" style="margin-top: 15px;">
             <div class="form-group">
@@ -410,12 +423,12 @@ $workHistory = $stmtHistory->fetchAll();
             </div>
 
             <div class="form-group">
-              <label class="form-label">Total Vehicle Estimate Amount (₹)</label>
+              <label class="form-label">Total Vehicle Amount (Estimate) <span style="font-weight: 400; font-size: 0.85rem; color: var(--text-muted);">(e.g. ₹15,000)</span></label>
               <input type="number" step="0.01" id="estimate_amount" name="estimate_amount" class="form-control" value="<?php echo e($car['estimate_amount']); ?>" oninput="calculateUpdateAmounts()">
             </div>
 
             <div class="form-group">
-              <label class="form-label">Advance Amount Paid (₹)</label>
+              <label class="form-label">Advance Amount Paid <span style="font-weight: 400; font-size: 0.85rem; color: var(--text-muted);">(e.g. ₹5,000)</span></label>
               <input type="number" step="0.01" id="advance_amount" name="advance_amount" class="form-control" value="<?php echo e($car['advance_amount'] > 0 ? $car['advance_amount'] : $car['final_amount']); ?>" oninput="calculateUpdateAmounts()">
             </div>
           </div>
@@ -427,12 +440,12 @@ $workHistory = $stmtHistory->fetchAll();
             </div>
             <div class="form-row">
               <div class="form-group">
-                <label class="form-label">Mechanic Total / Agreed Amount (₹)</label>
+                <label class="form-label">Mechanic Total / Agreed Amount <span style="font-weight: 400; font-size: 0.85rem; color: var(--text-muted);">(e.g. ₹12,000)</span></label>
                 <input type="number" step="0.01" id="mechanic_total_amount" name="mechanic_total_amount" class="form-control" value="<?php echo e($car['mechanic_total_amount']); ?>" oninput="calculateUpdateAmounts()">
               </div>
 
               <div class="form-group">
-                <label class="form-label">Given Amount to Mechanic (₹)</label>
+                <label class="form-label">Given Amount to Mechanic <span style="font-weight: 400; font-size: 0.85rem; color: var(--text-muted);">(e.g. ₹3,000)</span></label>
                 <input type="number" step="0.01" id="mechanic_given_amount" name="mechanic_given_amount" class="form-control" value="<?php echo e($car['mechanic_given_amount']); ?>" oninput="calculateUpdateAmounts()">
               </div>
             </div>

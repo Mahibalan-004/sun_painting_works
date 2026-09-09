@@ -63,6 +63,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <a href="dashboard.php"><i class="fa-solid fa-house"></i> My Dashboard</a>
       </li>
       <li class="sidebar-item">
+        <a href="add_car.php"><i class="fa-solid fa-car-tunnel"></i> Add New Car Job</a>
+      </li>
+      <li class="sidebar-item">
         <a href="work.php"><i class="fa-solid fa-spray-can"></i> Car Work</a>
       </li>
       <li class="sidebar-item active">

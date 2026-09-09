@@ -118,6 +118,9 @@ if ($car_id > 0) {
       <li class="sidebar-item">
         <a href="dashboard.php"><i class="fa-solid fa-house"></i> My Dashboard</a>
       </li>
+      <li class="sidebar-item">
+        <a href="add_car.php"><i class="fa-solid fa-car-tunnel"></i> Add New Car Job</a>
+      </li>
       <li class="sidebar-item active">
         <a href="work.php"><i class="fa-solid fa-spray-can"></i> Car Work</a>
       </li>
@@ -179,6 +182,13 @@ if ($car_id > 0) {
             </div>
             <a href="work.php" class="btn btn-silver" style="padding: 6px 12px; font-size: 0.8rem;"><i class="fa-solid fa-xmark"></i> Close Panel</a>
           </div>
+
+          <?php if (!empty($selectedCar['selected_parts'])): ?>
+            <div style="margin-bottom: 20px; background: rgba(212, 175, 55, 0.08); padding: 14px 18px; border-radius: var(--radius-sm); border: 1px solid var(--border-gold);">
+              <div style="font-size: 0.8rem; font-weight: 700; text-transform: uppercase; color: var(--gold-primary);"><i class="fa-solid fa-car-burst"></i> Selected Work / Damage Areas:</div>
+              <div style="font-size: 0.95rem; font-weight: 700; color: var(--gold-light); margin-top: 4px;"><?php echo e($selectedCar['selected_parts']); ?></div>
+            </div>
+          <?php endif; ?>
 
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 25px;">
             <!-- Update Status Form -->

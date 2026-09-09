@@ -45,11 +45,15 @@ $completedCarsCount = $pdo->query("SELECT COUNT(*) FROM cars WHERE status IN ('C
         <a href="dashboard.php"><i class="fa-solid fa-house"></i> My Dashboard</a>
       </li>
       <li class="sidebar-item">
+        <a href="add_car.php"><i class="fa-solid fa-car-tunnel"></i> Add New Car Job</a>
+      </li>
+      <li class="sidebar-item">
         <a href="work.php"><i class="fa-solid fa-spray-can"></i> Car Work</a>
       </li>
       <li class="sidebar-item">
         <a href="profile.php"><i class="fa-solid fa-user-circle"></i> My Profile</a>
       </li>
+
 
       <li class="sidebar-menu-category">Public Site</li>
       <li class="sidebar-item">
@@ -125,7 +129,10 @@ $completedCarsCount = $pdo->query("SELECT COUNT(*) FROM cars WHERE status IN ('C
       <div class="card-box">
         <div class="card-box-header">
           <div class="card-box-title"><i class="fa-solid fa-spray-can text-gold"></i> Current Car Work Pipeline</div>
-          <a href="work.php" class="btn btn-outline-gold" style="padding: 6px 12px; font-size: 0.85rem;">Manage All Car Work</a>
+          <div style="display: flex; gap: 10px;">
+            <a href="add_car.php" class="btn btn-gold" style="padding: 6px 14px; font-size: 0.85rem;"><i class="fa-solid fa-plus"></i> Add New Car Job</a>
+            <a href="work.php" class="btn btn-outline-gold" style="padding: 6px 14px; font-size: 0.85rem;">Manage All Car Work</a>
+          </div>
         </div>
 
         <div class="table-responsive">
