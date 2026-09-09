@@ -42,6 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   
   <link rel="stylesheet" href="../assets/css/style.css">
   <link rel="stylesheet" href="../assets/css/dashboard.css">
+  <script src="../assets/js/theme.js"></script>
 </head>
 <body>
 
@@ -64,9 +65,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       <li class="sidebar-item">
         <a href="work.php"><i class="fa-solid fa-spray-can"></i> Car Work</a>
       </li>
-      <li class="sidebar-item">
-        <a href="attendance.php"><i class="fa-solid fa-calendar-check"></i> My Attendance</a>
-      </li>
       <li class="sidebar-item active">
         <a href="profile.php"><i class="fa-solid fa-user-circle"></i> My Profile</a>
       </li>
@@ -84,7 +82,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <!-- Main Content -->
   <main class="main-content">
     <header class="top-bar">
-      <h1 class="top-bar-title"><i class="fa-solid fa-id-card text-gold"></i> My Employee Profile</h1>
+      <div style="display: flex; align-items: center; gap: 15px;">
+        <button type="button" class="sidebar-toggle-btn" aria-label="Toggle Sidebar Menu">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+        <h1 class="top-bar-title"><i class="fa-solid fa-id-card text-gold"></i> My Employee Profile</h1>
+      </div>
+
+      <div class="user-profile-menu">
+        <div class="theme-switcher-control">
+          <i class="fa-solid fa-circle-half-stroke text-gold"></i>
+          <select class="theme-select-input" aria-label="Theme Preference">
+            <option value="light">☀️ Light</option>
+            <option value="dark">🌙 Dark</option>
+            <option value="system">💻 System</option>
+          </select>
+        </div>
+      </div>
     </header>
 
     <div class="content-body">

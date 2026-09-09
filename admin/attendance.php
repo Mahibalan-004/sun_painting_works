@@ -174,6 +174,7 @@ foreach ($allUsers as $u) {
   
   <link rel="stylesheet" href="../assets/css/style.css">
   <link rel="stylesheet" href="../assets/css/dashboard.css">
+  <script src="../assets/js/theme.js"></script>
   
   <!-- Chart.js for Attendance Bar Charts -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -233,7 +234,17 @@ foreach ($allUsers as $u) {
         </button>
         <h1 class="top-bar-title"><i class="fa-solid fa-clipboard-user text-gold"></i> Attendance Management</h1>
       </div>
+
       <div class="user-profile-menu">
+        <div class="theme-switcher-control">
+          <i class="fa-solid fa-circle-half-stroke text-gold"></i>
+          <select class="theme-select-input" aria-label="Theme Preference">
+            <option value="light">☀️ Light</option>
+            <option value="dark">🌙 Dark</option>
+            <option value="system">💻 System</option>
+          </select>
+        </div>
+
         <div class="user-avatar">AD</div>
         <div>
           <div style="font-weight: 700; font-size: 0.95rem;"><?php echo e($_SESSION['user_name']); ?></div>

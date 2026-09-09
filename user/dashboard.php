@@ -6,11 +6,6 @@ $today = date('Y-m-d');
 $error = '';
 $success = '';
 
-// Fetch Today's Attendance for Current User (Marked by Admin)
-$attTodayStmt = $pdo->prepare("SELECT * FROM attendance WHERE user_id = ? AND attendance_date = ?");
-$attTodayStmt->execute([$userId, $today]);
-$myTodayAtt = $attTodayStmt->fetch();
-
 // Fetch Active Car Works
 $activeCars = $pdo->query("SELECT c.*, cust.customer_name FROM cars c JOIN customers cust ON c.customer_id = cust.customer_id WHERE c.status NOT IN ('Completed', 'Delivered') ORDER BY c.id DESC LIMIT 6")->fetchAll();
 
@@ -29,6 +24,7 @@ $completedCarsCount = $pdo->query("SELECT COUNT(*) FROM cars WHERE status IN ('C
   
   <link rel="stylesheet" href="../assets/css/style.css">
   <link rel="stylesheet" href="../assets/css/dashboard.css">
+  <script src="../assets/js/theme.js"></script>
 </head>
 <body>
 
@@ -52,9 +48,6 @@ $completedCarsCount = $pdo->query("SELECT COUNT(*) FROM cars WHERE status IN ('C
         <a href="work.php"><i class="fa-solid fa-spray-can"></i> Car Work</a>
       </li>
       <li class="sidebar-item">
-        <a href="attendance.php"><i class="fa-solid fa-calendar-check"></i> My Attendance</a>
-      </li>
-      <li class="sidebar-item">
         <a href="profile.php"><i class="fa-solid fa-user-circle"></i> My Profile</a>
       </li>
 
@@ -71,8 +64,24 @@ $completedCarsCount = $pdo->query("SELECT COUNT(*) FROM cars WHERE status IN ('C
   <!-- Main Content -->
   <main class="main-content">
     <header class="top-bar">
-      <h1 class="top-bar-title">Welcome, <span class="text-gold"><?php echo e($_SESSION['user_name']); ?></span></h1>
+      <div style="display: flex; align-items: center; gap: 15px;">
+        <button type="button" class="sidebar-toggle-btn" aria-label="Toggle Sidebar Menu">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+        <h1 class="top-bar-title">Welcome, <span class="text-gold"><?php echo e($_SESSION['user_name']); ?></span></h1>
+      </div>
+
       <div class="user-profile-menu">
+        <!-- Theme Switcher Control -->
+        <div class="theme-switcher-control">
+          <i class="fa-solid fa-circle-half-stroke text-gold"></i>
+          <select class="theme-select-input" aria-label="Theme Preference">
+            <option value="light">☀️ Light</option>
+            <option value="dark">🌙 Dark</option>
+            <option value="system">💻 System</option>
+          </select>
+        </div>
+
         <div class="user-avatar"><?php echo strtoupper(substr($_SESSION['user_name'], 0, 2)); ?></div>
         <div>
           <div style="font-weight: 700; font-size: 0.95rem;"><?php echo e($_SESSION['user_name']); ?></div>
@@ -88,39 +97,6 @@ $completedCarsCount = $pdo->query("SELECT COUNT(*) FROM cars WHERE status IN ('C
           <i class="fa-solid fa-circle-check"></i> <?php echo e($success); ?>
         </div>
       <?php endif; ?>
-
-      <!-- Attendance Status Card (Read-only view marked by Admin) -->
-      <div class="card-box" style="background: radial-gradient(circle at top right, rgba(212, 175, 55, 0.08), #FFFFFF); border-color: var(--border-gold);">
-        <div class="card-box-header">
-          <div class="card-box-title"><i class="fa-solid fa-clock text-gold"></i> Today's Attendance Status</div>
-          <div style="font-size: 0.9rem; color: var(--gold-dark); font-weight: 700;"><?php echo date('d F Y (l)'); ?></div>
-        </div>
-
-        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px;">
-          <div>
-            <div style="font-size: 0.9rem; color: var(--text-muted);">Status (Marked by Workshop Admin):</div>
-            <?php if ($myTodayAtt): ?>
-              <span class="badge badge-att-<?php echo e($myTodayAtt['status']); ?>" style="font-size: 1rem; padding: 8px 16px; margin-top: 5px;">
-                <i class="fa-solid fa-circle-check"></i> <?php echo e($myTodayAtt['status']); ?>
-              </span>
-              <div style="font-size: 0.85rem; color: var(--text-main); margin-top: 8px;">
-                In: <strong><?php echo $myTodayAtt['login_time'] ? date('h:i A', strtotime($myTodayAtt['login_time'])) : '--:--'; ?></strong>
-                | Out: <strong><?php echo $myTodayAtt['logout_time'] ? date('h:i A', strtotime($myTodayAtt['logout_time'])) : '--:--'; ?></strong>
-                <?php if (!empty($myTodayAtt['remarks'])): ?>
-                  | Remarks: <em><?php echo e($myTodayAtt['remarks']); ?></em>
-                <?php endif; ?>
-              </div>
-            <?php else: ?>
-              <span class="badge badge-att-Leave" style="font-size: 0.95rem; padding: 6px 14px; margin-top: 5px;">Not Recorded Yet by Admin</span>
-              <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 5px;">Attendance is recorded exclusively by the Admin.</div>
-            <?php endif; ?>
-          </div>
-
-          <div>
-            <a href="attendance.php" class="btn btn-outline-gold" style="font-size: 0.9rem;"><i class="fa-solid fa-calendar-days"></i> View Attendance Log</a>
-          </div>
-        </div>
-      </div>
 
       <!-- Quick Work Metrics -->
       <div class="metrics-grid">
@@ -190,5 +166,6 @@ $completedCarsCount = $pdo->query("SELECT COUNT(*) FROM cars WHERE status IN ('C
   </main>
 </div>
 
+<script src="../assets/js/main.js"></script>
 </body>
 </html>

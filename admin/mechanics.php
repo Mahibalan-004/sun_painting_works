@@ -162,6 +162,7 @@ $workshopDirectory = $pdo->query("SELECT
   
   <link rel="stylesheet" href="../assets/css/style.css">
   <link rel="stylesheet" href="../assets/css/dashboard.css">
+  <script src="../assets/js/theme.js"></script>
   
   <style>
     .tab-nav {
@@ -318,13 +319,27 @@ $workshopDirectory = $pdo->query("SELECT
   <!-- Main Content -->
   <main class="main-content">
     <header class="top-bar">
-      <div>
-        <h1 class="top-bar-title"><i class="fa-solid fa-screwdriver-wrench text-gold"></i> Mechanics & Workshops Hub</h1>
-        <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;">
-          Dedicated management for external partner workshops, mechanics, customer vehicles, and payout ledgers.
+      <div style="display: flex; align-items: center; gap: 15px;">
+        <button type="button" class="sidebar-toggle-btn" aria-label="Toggle Sidebar Menu">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+        <div>
+          <h1 class="top-bar-title"><i class="fa-solid fa-screwdriver-wrench text-gold"></i> Mechanics & Workshops Hub</h1>
+          <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;">
+            Dedicated management for external partner workshops, mechanics, customer vehicles, and payout ledgers.
+          </div>
         </div>
       </div>
-      <div style="display: flex; gap: 10px;">
+
+      <div style="display: flex; gap: 10px; align-items: center;">
+        <div class="theme-switcher-control">
+          <i class="fa-solid fa-circle-half-stroke text-gold"></i>
+          <select class="theme-select-input" aria-label="Theme Preference">
+            <option value="light">☀️ Light</option>
+            <option value="dark">🌙 Dark</option>
+            <option value="system">💻 System</option>
+          </select>
+        </div>
         <a href="add_car.php" class="btn btn-gold"><i class="fa-solid fa-plus-circle"></i> + Add Mechanic Vehicle</a>
       </div>
     </header>

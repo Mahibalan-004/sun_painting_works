@@ -6,7 +6,7 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
 
-:root {
+:root, [data-theme="light"] {
   --bg-primary: #F8F9FA;
   --bg-secondary: #FFFFFF;
   --bg-card: #FFFFFF;
@@ -37,6 +37,60 @@
   --radius-full: 9999px;
   
   --transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+[data-theme="dark"] {
+  --bg-primary: #0A0B0E;
+  --bg-secondary: #12141C;
+  --bg-card: #181B24;
+  --bg-card-hover: #202430;
+  
+  --gold-primary: #D4AF37;
+  --gold-light: #FFD700;
+  --gold-dark: #9A7B1C;
+  --gold-glow: rgba(212, 175, 55, 0.25);
+  
+  --silver-primary: #C0C0C0;
+  --silver-light: #E8E8E8;
+  --silver-dark: #707070;
+  
+  --text-main: #F5F6F8;
+  --text-muted: #9DA4B0;
+  --text-dark: #FFFFFF;
+  
+  --border-gold: rgba(212, 175, 55, 0.35);
+  --border-light: rgba(255, 255, 255, 0.08);
+  
+  --shadow-gold: 0 10px 30px rgba(212, 175, 55, 0.15);
+  --shadow-card: 0 12px 32px rgba(0, 0, 0, 0.4);
+}
+
+/* Theme Switcher Control */
+.theme-switcher-control {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-gold);
+  border-radius: var(--radius-sm);
+  padding: 5px 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.theme-select-input {
+  background: transparent;
+  border: none;
+  color: var(--text-main);
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  outline: none;
+}
+
+.theme-select-input option {
+  background: var(--bg-card);
+  color: var(--text-main);
 }
 
 * {

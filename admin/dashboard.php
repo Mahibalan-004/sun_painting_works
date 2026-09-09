@@ -31,7 +31,7 @@ $presentToday = $todayAtt->fetchColumn();
 $totalEmployees = $pdo->query("SELECT COUNT(*) FROM users WHERE status = 'Active'")->fetchColumn();
 
 // Recent Car Jobs
-$recentCars = $pdo->query("SELECT c.*, cust.customer_name, cust.customer_no FROM cars c JOIN customers cust ON c.customer_id = cust.customer_id ORDER BY c.id DESC LIMIT 5")->fetchAll();
+$recentCars = $pdo->query("SELECT c.*, cust.customer_name, cust.customer_no, creator.name AS creator_name, creator.employee_id AS creator_code FROM cars c JOIN customers cust ON c.customer_id = cust.customer_id LEFT JOIN users creator ON c.created_by = creator.id ORDER BY c.id DESC LIMIT 5")->fetchAll();
 
 // Mechanic Vehicle Metrics
 $totalMechanicVehicles = (int)$pdo->query("SELECT COUNT(*) FROM cars WHERE is_mechanic_vehicle = 'Yes'")->fetchColumn();
@@ -52,6 +52,7 @@ $totalMechanicBalance = (float)($mechanicTotalsRow['mech_bal'] ?? 0);
   
   <link rel="stylesheet" href="../assets/css/style.css">
   <link rel="stylesheet" href="../assets/css/dashboard.css">
+  <script src="../assets/js/theme.js"></script>
   
   <!-- Chart.js for Status Breakdown -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -111,7 +112,18 @@ $totalMechanicBalance = (float)($mechanicTotalsRow['mech_bal'] ?? 0);
         </button>
         <h1 class="top-bar-title"><i class="fa-solid fa-chart-column text-gold"></i> Operational Workshop Dashboard</h1>
       </div>
+
       <div class="user-profile-menu">
+        <!-- Theme Switcher Control -->
+        <div class="theme-switcher-control">
+          <i class="fa-solid fa-circle-half-stroke text-gold"></i>
+          <select class="theme-select-input" aria-label="Theme Preference">
+            <option value="light">☀️ Light</option>
+            <option value="dark">🌙 Dark</option>
+            <option value="system">💻 System</option>
+          </select>
+        </div>
+
         <div class="user-avatar">AD</div>
         <div>
           <div style="font-weight: 700; font-size: 0.95rem;"><?php echo e($_SESSION['user_name']); ?></div>
@@ -287,6 +299,7 @@ $totalMechanicBalance = (float)($mechanicTotalsRow['mech_bal'] ?? 0);
                 <th>Customer Name</th>
                 <th>Car Number</th>
                 <th>Car Name</th>
+                <th>Created By</th>
                 <th>Total Amount</th>
                 <th>Final Amount</th>
                 <th>Balance</th>
@@ -297,7 +310,7 @@ $totalMechanicBalance = (float)($mechanicTotalsRow['mech_bal'] ?? 0);
             <tbody>
               <?php if (empty($recentCars)): ?>
                 <tr>
-                  <td colspan="9" style="text-align: center; color: var(--text-muted); padding: 30px;">No car records found.</td>
+                  <td colspan="10" style="text-align: center; color: var(--text-muted); padding: 30px;">No car records found.</td>
                 </tr>
               <?php else: ?>
                 <?php foreach ($recentCars as $car): ?>
@@ -306,7 +319,11 @@ $totalMechanicBalance = (float)($mechanicTotalsRow['mech_bal'] ?? 0);
                     <td><?php echo e($car['customer_name']); ?><br><small style="color: var(--text-muted);"><?php echo e($car['customer_no']); ?></small></td>
                     <td style="font-weight: 700;"><?php echo e($car['car_number']); ?></td>
                     <td><?php echo e($car['car_name']); ?> (<?php echo e($car['car_color']); ?>)</td>
-                    <td style="font-weight: 700; color: var(--gold-light);"><?php echo formatRupee($car['total_amount']); ?></td>
+                    <td>
+                      <span style="font-weight: 600; font-size: 0.85rem; color: var(--text-main);"><?php echo e($car['creator_name'] ?? 'System Admin'); ?></span><br>
+                      <small style="color: var(--text-muted);">(<?php echo e($car['creator_code'] ?? 'EMP001'); ?>)</small>
+                    </td>
+                    <td style="font-weight: 700; color: var(--gold-dark);"><?php echo formatRupee($car['total_amount']); ?></td>
                     <td style="color: #2ECC71; font-weight: 700;"><?php echo formatRupee($car['final_amount']); ?></td>
                     <td style="color: #E74C3C; font-weight: 700;"><?php echo formatRupee($car['balance_amount']); ?></td>
                     <td><span class="badge badge-status-<?php echo e($car['status']); ?>"><?php echo e($car['status']); ?></span></td>

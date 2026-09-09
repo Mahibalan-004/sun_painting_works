@@ -147,7 +147,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 // Fetch Car & Customer Details
-$stmt = $pdo->prepare("SELECT c.*, cust.customer_name, cust.customer_no, cust.alternate_phone, cust.city FROM cars c JOIN customers cust ON c.customer_id = cust.customer_id WHERE c.id = ?");
+$stmt = $pdo->prepare("SELECT c.*, cust.customer_name, cust.customer_no, cust.alternate_phone, cust.city, creator.name AS creator_name, creator.employee_id AS creator_code FROM cars c JOIN customers cust ON c.customer_id = cust.customer_id LEFT JOIN users creator ON c.created_by = creator.id WHERE c.id = ?");
 $stmt->execute([$car_id]);
 $car = $stmt->fetch();
 
@@ -188,6 +188,7 @@ $workHistory = $stmtHistory->fetchAll();
   
   <link rel="stylesheet" href="../assets/css/style.css">
   <link rel="stylesheet" href="../assets/css/dashboard.css">
+  <script src="../assets/js/theme.js"></script>
 </head>
 <body>
 
@@ -210,7 +211,7 @@ $workHistory = $stmtHistory->fetchAll();
       <li class="sidebar-item">
         <a href="add_car.php"><i class="fa-solid fa-car-tunnel"></i> Add Car / Job</a>
       </li>
-      <li class="sidebar-item">
+      <li class="sidebar-item active">
         <a href="car_list.php"><i class="fa-solid fa-list-check"></i> Car List</a>
       </li>
       <li class="sidebar-item">
@@ -238,8 +239,22 @@ $workHistory = $stmtHistory->fetchAll();
   <!-- Main Content -->
   <main class="main-content">
     <header class="top-bar">
-      <h1 class="top-bar-title"><i class="fa-solid fa-pen-to-square text-gold"></i> Update Car Job: <?php echo e($car['car_number']); ?></h1>
-      <div style="display: flex; gap: 10px;">
+      <div style="display: flex; align-items: center; gap: 15px;">
+        <button type="button" class="sidebar-toggle-btn" aria-label="Toggle Sidebar Menu">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+        <h1 class="top-bar-title"><i class="fa-solid fa-pen-to-square text-gold"></i> Update Car Job: <?php echo e($car['car_number']); ?></h1>
+      </div>
+
+      <div style="display: flex; gap: 10px; align-items: center;">
+        <div class="theme-switcher-control">
+          <i class="fa-solid fa-circle-half-stroke text-gold"></i>
+          <select class="theme-select-input" aria-label="Theme Preference">
+            <option value="light">☀️ Light</option>
+            <option value="dark">🌙 Dark</option>
+            <option value="system">💻 System</option>
+          </select>
+        </div>
         <a href="car_details.php?id=<?php echo $car_id; ?>" class="btn btn-gold" style="padding: 8px 16px; font-size: 0.9rem;"><i class="fa-solid fa-eye"></i> View Invoice Sheet</a>
         <a href="car_list.php" class="btn btn-silver" style="padding: 8px 16px; font-size: 0.9rem;"><i class="fa-solid fa-arrow-left"></i> Car List</a>
       </div>
@@ -279,7 +294,12 @@ $workHistory = $stmtHistory->fetchAll();
           <div class="form-row">
             <div class="form-group">
               <label class="form-label">Customer ID</label>
-              <input type="text" class="form-control" value="<?php echo e($car['customer_id']); ?>" readonly style="background: rgba(212,175,55,0.1); color: var(--gold-light); font-weight: 700;">
+              <input type="text" class="form-control" value="<?php echo e($car['customer_id']); ?>" readonly style="background: rgba(212,175,55,0.1); color: var(--gold-dark); font-weight: 700;">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Created By Staff User</label>
+              <input type="text" class="form-control" value="<?php echo e($car['creator_name'] ?? 'System Admin'); ?> (<?php echo e($car['creator_code'] ?? 'EMP001'); ?>)" readonly style="font-weight: 700; color: var(--gold-dark);">
             </div>
 
             <div class="form-group">

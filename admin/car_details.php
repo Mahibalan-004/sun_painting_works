@@ -9,7 +9,7 @@ if (!$car_id) {
 }
 
 // Fetch Car & Customer Details
-$stmt = $pdo->prepare("SELECT c.*, cust.customer_name, cust.customer_no FROM cars c JOIN customers cust ON c.customer_id = cust.customer_id WHERE c.id = ?");
+$stmt = $pdo->prepare("SELECT c.*, cust.customer_name, cust.customer_no, creator.name AS creator_name, creator.employee_id AS creator_code FROM cars c JOIN customers cust ON c.customer_id = cust.customer_id LEFT JOIN users creator ON c.created_by = creator.id WHERE c.id = ?");
 $stmt->execute([$car_id]);
 $car = $stmt->fetch();
 
@@ -65,7 +65,7 @@ $workHistory = $stmtHistory->fetchAll();
 
 <div class="app-wrapper">
   <!-- Sidebar -->
-  <aside class="sidebar no-print">
+  <aside class="sidebar">
     <div class="sidebar-header">
       <img src="../assets/images/logo.png" alt="Logo" class="sidebar-logo">
       <div>
@@ -110,8 +110,21 @@ $workHistory = $stmtHistory->fetchAll();
   <!-- Main Content -->
   <main class="main-content">
     <header class="top-bar no-print">
-      <h1 class="top-bar-title"><i class="fa-solid fa-file-invoice text-gold"></i> Car Job Sheet & Invoice Details</h1>
-      <div style="display: flex; gap: 10px;">
+      <div style="display: flex; align-items: center; gap: 15px;">
+        <button type="button" class="sidebar-toggle-btn" aria-label="Toggle Sidebar Menu">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+        <h1 class="top-bar-title"><i class="fa-solid fa-file-invoice text-gold"></i> Car Job Sheet & Invoice Details</h1>
+      </div>
+      <div style="display: flex; gap: 10px; align-items: center;">
+        <div class="theme-switcher-control">
+          <i class="fa-solid fa-circle-half-stroke text-gold"></i>
+          <select class="theme-select-input" aria-label="Theme Preference">
+            <option value="light">☀️ Light</option>
+            <option value="dark">🌙 Dark</option>
+            <option value="system">💻 System</option>
+          </select>
+        </div>
         <button onclick="window.print();" class="btn btn-gold" style="padding: 8px 16px; font-size: 0.9rem;"><i class="fa-solid fa-print"></i> Print Invoice / Job Card</button>
         <a href="update_car.php?id=<?php echo $car_id; ?>" class="btn btn-outline-gold" style="padding: 8px 16px; font-size: 0.9rem;"><i class="fa-solid fa-pen"></i> Edit Job</a>
         <a href="car_list.php" class="btn btn-silver" style="padding: 8px 16px; font-size: 0.9rem;"><i class="fa-solid fa-arrow-left"></i> Car List</a>
@@ -163,6 +176,7 @@ $workHistory = $stmtHistory->fetchAll();
               <tr><td style="color: var(--text-muted); width: 40%;">Car Number:</td><td style="font-weight: 800; font-size: 1.1rem;"><?php echo e($car['car_number']); ?></td></tr>
               <tr><td style="color: var(--text-muted);">Vehicle Model:</td><td style="font-weight: 700;"><?php echo e($car['car_name']); ?></td></tr>
               <tr><td style="color: var(--text-muted);">Color:</td><td><?php echo e($car['car_color']); ?></td></tr>
+              <tr><td style="color: var(--text-muted);">Created By:</td><td style="font-weight: 700; color: var(--gold-dark);"><?php echo e($car['creator_name'] ?? 'System Admin'); ?> (<?php echo e($car['creator_code'] ?? 'EMP001'); ?>)</td></tr>
               <tr><td style="color: var(--text-muted);">Current Status:</td><td><span class="badge badge-status-<?php echo e($car['status']); ?>"><?php echo e($car['status']); ?></span></td></tr>
               <tr><td style="color: var(--text-muted);">Type:</td><td>
                 <?php if (($car['is_mechanic_vehicle'] ?? 'No') === 'Yes'): ?>

@@ -56,9 +56,10 @@ $totalRecords = $countStmt->fetchColumn();
 $totalPages = ceil($totalRecords / $limit);
 
 // Fetch Paginated Cars
-$query = "SELECT c.*, cust.customer_name, cust.customer_no 
+$query = "SELECT c.*, cust.customer_name, cust.customer_no, creator.name AS creator_name, creator.employee_id AS creator_code 
           FROM cars c 
           JOIN customers cust ON c.customer_id = cust.customer_id 
+          LEFT JOIN users creator ON c.created_by = creator.id
           WHERE {$whereSql} 
           ORDER BY c.id DESC 
           LIMIT {$limit} OFFSET {$offset}";
@@ -79,6 +80,7 @@ $cars = $stmt->fetchAll();
   
   <link rel="stylesheet" href="../assets/css/style.css">
   <link rel="stylesheet" href="../assets/css/dashboard.css">
+  <script src="../assets/js/theme.js"></script>
 </head>
 <body>
 
@@ -129,8 +131,24 @@ $cars = $stmt->fetchAll();
   <!-- Main Content -->
   <main class="main-content">
     <header class="top-bar">
-      <h1 class="top-bar-title"><i class="fa-solid fa-list-check text-gold"></i> Workshop Car Management List</h1>
-      <a href="add_car.php" class="btn btn-gold"><i class="fa-solid fa-plus-circle"></i> Add New Car Entry</a>
+      <div style="display: flex; align-items: center; gap: 15px;">
+        <button type="button" class="sidebar-toggle-btn" aria-label="Toggle Sidebar Menu">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+        <h1 class="top-bar-title"><i class="fa-solid fa-list-check text-gold"></i> Workshop Car Management List</h1>
+      </div>
+
+      <div style="display: flex; align-items: center; gap: 15px;">
+        <div class="theme-switcher-control">
+          <i class="fa-solid fa-circle-half-stroke text-gold"></i>
+          <select class="theme-select-input" aria-label="Theme Preference">
+            <option value="light">☀️ Light</option>
+            <option value="dark">🌙 Dark</option>
+            <option value="system">💻 System</option>
+          </select>
+        </div>
+        <a href="add_car.php" class="btn btn-gold"><i class="fa-solid fa-plus-circle"></i> Add New Car Entry</a>
+      </div>
     </header>
 
     <div class="content-body">
@@ -205,6 +223,7 @@ $cars = $stmt->fetchAll();
                 <th>Customer / Workshop</th>
                 <th>Car Number</th>
                 <th>Car Name</th>
+                <th>Created By</th>
                 <th>Total Amount</th>
                 <th>Advance / Paid</th>
                 <th>Balance Due</th>
@@ -216,7 +235,7 @@ $cars = $stmt->fetchAll();
             <tbody>
               <?php if (empty($cars)): ?>
                 <tr>
-                  <td colspan="11" style="text-align: center; color: var(--text-muted); padding: 40px;">No vehicle job records match your search query.</td>
+                  <td colspan="12" style="text-align: center; color: var(--text-muted); padding: 40px;">No vehicle job records match your search query.</td>
                 </tr>
               <?php else: ?>
                 <?php foreach ($cars as $c): ?>
@@ -241,7 +260,11 @@ $cars = $stmt->fetchAll();
                     </td>
                     <td style="font-weight: 800;"><?php echo e($c['car_number']); ?></td>
                     <td><?php echo e($c['car_name']); ?> <small style="color: var(--text-muted);">(<?php echo e($c['car_color']); ?>)</small></td>
-                    <td style="font-weight: 700; color: var(--gold-light);"><?php echo formatRupee($c['total_amount']); ?></td>
+                    <td>
+                      <span style="font-weight: 700; font-size: 0.85rem; color: var(--text-main);"><?php echo e($c['creator_name'] ?? 'System Admin'); ?></span><br>
+                      <small style="color: var(--text-muted);">(<?php echo e($c['creator_code'] ?? 'EMP001'); ?>)</small>
+                    </td>
+                    <td style="font-weight: 700; color: var(--gold-dark);"><?php echo formatRupee($c['total_amount']); ?></td>
                     <td style="font-weight: 700; color: #2ECC71;"><?php echo formatRupee($c['advance_amount'] > 0 ? $c['advance_amount'] : $c['final_amount']); ?></td>
                     <td style="font-weight: 700; color: #E74C3C;"><?php echo formatRupee($c['balance_amount']); ?></td>
                     <td>

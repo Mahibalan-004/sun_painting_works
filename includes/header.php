@@ -23,8 +23,9 @@ require_once __DIR__ . '/auth.php';
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="assets/images/logo.png">
 
-  <!-- Global Stylesheet -->
+  <!-- Global Stylesheet & Theme Engine -->
   <link rel="stylesheet" href="assets/css/style.css">
+  <script src="assets/js/theme.js"></script>
 </head>
 <body>
 
@@ -43,6 +44,19 @@ require_once __DIR__ . '/auth.php';
       <li><a href="index.php#services">Services</a></li>
       <li><a href="index.php#about">About</a></li>
       <li><a href="index.php#contact">Contact</a></li>
+
+      <!-- Theme Switcher Dropdown -->
+      <li>
+        <div class="theme-switcher-control">
+          <i class="fa-solid fa-circle-half-stroke text-gold"></i>
+          <select class="theme-select-input" aria-label="Theme Preference">
+            <option value="light">☀️ Light Theme</option>
+            <option value="dark">🌙 Dark Theme</option>
+            <option value="system">💻 System Theme</option>
+          </select>
+        </div>
+      </li>
+
       <?php if (isLoggedIn()): ?>
         <?php if (isAdmin()): ?>
           <li><a href="admin/dashboard.php" class="btn btn-gold"><i class="fa-solid fa-gauge-high"></i> Admin Portal</a></li>

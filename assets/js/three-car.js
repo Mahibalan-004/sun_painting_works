@@ -8,10 +8,13 @@ document.addEventListener('DOMContentLoaded', () => {
   const container = document.getElementById('car3d-canvas');
   if (!container) return;
 
+  const isInitialDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  const initialBg = isInitialDark ? 0x0a0b0e : 0xf4f6f9;
+
   // 1. Scene, Camera, Renderer Setup
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color(0xf4f6f9);
-  scene.fog = new THREE.FogExp2(0xf4f6f9, 0.02);
+  scene.background = new THREE.Color(initialBg);
+  scene.fog = new THREE.FogExp2(initialBg, 0.02);
 
   const camera = new THREE.PerspectiveCamera(
     45,
@@ -79,6 +82,19 @@ document.addEventListener('DOMContentLoaded', () => {
   const gridHelper = new THREE.GridHelper(30, 30, 0xd4af37, 0xcbd5e1);
   gridHelper.position.y = 0.01;
   scene.add(gridHelper);
+
+  // Dynamic Theme Switch Listener
+  function update3DThemeColors(e) {
+    const effectiveTheme = e && e.detail ? e.detail.effectiveTheme : document.documentElement.getAttribute('data-theme');
+    const isDark = effectiveTheme === 'dark';
+    const bgColor = isDark ? 0x0a0b0e : 0xf4f6f9;
+    const floorColor = isDark ? 0x12141c : 0xffffff;
+    
+    scene.background = new THREE.Color(bgColor);
+    scene.fog = new THREE.FogExp2(bgColor, 0.02);
+    if (floor) floor.material.color.setHex(floorColor);
+  }
+  window.addEventListener('themeChanged', update3DThemeColors);
 
   // 5. Car Container Group
   const carGroup = new THREE.Group();

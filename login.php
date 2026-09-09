@@ -63,8 +63,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
   <link rel="stylesheet" href="assets/css/style.css">
   <link rel="stylesheet" href="assets/css/dashboard.css">
+  <script src="assets/js/theme.js"></script>
 </head>
-<body style="background: radial-gradient(circle at center, #FFFFFF 0%, #F1F5F9 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px;">
+<body style="background: var(--bg-primary); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px;">
 
   <div style="width: 100%; max-width: 440px; background: var(--bg-card); border: 1px solid var(--border-gold); border-radius: var(--radius-lg); padding: 45px 35px; box-shadow: 0 15px 40px rgba(0,0,0,0.08); position: relative; overflow: hidden;">
     
