@@ -183,7 +183,7 @@ if ($car_id > 0) {
             </div>
           <?php endif; ?>
 
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 25px;">
+          <div class="responsive-two-col" style="margin-bottom: 25px;">
             <!-- Update Status Form -->
             <form action="work.php?car_id=<?php echo $selectedCar['id']; ?>" method="POST" style="background: rgba(255,255,255,0.02); padding: 20px; border-radius: var(--radius-sm); border: 1px solid var(--border-light);">
               <input type="hidden" name="action" value="update_status">
@@ -232,7 +232,7 @@ if ($car_id > 0) {
                   <button type="button" class="btn btn-gold" style="flex: 1; padding: 10px; font-size: 0.85rem;" onclick="document.getElementById('user-photo-file').click();">
                     <i class="fa-solid fa-folder-open"></i> Upload File
                   </button>
-                  <button type="button" class="btn btn-outline-gold" style="flex: 1; padding: 10px; font-size: 0.85rem;" onclick="document.getElementById('user-photo-camera').click();">
+                  <button type="button" class="btn btn-outline-gold" style="flex: 1; padding: 10px; font-size: 0.85rem;" onclick="triggerDeviceCamera({ targetInputId: 'user-photo-file', fallbackCameraInputId: 'user-photo-camera', autoSubmit: true });">
                     <i class="fa-solid fa-camera"></i> 📷 Take Photo
                   </button>
                 </div>
@@ -317,5 +317,7 @@ if ($car_id > 0) {
   </main>
 </div>
 
+<script src="../assets/js/main.js"></script>
+<script src="../assets/js/camera.js"></script>
 </body>
 </html>

@@ -251,7 +251,7 @@ $totalPayoutsCount = count($salaryRecords);
               <label class="form-label">Salary Amount <span style="font-weight:400; font-size:0.85rem; color:var(--text-muted);">(e.g. ₹4,500)</span> *</label>
               <div style="position: relative;">
                 <span style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--gold-primary); font-weight: 700; font-size: 1rem;">₹</span>
-                <input type="number" step="0.01" name="amount" class="form-control" style="padding-left: 32px;" placeholder="e.g. 4500" required>
+                <input type="number" step="1" name="amount" class="form-control" style="padding-left: 32px;" placeholder="Enter the Amount" value="" required>
               </div>
             </div>
 

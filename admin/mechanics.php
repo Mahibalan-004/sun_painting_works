@@ -752,10 +752,10 @@ $workshopDirectory = $pdo->query("SELECT
       </div>
 
       <div class="form-group" style="margin-bottom: 15px;">
-        <label class="form-label" style="font-weight: 700;">Amount to Pay / Record (₹) *</label>
+        <label class="form-label" style="font-weight: 700;">Payout Amount <span style="font-weight: 400; font-size: 0.85rem; color: var(--text-muted);">(e.g. ₹3,000)</span> *</label>
         <div style="position: relative;">
           <span style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #2ECC71; font-weight: 700; font-size: 1.1rem;">₹</span>
-          <input type="number" step="0.01" name="payout_amount" id="modal_payout_input" class="form-control" style="padding-left: 35px; font-size: 1.1rem; font-weight: 700;" placeholder="0.00" required>
+          <input type="number" step="1" name="payout_amount" id="modal_payout_input" class="form-control" style="padding-left: 35px; font-size: 1.1rem; font-weight: 700;" placeholder="Enter the Amount" value="" required>
         </div>
       </div>
 
@@ -778,12 +778,12 @@ function openPayoutModal(carId, workshopName, carNo, totalAmt, givenAmt, balAmt)
   document.getElementById('modal_car_id').value = carId;
   document.getElementById('modal_workshop_display').textContent = workshopName;
   document.getElementById('modal_car_display').textContent = 'Car Number: ' + carNo;
-  document.getElementById('modal_total_display').textContent = '₹' + parseFloat(totalAmt).toLocaleString('en-IN', { minimumFractionDigits: 2 });
-  document.getElementById('modal_given_display').textContent = '₹' + parseFloat(givenAmt).toLocaleString('en-IN', { minimumFractionDigits: 2 });
-  document.getElementById('modal_balance_display').textContent = '₹' + parseFloat(balAmt).toLocaleString('en-IN', { minimumFractionDigits: 2 });
+  document.getElementById('modal_total_display').textContent = '₹' + Math.round(parseFloat(totalAmt)).toLocaleString('en-IN');
+  document.getElementById('modal_given_display').textContent = '₹' + Math.round(parseFloat(givenAmt)).toLocaleString('en-IN');
+  document.getElementById('modal_balance_display').textContent = '₹' + Math.round(parseFloat(balAmt)).toLocaleString('en-IN');
   
   // Default payout input to remaining balance if any
-  document.getElementById('modal_payout_input').value = balAmt > 0 ? balAmt : '';
+  document.getElementById('modal_payout_input').value = balAmt > 0 ? Math.round(balAmt) : '';
   
   document.getElementById('quickPayoutModal').classList.add('active');
 }

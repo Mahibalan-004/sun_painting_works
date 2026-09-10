@@ -20,7 +20,8 @@ function e($string) {
  * Formats Indian Currency (INR)
  */
 function formatRupee($amount) {
-    return '₹' . number_format((float)$amount, 2);
+    if ($amount === null || $amount === '') return '₹0';
+    return '₹' . number_format(round((float)$amount));
 }
 
 /**

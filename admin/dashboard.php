@@ -255,7 +255,7 @@ $totalMechanicBalance = (float)($mechanicTotalsRow['mech_bal'] ?? 0);
       </div>
 
       <!-- Charts & Quick Overview Row -->
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin-bottom: 35px;">
+      <div class="responsive-two-col" style="margin-bottom: 35px;">
         <!-- Status Breakdown Chart -->
         <div class="card-box" style="margin-bottom: 0;">
           <div class="card-box-header">

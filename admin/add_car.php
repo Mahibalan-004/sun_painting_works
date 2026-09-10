@@ -578,7 +578,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               <label class="form-label">Total Vehicle Amount (Estimate) <span style="font-weight: 400; font-size: 0.85rem; color: var(--text-muted);">(e.g. ₹15,000)</span></label>
               <div style="position: relative;">
                 <span style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--gold-primary); font-weight: 700; font-size: 1rem;">₹</span>
-                <input type="number" step="0.01" id="estimate_amount" name="estimate_amount" class="form-control" style="padding-left: 32px;" placeholder="e.g. 15000" value="<?php echo isset($_POST['estimate_amount']) && $_POST['estimate_amount'] !== '' ? e($_POST['estimate_amount']) : ''; ?>" oninput="calculateVehicleAmounts()">
+                <input type="number" step="1" id="estimate_amount" name="estimate_amount" class="form-control" style="padding-left: 32px;" placeholder="Enter the Amount" value="<?php echo (isset($_POST['estimate_amount']) && $_POST['estimate_amount'] !== '' && (float)$_POST['estimate_amount'] > 0) ? (int)$_POST['estimate_amount'] : ''; ?>" oninput="calculateVehicleAmounts()">
               </div>
             </div>
 
@@ -586,13 +586,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               <label class="form-label">Advance Amount Paid <span style="font-weight: 400; font-size: 0.85rem; color: var(--text-muted);">(e.g. ₹5,000)</span></label>
               <div style="position: relative;">
                 <span style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #2ECC71; font-weight: 700; font-size: 1rem;">₹</span>
-                <input type="number" step="0.01" id="advance_amount" name="advance_amount" class="form-control" style="padding-left: 32px;" placeholder="e.g. 5000" value="<?php echo isset($_POST['advance_amount']) && $_POST['advance_amount'] !== '' ? e($_POST['advance_amount']) : ''; ?>" oninput="calculateVehicleAmounts()">
+                <input type="number" step="1" id="advance_amount" name="advance_amount" class="form-control" style="padding-left: 32px;" placeholder="Enter the Amount" value="<?php echo (isset($_POST['advance_amount']) && $_POST['advance_amount'] !== '' && (float)$_POST['advance_amount'] > 0) ? (int)$_POST['advance_amount'] : ''; ?>" oninput="calculateVehicleAmounts()">
               </div>
             </div>
 
             <div class="form-group">
               <label class="form-label">Calculated Vehicle Balance Due</label>
-              <div id="calc_balance_display" style="font-size: 1.4rem; font-weight: 800; color: #E74C3C; padding: 10px 0;">₹0.00</div>
+              <div id="calc_balance_display" style="font-size: 1.4rem; font-weight: 800; color: #E74C3C; padding: 10px 0;">₹0</div>
             </div>
           </div>
 
@@ -606,7 +606,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <label class="form-label">Mechanic Total / Agreed Amount <span style="font-weight: 400; font-size: 0.85rem; color: var(--text-muted);">(e.g. ₹12,000)</span></label>
                 <div style="position: relative;">
                   <span style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--gold-primary); font-weight: 700; font-size: 1rem;">₹</span>
-                  <input type="number" step="0.01" id="mechanic_total_amount" name="mechanic_total_amount" class="form-control" style="padding-left: 32px;" placeholder="e.g. 12000" value="<?php echo isset($_POST['mechanic_total_amount']) && $_POST['mechanic_total_amount'] !== '' ? e($_POST['mechanic_total_amount']) : ''; ?>" oninput="calculateVehicleAmounts()">
+                  <input type="number" step="1" id="mechanic_total_amount" name="mechanic_total_amount" class="form-control" style="padding-left: 32px;" placeholder="Enter the Amount" value="<?php echo (isset($_POST['mechanic_total_amount']) && $_POST['mechanic_total_amount'] !== '' && (float)$_POST['mechanic_total_amount'] > 0) ? (int)$_POST['mechanic_total_amount'] : ''; ?>" oninput="calculateVehicleAmounts()">
                 </div>
               </div>
 
@@ -614,13 +614,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <label class="form-label">Given Amount to Mechanic <span style="font-weight: 400; font-size: 0.85rem; color: var(--text-muted);">(e.g. ₹3,000)</span></label>
                 <div style="position: relative;">
                   <span style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #2ECC71; font-weight: 700; font-size: 1rem;">₹</span>
-                  <input type="number" step="0.01" id="mechanic_given_amount" name="mechanic_given_amount" class="form-control" style="padding-left: 32px;" placeholder="e.g. 3000" value="<?php echo isset($_POST['mechanic_given_amount']) && $_POST['mechanic_given_amount'] !== '' ? e($_POST['mechanic_given_amount']) : ''; ?>" oninput="calculateVehicleAmounts()">
+                  <input type="number" step="1" id="mechanic_given_amount" name="mechanic_given_amount" class="form-control" style="padding-left: 32px;" placeholder="Enter the Amount" value="<?php echo (isset($_POST['mechanic_given_amount']) && $_POST['mechanic_given_amount'] !== '' && (float)$_POST['mechanic_given_amount'] > 0) ? (int)$_POST['mechanic_given_amount'] : ''; ?>" oninput="calculateVehicleAmounts()">
                 </div>
               </div>
 
               <div class="form-group">
                 <label class="form-label">Mechanic Balance Payable</label>
-                <div id="calc_mech_balance_display" style="font-size: 1.4rem; font-weight: 800; color: #F39C12; padding: 10px 0;">₹0.00</div>
+                <div id="calc_mech_balance_display" style="font-size: 1.4rem; font-weight: 800; color: #F39C12; padding: 10px 0;">₹0</div>
               </div>
             </div>
           </div>
@@ -640,14 +640,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <input type="file" id="photo-upload-input" name="damage_photos[]" multiple accept="image/*" style="display: none;">
 
             <!-- Button 2: Take Photo (Camera) -->
-            <button type="button" class="btn btn-outline-gold" onclick="document.getElementById('photo-camera-input').click();">
+            <button type="button" class="btn btn-outline-gold" onclick="triggerDeviceCamera({ targetInputId: 'photo-upload-input', fallbackCameraInputId: 'photo-camera-input', previewGalleryId: 'preview-gallery' });">
               <i class="fa-solid fa-camera"></i> 📷 Take Photo
             </button>
             <input type="file" id="photo-camera-input" accept="image/*" capture="environment" style="display: none;">
           </div>
 
           <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 15px;">
-            Formats allowed: JPG, JPEG, PNG, WEBP (Max 5 MB per image). Use "Take Photo" on mobile devices to open camera directly.
+            Formats allowed: JPG, JPEG, PNG, WEBP (Max 5 MB per image). Use "Take Photo" to capture directly using device or mobile camera.
           </p>
 
           <!-- Live Preview Gallery -->
@@ -666,6 +666,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </div>
 
 <script src="../assets/js/main.js"></script>
+<script src="../assets/js/camera.js"></script>
 <script>
 const customersDatabase = <?php echo json_encode($allCustomers); ?>;
 const defaultNextCustomerId = "<?php echo e($nextCustomerId); ?>";
@@ -705,7 +706,7 @@ function calculateVehicleAmounts() {
 
   const calcBalDisp = document.getElementById('calc_balance_display');
   if (calcBalDisp) {
-    calcBalDisp.textContent = '₹' + vehicleBalance.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    calcBalDisp.textContent = '₹' + Math.round(vehicleBalance).toLocaleString('en-IN');
   }
 
   const mechTotal = parseFloat(document.getElementById('mechanic_total_amount')?.value || 0);
@@ -714,7 +715,7 @@ function calculateVehicleAmounts() {
 
   const calcMechBalDisp = document.getElementById('calc_mech_balance_display');
   if (calcMechBalDisp) {
-    calcMechBalDisp.textContent = '₹' + mechBalance.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    calcMechBalDisp.textContent = '₹' + Math.round(mechBalance).toLocaleString('en-IN');
   }
 }
 

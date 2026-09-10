@@ -419,12 +419,12 @@ $workHistory = $stmtHistory->fetchAll();
 
             <div class="form-group">
               <label class="form-label">Total Vehicle Amount (Estimate) <span style="font-weight: 400; font-size: 0.85rem; color: var(--text-muted);">(e.g. ₹15,000)</span></label>
-              <input type="number" step="0.01" id="estimate_amount" name="estimate_amount" class="form-control" value="<?php echo e($car['estimate_amount']); ?>" oninput="calculateUpdateAmounts()">
+              <input type="number" step="1" id="estimate_amount" name="estimate_amount" class="form-control" placeholder="Enter the Amount" value="<?php echo ((float)$car['estimate_amount'] > 0) ? (int)$car['estimate_amount'] : ''; ?>" oninput="calculateUpdateAmounts()">
             </div>
 
             <div class="form-group">
               <label class="form-label">Advance Amount Paid <span style="font-weight: 400; font-size: 0.85rem; color: var(--text-muted);">(e.g. ₹5,000)</span></label>
-              <input type="number" step="0.01" id="advance_amount" name="advance_amount" class="form-control" value="<?php echo e($car['advance_amount'] > 0 ? $car['advance_amount'] : $car['final_amount']); ?>" oninput="calculateUpdateAmounts()">
+              <input type="number" step="1" id="advance_amount" name="advance_amount" class="form-control" placeholder="Enter the Amount" value="<?php $adv = (float)$car['advance_amount'] > 0 ? $car['advance_amount'] : $car['final_amount']; echo ($adv > 0) ? (int)$adv : ''; ?>" oninput="calculateUpdateAmounts()">
             </div>
           </div>
 
@@ -436,12 +436,12 @@ $workHistory = $stmtHistory->fetchAll();
             <div class="form-row">
               <div class="form-group">
                 <label class="form-label">Mechanic Total / Agreed Amount <span style="font-weight: 400; font-size: 0.85rem; color: var(--text-muted);">(e.g. ₹12,000)</span></label>
-                <input type="number" step="0.01" id="mechanic_total_amount" name="mechanic_total_amount" class="form-control" value="<?php echo e($car['mechanic_total_amount']); ?>" oninput="calculateUpdateAmounts()">
+                <input type="number" step="1" id="mechanic_total_amount" name="mechanic_total_amount" class="form-control" placeholder="Enter the Amount" value="<?php echo ((float)$car['mechanic_total_amount'] > 0) ? (int)$car['mechanic_total_amount'] : ''; ?>" oninput="calculateUpdateAmounts()">
               </div>
 
               <div class="form-group">
                 <label class="form-label">Given Amount to Mechanic <span style="font-weight: 400; font-size: 0.85rem; color: var(--text-muted);">(e.g. ₹3,000)</span></label>
-                <input type="number" step="0.01" id="mechanic_given_amount" name="mechanic_given_amount" class="form-control" value="<?php echo e($car['mechanic_given_amount']); ?>" oninput="calculateUpdateAmounts()">
+                <input type="number" step="1" id="mechanic_given_amount" name="mechanic_given_amount" class="form-control" placeholder="Enter the Amount" value="<?php echo ((float)$car['mechanic_given_amount'] > 0) ? (int)$car['mechanic_given_amount'] : ''; ?>" oninput="calculateUpdateAmounts()">
               </div>
             </div>
           </div>
@@ -458,62 +458,61 @@ $workHistory = $stmtHistory->fetchAll();
       </form>
 
       <!-- 2. Financial Breakdown Display -->
-      <div class="card-box" style="background: rgba(212, 175, 55, 0.04); border-color: var(--border-gold);">
+      <div class="card-box">
         <div class="card-box-header">
-          <div class="card-box-title"><i class="fa-solid fa-wallet text-gold"></i> Live Payment & Financial Summary</div>
-          <span class="badge badge-pay-<?php echo e($car['payment_status']); ?>"><?php echo e($car['payment_status']); ?></span>
+          <div class="card-box-title"><i class="fa-solid fa-receipt text-gold"></i> Financial Summary Breakdown</div>
         </div>
-
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px; text-align: center;">
-          <div style="background: var(--bg-card); padding: 15px; border-radius: var(--radius-sm); border: 1px solid var(--border-light);">
-            <div style="font-size: 0.8rem; color: var(--text-muted);">Vehicle Total Amount</div>
-            <div style="font-size: 1.3rem; font-weight: 700; color: var(--gold-primary);"><?php echo formatRupee($car['total_amount']); ?></div>
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <div class="metric-info">
+              <div class="metric-label">Total Job Amount</div>
+              <div style="font-size: 1.3rem; font-weight: 700; color: var(--gold-primary);"><?php echo formatRupee($car['total_amount']); ?></div>
+            </div>
           </div>
 
-          <div style="background: var(--bg-card); padding: 15px; border-radius: var(--radius-sm); border: 1px solid rgba(46,204,113,0.3);">
-            <div style="font-size: 0.8rem; color: var(--text-muted);">Advance Paid</div>
-            <div style="font-size: 1.3rem; font-weight: 700; color: #2ECC71;"><?php echo formatRupee($car['advance_amount'] > 0 ? $car['advance_amount'] : $car['final_amount']); ?></div>
+          <div class="metric-card">
+            <div class="metric-info">
+              <div class="metric-label">Advance Paid</div>
+              <div style="font-size: 1.3rem; font-weight: 700; color: #2ECC71;"><?php echo formatRupee($car['advance_amount'] > 0 ? $car['advance_amount'] : $car['final_amount']); ?></div>
+            </div>
           </div>
 
-          <div style="background: var(--bg-card); padding: 15px; border-radius: var(--radius-sm); border: 1px solid rgba(231,76,60,0.3);">
-            <div style="font-size: 0.8rem; color: var(--text-muted);">Vehicle Balance Due</div>
-            <div style="font-size: 1.3rem; font-weight: 700; color: #E74C3C;"><?php echo formatRupee($car['balance_amount']); ?></div>
+          <div class="metric-card">
+            <div class="metric-info">
+              <div class="metric-label">Balance Remaining</div>
+              <div style="font-size: 1.3rem; font-weight: 700; color: #E74C3C;"><?php echo formatRupee($car['balance_amount']); ?></div>
+            </div>
           </div>
 
-          <?php if (($car['is_mechanic_vehicle'] ?? 'No') === 'Yes'): ?>
-            <div style="background: var(--bg-card); padding: 15px; border-radius: var(--radius-sm); border: 1px solid var(--border-gold);">
-              <div style="font-size: 0.8rem; color: var(--text-muted);">Mechanic Total Amount</div>
-              <div style="font-size: 1.3rem; font-weight: 700; color: var(--gold-light);"><?php echo formatRupee($car['mechanic_total_amount']); ?></div>
+          <?php if (($car['is_mechanic_vehicle'] ?? '') === 'Yes'): ?>
+            <div class="metric-card">
+              <div class="metric-info">
+                <div class="metric-label">Mechanic Total</div>
+                <div style="font-size: 1.3rem; font-weight: 700; color: var(--gold-light);"><?php echo formatRupee($car['mechanic_total_amount']); ?></div>
+              </div>
             </div>
 
-            <div style="background: var(--bg-card); padding: 15px; border-radius: var(--radius-sm); border: 1px solid rgba(46,204,113,0.3);">
-              <div style="font-size: 0.8rem; color: var(--text-muted);">Given to Mechanic</div>
-              <div style="font-size: 1.3rem; font-weight: 700; color: #2ECC71;"><?php echo formatRupee($car['mechanic_given_amount']); ?></div>
+            <div class="metric-card">
+              <div class="metric-info">
+                <div class="metric-label">Given to Mech</div>
+                <div style="font-size: 1.3rem; font-weight: 700; color: #2ECC71;"><?php echo formatRupee($car['mechanic_given_amount']); ?></div>
+              </div>
             </div>
 
-            <div style="background: var(--bg-card); padding: 15px; border-radius: var(--radius-sm); border: 1px solid rgba(243,156,18,0.4);">
-              <div style="font-size: 0.8rem; color: var(--text-muted);">Mechanic Balance Payable</div>
-              <div style="font-size: 1.3rem; font-weight: 700; color: #F39C12;"><?php echo formatRupee($car['mechanic_balance_amount']); ?></div>
+            <div class="metric-card">
+              <div class="metric-info">
+                <div class="metric-label">Mech Balance</div>
+                <div style="font-size: 1.3rem; font-weight: 700; color: #F39C12;"><?php echo formatRupee($car['mechanic_balance_amount']); ?></div>
+              </div>
             </div>
           <?php endif; ?>
-        </div>
-
-          <div style="background: var(--bg-card); padding: 15px; border-radius: var(--radius-sm); border: 1px solid rgba(46,204,113,0.3);">
-            <div style="font-size: 0.8rem; color: var(--text-muted);">Final Received</div>
-            <div style="font-size: 1.3rem; font-weight: 700; color: #2ECC71;"><?php echo formatRupee($car['final_amount']); ?></div>
-          </div>
-
-          <div style="background: var(--bg-card); padding: 15px; border-radius: var(--radius-sm); border: 1px solid rgba(231,76,60,0.3);">
-            <div style="font-size: 0.8rem; color: var(--text-muted);">Balance Due</div>
-            <div style="font-size: 1.4rem; font-weight: 800; color: #E74C3C;"><?php echo formatRupee($car['balance_amount']); ?></div>
-          </div>
         </div>
       </div>
 
       <!-- 3. EXTRA WORK SECTION -->
       <div class="card-box">
         <div class="card-box-header">
-          <div class="card-box-title"><i class="fa-solid fa-list-plus text-gold"></i> Extra Work Records</div>
+          <div class="card-box-title"><i class="fa-solid fa-list-plus text-gold"></i> Extra Work & Additional Services Log</div>
         </div>
 
         <!-- Add Extra Work Form -->
@@ -525,8 +524,8 @@ $workHistory = $stmtHistory->fetchAll();
               <input type="text" name="extra_description" class="form-control" placeholder="e.g. Scratch Removal - Door, Ceramic Polish, Bumper Dent" required>
             </div>
             <div class="form-group" style="flex: 1; margin-bottom: 0;">
-              <label class="form-label">Amount (₹)</label>
-              <input type="number" step="0.01" name="extra_amount" class="form-control extra-work-amount-val" placeholder="0.00" required>
+              <label class="form-label">Extra Work Amount <span style="font-weight: 400; font-size: 0.85rem; color: var(--text-muted);">(e.g. ₹1,500)</span></label>
+              <input type="number" step="1" name="extra_amount" class="form-control extra-work-amount-val" placeholder="Enter the Amount" value="" required>
             </div>
             <div style="margin-bottom: 0;">
               <button type="submit" class="btn btn-gold"><i class="fa-solid fa-plus"></i> Add Extra Work</button>
@@ -586,7 +585,7 @@ $workHistory = $stmtHistory->fetchAll();
             </button>
             <input type="file" id="after-paint-file-input" name="after_paint_photos[]" multiple accept="image/*" style="display: none;" onchange="this.form.submit();">
 
-            <button type="button" class="btn btn-outline-gold" onclick="document.getElementById('after-paint-camera-input').click();">
+            <button type="button" class="btn btn-outline-gold" onclick="triggerDeviceCamera({ targetInputId: 'after-paint-file-input', fallbackCameraInputId: 'after-paint-camera-input', autoSubmit: true });">
               <i class="fa-solid fa-camera"></i> 📷 Take Photo
             </button>
             <input type="file" id="after-paint-camera-input" name="after_paint_photos[]" accept="image/*" capture="environment" style="display: none;" onchange="this.form.submit();">
@@ -664,6 +663,7 @@ $workHistory = $stmtHistory->fetchAll();
 </div>
 
 <script src="../assets/js/main.js"></script>
+<script src="../assets/js/camera.js"></script>
 <script>
 function toggleMechanicSection(show) {
   const mechDetailsBox = document.getElementById('mechanic-details-box');

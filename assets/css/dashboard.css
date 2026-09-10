@@ -710,4 +710,120 @@
   box-shadow: 0 2px 8px rgba(212, 175, 55, 0.3);
 }
 
+/* ================= Universal Camera Modal ================= */
+.camera-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(6px);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 15px;
+  animation: fadeIn 0.2s ease;
+}
+
+.camera-modal-dialog {
+  background: var(--bg-card);
+  border: 1px solid var(--border-gold);
+  border-radius: var(--radius-md);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
+  width: 100%;
+  max-width: 600px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.camera-modal-header {
+  padding: 14px 20px;
+  background: rgba(212, 175, 55, 0.08);
+  border-bottom: 1px solid var(--border-light);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.camera-modal-close {
+  background: none;
+  border: none;
+  font-size: 1.6rem;
+  line-height: 1;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+.camera-modal-close:hover {
+  color: #E74C3C;
+}
+
+.camera-modal-body {
+  position: relative;
+  width: 100%;
+  height: 360px;
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.camera-modal-footer {
+  padding: 14px 20px;
+  background: var(--bg-card);
+  border-top: 1px solid var(--border-light);
+  display: flex;
+  align-items: center;
+}
+
+/* ================= Device Responsive Enhancements ================= */
+.responsive-two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 25px;
+}
+
+@media (max-width: 900px) {
+  .responsive-two-col {
+    grid-template-columns: 1fr !important;
+    gap: 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .camera-modal-body {
+    height: 280px;
+  }
+  .table-responsive {
+    border-radius: var(--radius-sm);
+    -webkit-overflow-scrolling: touch;
+  }
+  .form-row {
+    grid-template-columns: 1fr !important;
+    gap: 12px;
+  }
+  .metrics-grid {
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)) !important;
+    gap: 12px;
+  }
+  .metric-card {
+    padding: 14px 12px;
+  }
+  .metric-value {
+    font-size: 1.25rem !important;
+  }
+  .top-bar-title {
+    font-size: 1rem !important;
+  }
+  .top-bar {
+    padding: 0 12px;
+    height: 60px;
+  }
+  .content-body {
+    padding: 15px 12px;
+  }
+}
+
+
 

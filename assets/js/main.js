@@ -134,10 +134,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const total = estimate + extraTotal;
     const balance = Math.max(0, total - finalAmount);
 
-    if (totalDisplay) totalDisplay.innerText = '₹' + total.toFixed(2);
-    if (balanceDisplay) balanceDisplay.innerText = '₹' + balance.toFixed(2);
-    if (totalHidden) totalHidden.value = total.toFixed(2);
-    if (balanceHidden) balanceHidden.value = balance.toFixed(2);
+    if (totalDisplay) totalDisplay.innerText = '₹' + Math.round(total).toLocaleString('en-IN');
+    if (balanceDisplay) balanceDisplay.innerText = '₹' + Math.round(balance).toLocaleString('en-IN');
+    if (totalHidden) totalHidden.value = Math.round(total);
+    if (balanceHidden) balanceHidden.value = Math.round(balance);
   }
 
   if (estimateInput) estimateInput.addEventListener('input', updateFinancials);
