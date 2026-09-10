@@ -18,8 +18,8 @@ if (!$car) {
     exit;
 }
 
-// Fetch Damage Photos
-$stmtDamage = $pdo->prepare("SELECT * FROM car_photos WHERE car_id = ? AND photo_type = 'damage'");
+// Fetch Before Painting Photos (supports damage and before_paint)
+$stmtDamage = $pdo->prepare("SELECT * FROM car_photos WHERE car_id = ? AND photo_type IN ('damage', 'before_paint')");
 $stmtDamage->execute([$car_id]);
 $damagePhotos = $stmtDamage->fetchAll();
 
@@ -96,6 +96,9 @@ $workHistory = $stmtHistory->fetchAll();
       <li class="sidebar-item">
         <a href="attendance.php"><i class="fa-solid fa-clipboard-user"></i> Attendance</a>
       </li>
+      <li class="sidebar-item">
+        <a href="salary.php"><i class="fa-solid fa-money-bill-wave"></i> Employee Salary</a>
+      </li>
 
       <li class="sidebar-menu-category">Public Site</li>
       <li class="sidebar-item">
@@ -117,14 +120,6 @@ $workHistory = $stmtHistory->fetchAll();
         <h1 class="top-bar-title"><i class="fa-solid fa-file-invoice text-gold"></i> Car Job Sheet & Invoice Details</h1>
       </div>
       <div style="display: flex; gap: 10px; align-items: center;">
-        <div class="theme-switcher-control">
-          <i class="fa-solid fa-circle-half-stroke text-gold"></i>
-          <select class="theme-select-input" aria-label="Theme Preference">
-            <option value="light">☀️ Light</option>
-            <option value="dark">🌙 Dark</option>
-            <option value="system">💻 System</option>
-          </select>
-        </div>
         <button onclick="window.print();" class="btn btn-gold" style="padding: 8px 16px; font-size: 0.9rem;"><i class="fa-solid fa-print"></i> Print Invoice / Job Card</button>
         <a href="update_car.php?id=<?php echo $car_id; ?>" class="btn btn-outline-gold" style="padding: 8px 16px; font-size: 0.9rem;"><i class="fa-solid fa-pen"></i> Edit Job</a>
         <a href="car_list.php" class="btn btn-silver" style="padding: 8px 16px; font-size: 0.9rem;"><i class="fa-solid fa-arrow-left"></i> Car List</a>
@@ -278,7 +273,7 @@ $workHistory = $stmtHistory->fetchAll();
             <h4 style="color: var(--gold-primary); margin-bottom: 15px;"><i class="fa-solid fa-images"></i> Vehicle Inspection & Completion Photos</h4>
             
             <?php if (!empty($damagePhotos)): ?>
-              <h5 style="color: var(--silver-light); margin: 15px 0 10px;">Initial Damage Photos:</h5>
+              <h5 style="color: var(--silver-light); margin: 15px 0 10px;">Before Painting Photos:</h5>
               <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; margin-bottom: 20px;">
                 <?php foreach ($damagePhotos as $dp): ?>
                   <img src="../<?php echo e($dp['photo_path']); ?>" alt="Damage" style="width: 100%; height: 120px; object-fit: cover; border-radius: var(--radius-sm); border: 1px solid var(--border-light);">

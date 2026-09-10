@@ -131,14 +131,51 @@ function recalculateCarAmounts($pdo, $car_id) {
 }
 
 /**
- * Ensures database schema has selected_parts column in cars table
+ * Ensures database schema has necessary tables and columns
  */
 function ensureCarsTableSchema($pdo) {
     try {
         $pdo->exec("ALTER TABLE cars ADD COLUMN selected_parts TEXT NULL AFTER status");
-    } catch (Exception $e) {
-        // Column already exists or schema already altered
-    }
+    } catch (Exception $e) {}
+
+    try {
+        $pdo->exec("ALTER TABLE cars MODIFY COLUMN status VARCHAR(50) NOT NULL DEFAULT 'New'");
+    } catch (Exception $e) {}
+
+    try {
+        $pdo->exec("ALTER TABLE car_photos MODIFY COLUMN photo_type VARCHAR(50) NOT NULL DEFAULT 'damage'");
+    } catch (Exception $e) {}
+
+    try {
+        $pdo->exec("CREATE TABLE IF NOT EXISTS `salaries` (
+            `id` INT AUTO_INCREMENT PRIMARY KEY,
+            `user_id` INT NOT NULL,
+            `amount` DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+            `payment_date` DATE NOT NULL,
+            `period_type` ENUM('Weekly', 'Monthly') NOT NULL DEFAULT 'Weekly',
+            `start_date` DATE NULL,
+            `end_date` DATE NULL,
+            `notes` VARCHAR(255) NULL,
+            `paid_by` INT NULL,
+            `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            INDEX `idx_salary_user_id` (`user_id`),
+            INDEX `idx_salary_payment_date` (`payment_date`),
+            CONSTRAINT `fk_salaries_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+    } catch (Exception $e) {}
 }
 ensureCarsTableSchema($pdo);
+
+/**
+ * Returns existing customers array for live search & auto-fill
+ */
+function getAllCustomersList($pdo) {
+    try {
+        $stmt = $pdo->query("SELECT customer_id, customer_no, customer_name, alternate_phone, city FROM customers ORDER BY id DESC");
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (Exception $e) {
+        return [];
+    }
+}
+
 

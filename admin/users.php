@@ -134,6 +134,9 @@ $users = $pdo->query("SELECT * FROM users ORDER BY id DESC")->fetchAll();
       <li class="sidebar-item">
         <a href="attendance.php"><i class="fa-solid fa-clipboard-user"></i> Attendance</a>
       </li>
+      <li class="sidebar-item">
+        <a href="salary.php"><i class="fa-solid fa-money-bill-wave"></i> Employee Salary</a>
+      </li>
 
       <li class="sidebar-menu-category">Public Site</li>
       <li class="sidebar-item">
@@ -153,17 +156,6 @@ $users = $pdo->query("SELECT * FROM users ORDER BY id DESC")->fetchAll();
           <i class="fa-solid fa-bars"></i>
         </button>
         <h1 class="top-bar-title"><i class="fa-solid fa-users-gear text-gold"></i> Employee & User Management</h1>
-      </div>
-
-      <div class="user-profile-menu">
-        <div class="theme-switcher-control">
-          <i class="fa-solid fa-circle-half-stroke text-gold"></i>
-          <select class="theme-select-input" aria-label="Theme Preference">
-            <option value="light">☀️ Light</option>
-            <option value="dark">🌙 Dark</option>
-            <option value="system">💻 System</option>
-          </select>
-        </div>
       </div>
     </header>
 

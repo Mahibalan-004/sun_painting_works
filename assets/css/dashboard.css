@@ -256,13 +256,15 @@
 
 /* Car Work Statuses */
 .badge-status-New { background: rgba(52, 152, 219, 0.15); color: #2980B9; border: 1px solid #3498DB; }
-.badge-status-Inspection { background: rgba(155, 89, 182, 0.15); color: #8E44AD; border: 1px solid #9B59B6; }
-.badge-status-Denting { background: rgba(230, 126, 34, 0.15); color: #D35400; border: 1px solid #E67E22; }
-.badge-status-Painting { background: rgba(241, 196, 15, 0.2); color: #B7950B; border: 1px solid #F1C40F; }
-.badge-status-Polishing { background: rgba(26, 188, 156, 0.15); color: #16A085; border: 1px solid #1ABC9C; }
-.badge-status-Extra\ Work { background: rgba(231, 76, 60, 0.15); color: #C0392B; border: 1px solid #E74C3C; }
-.badge-status-Completed { background: rgba(46, 204, 113, 0.15); color: #27AE60; border: 1px solid #2ECC71; }
-.badge-status-Delivered { background: rgba(212, 175, 55, 0.2); color: #9A7B1C; border: 1px solid #D4AF37; }
+.badge-status-Putty { background: rgba(243, 156, 18, 0.18); color: #D68910; border: 1px solid #F39C12; }
+.badge-status-NC\ Putty, .badge-status-NC-Putty { background: rgba(230, 126, 34, 0.18); color: #D35400; border: 1px solid #E67E22; }
+.badge-status-Primer { background: rgba(142, 68, 173, 0.15); color: #7D3C98; border: 1px solid #8E44AD; }
+.badge-status-Base\ Coat, .badge-status-Base-Coat { background: rgba(41, 128, 185, 0.15); color: #1F618D; border: 1px solid #2980B9; }
+.badge-status-Painting { background: rgba(241, 196, 15, 0.25); color: #B7950B; border: 1px solid #D4AF37; }
+.badge-status-Polishing { background: rgba(26, 188, 156, 0.18); color: #117A65; border: 1px solid #1ABC9C; }
+.badge-status-Extra\ Work, .badge-status-Extra-Work { background: rgba(231, 76, 60, 0.15); color: #C0392B; border: 1px solid #E74C3C; }
+.badge-status-Completed { background: rgba(46, 204, 113, 0.18); color: #1E8449; border: 1px solid #2ECC71; }
+.badge-status-Delivered { background: rgba(39, 174, 96, 0.25); color: #145A32; border: 1px solid #27AE60; }
 
 /* Payment Statuses */
 .badge-pay-Paid { background: rgba(46, 204, 113, 0.15); color: #27AE60; border: 1px solid #2ECC71; }

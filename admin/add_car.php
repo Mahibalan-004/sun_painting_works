@@ -6,6 +6,7 @@ $success = '';
 
 // Generate next Customer ID automatically
 $nextCustomerId = generateNextCustomerID($pdo);
+$allCustomers = getAllCustomersList($pdo);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $customer_id = trim($_POST['customer_id'] ?? '');
@@ -44,15 +45,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         try {
             $pdo->beginTransaction();
 
-            // 1. Insert or check existing Customer
-            $custCheck = $pdo->prepare("SELECT customer_id FROM customers WHERE customer_id = ?");
-            $custCheck->execute([$customer_id]);
-            if ($custCheck->fetch()) {
-                $customer_id = generateNextCustomerID($pdo);
-            }
+            // 1. Check if customer exists by ID or Phone
+            $custCheck = $pdo->prepare("SELECT id, customer_id FROM customers WHERE customer_id = ? OR customer_no = ?");
+            $custCheck->execute([$customer_id, $customer_no]);
+            $existingCust = $custCheck->fetch();
 
-            $stmtCust = $pdo->prepare("INSERT INTO customers (customer_id, customer_no, alternate_phone, customer_name, city) VALUES (?, ?, ?, ?, ?)");
-            $stmtCust->execute([$customer_id, $customer_no, $alternate_phone, $customer_name, $city]);
+            if ($existingCust) {
+                $customer_id = $existingCust['customer_id'];
+                $stmtCust = $pdo->prepare("UPDATE customers SET customer_no = ?, alternate_phone = ?, customer_name = ?, city = ? WHERE id = ?");
+                $stmtCust->execute([$customer_no, $alternate_phone, $customer_name, $city, $existingCust['id']]);
+            } else {
+                $stmtCust = $pdo->prepare("INSERT INTO customers (customer_id, customer_no, alternate_phone, customer_name, city) VALUES (?, ?, ?, ?, ?)");
+                $stmtCust->execute([$customer_id, $customer_no, $alternate_phone, $customer_name, $city]);
+            }
 
             // 2. Financial Calculations
             $total_amount = $estimate_amount;
@@ -196,6 +201,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       <li class="sidebar-item">
         <a href="attendance.php"><i class="fa-solid fa-clipboard-user"></i> Attendance</a>
       </li>
+      <li class="sidebar-item">
+        <a href="salary.php"><i class="fa-solid fa-money-bill-wave"></i> Employee Salary</a>
+      </li>
 
       <li class="sidebar-menu-category">Public Site</li>
       <li class="sidebar-item">
@@ -218,14 +226,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       </div>
 
       <div style="display: flex; gap: 10px; align-items: center;">
-        <div class="theme-switcher-control">
-          <i class="fa-solid fa-circle-half-stroke text-gold"></i>
-          <select class="theme-select-input" aria-label="Theme Preference">
-            <option value="light">☀️ Light</option>
-            <option value="dark">🌙 Dark</option>
-            <option value="system">💻 System</option>
-          </select>
-        </div>
         <a href="car_list.php" class="btn btn-outline-gold" style="padding: 8px 16px; font-size: 0.9rem;"><i class="fa-solid fa-arrow-left"></i> Car List</a>
       </div>
     </header>
@@ -241,36 +241,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         <!-- SECTION 1: CUSTOMER DETAILS -->
         <div class="card-box">
-          <div class="card-box-header">
+          <div class="card-box-header" style="flex-wrap: wrap; gap: 10px;">
             <div class="card-box-title"><i class="fa-solid fa-address-card text-gold"></i> 1. Customer Details</div>
+            <div style="font-size: 0.85rem; color: var(--gold-dark); font-weight: 600;">
+              <i class="fa-solid fa-magnifying-glass"></i> Search existing customer by typing phone number
+            </div>
           </div>
 
           <div class="form-row">
             <div class="form-group">
-              <label class="form-label">Customer ID (Auto-Generated)</label>
-              <input type="text" name="customer_id" class="form-control" value="<?php echo e($nextCustomerId); ?>" readonly style="background: rgba(212,175,55,0.1); border-color: var(--border-gold); font-weight: 700; color: var(--gold-light);">
+              <label class="form-label">Customer Phone Number *</label>
+              <input type="text" name="customer_no" id="customer_no" class="form-control" placeholder="Type phone no to search..." required list="existing_customers_datalist" autocomplete="off" value="<?php echo e($_POST['customer_no'] ?? ''); ?>" oninput="onCustomerPhoneInput(this.value)">
+              <datalist id="existing_customers_datalist">
+                <?php foreach ($allCustomers as $ac): ?>
+                  <option value="<?php echo e($ac['customer_no']); ?>"><?php echo e($ac['customer_name']); ?> (<?php echo e($ac['customer_id']); ?> - <?php echo e($ac['city'] ?: 'City N/A'); ?>)</option>
+                <?php endforeach; ?>
+              </datalist>
+              <div id="customer_found_status" style="margin-top: 6px; font-size: 0.85rem; font-weight: 700;"></div>
             </div>
 
             <div class="form-group">
-              <label class="form-label">Customer Number *</label>
-              <input type="text" name="customer_no" class="form-control" placeholder="e.g. 9442399079" required value="<?php echo e($_POST['customer_no'] ?? ''); ?>">
+              <label class="form-label">Customer ID (Auto-Generated / Existing)</label>
+              <input type="text" name="customer_id" id="customer_id" class="form-control" value="<?php echo e($nextCustomerId); ?>" readonly style="background: rgba(212,175,55,0.1); border-color: var(--border-gold); font-weight: 700; color: var(--gold-light);">
             </div>
 
             <div class="form-group">
               <label class="form-label">Alternate Phone (Optional)</label>
-              <input type="text" name="alternate_phone" class="form-control" placeholder="e.g. 9842299079" value="<?php echo e($_POST['alternate_phone'] ?? ''); ?>">
+              <input type="text" name="alternate_phone" id="alternate_phone" class="form-control" placeholder="e.g. 9842299079" value="<?php echo e($_POST['alternate_phone'] ?? ''); ?>">
             </div>
           </div>
 
           <div class="form-row">
             <div class="form-group">
               <label class="form-label">Customer Name *</label>
-              <input type="text" name="customer_name" class="form-control" placeholder="e.g. Ramesh Kumar" required value="<?php echo e($_POST['customer_name'] ?? ''); ?>">
+              <input type="text" name="customer_name" id="customer_name" class="form-control" placeholder="e.g. Ramesh Kumar" required value="<?php echo e($_POST['customer_name'] ?? ''); ?>">
             </div>
 
             <div class="form-group">
               <label class="form-label">City (Optional)</label>
-              <input type="text" name="city" class="form-control" placeholder="e.g. Gobichettipalayam" value="<?php echo e($_POST['city'] ?? ''); ?>">
+              <input type="text" name="city" id="city" class="form-control" placeholder="e.g. Gobichettipalayam" value="<?php echo e($_POST['city'] ?? ''); ?>">
             </div>
           </div>
         </div>
@@ -617,10 +626,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           </div>
         </div>
 
-        <!-- SECTION 5: DAMAGE PHOTOS UPLOAD -->
+        <!-- SECTION 5: BEFORE PAINTING PHOTOS UPLOAD -->
         <div class="card-box">
           <div class="card-box-header">
-            <div class="card-box-title"><i class="fa-solid fa-camera text-gold"></i> 5. Damage Photos (Upload & Camera)</div>
+            <div class="card-box-title"><i class="fa-solid fa-camera text-gold"></i> 5. Before Painting Photos (Upload & Camera)</div>
           </div>
 
           <div style="display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 20px;">
@@ -658,6 +667,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <script src="../assets/js/main.js"></script>
 <script>
+const customersDatabase = <?php echo json_encode($allCustomers); ?>;
+const defaultNextCustomerId = "<?php echo e($nextCustomerId); ?>";
+
+function onCustomerPhoneInput(phone) {
+  const cleanPhone = phone.trim();
+  const found = customersDatabase.find(c => c.customer_no === cleanPhone);
+  const statusDiv = document.getElementById('customer_found_status');
+
+  if (found) {
+    document.getElementById('customer_id').value = found.customer_id;
+    document.getElementById('customer_name').value = found.customer_name;
+    document.getElementById('alternate_phone').value = found.alternate_phone || '';
+    document.getElementById('city').value = found.city || '';
+    if (statusDiv) {
+      statusDiv.innerHTML = '<span style="color: #27AE60;"><i class="fa-solid fa-circle-check"></i> Existing Customer Found (' + found.customer_name + ' - ' + found.customer_id + ')</span>';
+    }
+  } else {
+    document.getElementById('customer_id').value = defaultNextCustomerId;
+    if (statusDiv) {
+      statusDiv.innerHTML = cleanPhone.length >= 5 ? '<span style="color: var(--gold-dark);"><i class="fa-solid fa-user-plus"></i> New Customer Registration</span>' : '';
+    }
+  }
+}
+
 function toggleMechanicSection(show) {
   const mechDetailsBox = document.getElementById('mechanic-details-box');
   const mechFinancialsBox = document.getElementById('mechanic-financials-box');

@@ -117,6 +117,9 @@ $cars = $stmt->fetchAll();
       <li class="sidebar-item">
         <a href="attendance.php"><i class="fa-solid fa-clipboard-user"></i> Attendance</a>
       </li>
+      <li class="sidebar-item">
+        <a href="salary.php"><i class="fa-solid fa-money-bill-wave"></i> Employee Salary</a>
+      </li>
 
       <li class="sidebar-menu-category">Public Site</li>
       <li class="sidebar-item">
@@ -139,14 +142,6 @@ $cars = $stmt->fetchAll();
       </div>
 
       <div style="display: flex; align-items: center; gap: 15px;">
-        <div class="theme-switcher-control">
-          <i class="fa-solid fa-circle-half-stroke text-gold"></i>
-          <select class="theme-select-input" aria-label="Theme Preference">
-            <option value="light">☀️ Light</option>
-            <option value="dark">🌙 Dark</option>
-            <option value="system">💻 System</option>
-          </select>
-        </div>
         <a href="add_car.php" class="btn btn-gold"><i class="fa-solid fa-plus-circle"></i> Add New Car Entry</a>
       </div>
     </header>

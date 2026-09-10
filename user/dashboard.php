@@ -76,16 +76,6 @@ $completedCarsCount = $pdo->query("SELECT COUNT(*) FROM cars WHERE status IN ('C
       </div>
 
       <div class="user-profile-menu">
-        <!-- Theme Switcher Control -->
-        <div class="theme-switcher-control">
-          <i class="fa-solid fa-circle-half-stroke text-gold"></i>
-          <select class="theme-select-input" aria-label="Theme Preference">
-            <option value="light">☀️ Light</option>
-            <option value="dark">🌙 Dark</option>
-            <option value="system">💻 System</option>
-          </select>
-        </div>
-
         <div class="user-avatar"><?php echo strtoupper(substr($_SESSION['user_name'], 0, 2)); ?></div>
         <div>
           <div style="font-weight: 700; font-size: 0.95rem;"><?php echo e($_SESSION['user_name']); ?></div>

@@ -227,6 +227,9 @@ $workHistory = $stmtHistory->fetchAll();
       <li class="sidebar-item">
         <a href="attendance.php"><i class="fa-solid fa-clipboard-user"></i> Attendance</a>
       </li>
+      <li class="sidebar-item">
+        <a href="salary.php"><i class="fa-solid fa-money-bill-wave"></i> Employee Salary</a>
+      </li>
 
       <li class="sidebar-menu-category">Public Site</li>
       <li class="sidebar-item">
@@ -249,14 +252,6 @@ $workHistory = $stmtHistory->fetchAll();
       </div>
 
       <div style="display: flex; gap: 10px; align-items: center;">
-        <div class="theme-switcher-control">
-          <i class="fa-solid fa-circle-half-stroke text-gold"></i>
-          <select class="theme-select-input" aria-label="Theme Preference">
-            <option value="light">☀️ Light</option>
-            <option value="dark">🌙 Dark</option>
-            <option value="system">💻 System</option>
-          </select>
-        </div>
         <a href="car_details.php?id=<?php echo $car_id; ?>" class="btn btn-gold" style="padding: 8px 16px; font-size: 0.9rem;"><i class="fa-solid fa-eye"></i> View Invoice Sheet</a>
         <a href="car_list.php" class="btn btn-silver" style="padding: 8px 16px; font-size: 0.9rem;"><i class="fa-solid fa-arrow-left"></i> Car List</a>
       </div>
@@ -414,7 +409,7 @@ $workHistory = $stmtHistory->fetchAll();
               <label class="form-label">Work Stage / Status *</label>
               <select name="status" class="form-control" style="border-color: var(--border-gold); font-weight: 700;">
                 <?php 
-                $allStatuses = ['New', 'Inspection', 'Denting', 'Painting', 'Polishing', 'Extra Work', 'Completed', 'Delivered'];
+                $allStatuses = ['New', 'Putty', 'NC Putty', 'Primer', 'Base Coat', 'Painting', 'Polishing', 'Extra Work', 'Completed', 'Delivered'];
                 foreach ($allStatuses as $st): 
                 ?>
                   <option value="<?php echo $st; ?>" <?php echo $car['status'] === $st ? 'selected' : ''; ?>><?php echo $st; ?></option>
@@ -619,10 +614,10 @@ $workHistory = $stmtHistory->fetchAll();
         </div>
       </div>
 
-      <!-- 5. INITIAL DAMAGE PHOTOS GALLERY -->
+      <!-- 5. BEFORE PAINTING PHOTOS GALLERY -->
       <div class="card-box">
         <div class="card-box-header">
-          <div class="card-box-title"><i class="fa-solid fa-triangle-exclamation text-gold"></i> Initial Damage Photos</div>
+          <div class="card-box-title"><i class="fa-solid fa-camera text-gold"></i> Before Painting Photos Gallery</div>
         </div>
 
         <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 20px;">

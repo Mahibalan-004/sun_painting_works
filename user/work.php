@@ -149,14 +149,7 @@ if ($car_id > 0) {
       </div>
 
       <div class="user-profile-menu">
-        <div class="theme-switcher-control">
-          <i class="fa-solid fa-circle-half-stroke text-gold"></i>
-          <select class="theme-select-input" aria-label="Theme Preference">
-            <option value="light">☀️ Light</option>
-            <option value="dark">🌙 Dark</option>
-            <option value="system">💻 System</option>
-          </select>
-        </div>
+        <div class="user-avatar"><?php echo strtoupper(substr($_SESSION['user_name'], 0, 2)); ?></div>
       </div>
     </header>
 
@@ -202,7 +195,7 @@ if ($car_id > 0) {
                 <label class="form-label">Current Work Status *</label>
                 <select name="status" class="form-control" required style="border-color: var(--border-gold); font-weight: 700;">
                   <?php 
-                  $allStatuses = ['New', 'Inspection', 'Denting', 'Painting', 'Polishing', 'Extra Work', 'Completed', 'Delivered'];
+                  $allStatuses = ['New', 'Putty', 'NC Putty', 'Primer', 'Base Coat', 'Painting', 'Polishing', 'Extra Work', 'Completed', 'Delivered'];
                   foreach ($allStatuses as $st): 
                   ?>
                     <option value="<?php echo $st; ?>" <?php echo $selectedCar['status'] === $st ? 'selected' : ''; ?>><?php echo $st; ?></option>
@@ -212,7 +205,7 @@ if ($car_id > 0) {
 
               <div class="form-group">
                 <label class="form-label">Work Progress Description / Log Remarks</label>
-                <textarea name="work_description" class="form-control" rows="3" placeholder="e.g. Applied primer coat, completed panel beating..."></textarea>
+                <textarea name="work_description" class="form-control" rows="3" placeholder="e.g. Applied primer coat, completed NC putty sanding..."></textarea>
               </div>
 
               <button type="submit" class="btn btn-gold" style="width: 100%;"><i class="fa-solid fa-floppy-disk"></i> UPDATE WORK STATUS</button>
@@ -228,8 +221,8 @@ if ($car_id > 0) {
               <div class="form-group">
                 <label class="form-label">Photo Category *</label>
                 <select name="photo_type" class="form-control" required>
-                  <option value="after_paint">After Paint / Completed Photo</option>
-                  <option value="damage">Damage Photo</option>
+                  <option value="before_paint">Before Painting Photo</option>
+                  <option value="after_paint">After Painting Photo</option>
                 </select>
               </div>
 

@@ -7,7 +7,7 @@ $totalCustomers = $pdo->query("SELECT COUNT(*) FROM customers")->fetchColumn();
 
 // Status Breakdown Data for Operational Cards
 $statusCounts = [];
-$statuses = ['New', 'Inspection', 'Denting', 'Painting', 'Polishing', 'Extra Work', 'Completed', 'Delivered'];
+$statuses = ['New', 'Putty', 'NC Putty', 'Primer', 'Base Coat', 'Painting', 'Polishing', 'Extra Work', 'Completed', 'Delivered'];
 foreach ($statuses as $st) {
     $stStmt = $pdo->prepare("SELECT COUNT(*) FROM cars WHERE status = ?");
     $stStmt->execute([$st]);
@@ -92,6 +92,9 @@ $totalMechanicBalance = (float)($mechanicTotalsRow['mech_bal'] ?? 0);
       <li class="sidebar-item">
         <a href="attendance.php"><i class="fa-solid fa-clipboard-user"></i> Attendance</a>
       </li>
+      <li class="sidebar-item">
+        <a href="salary.php"><i class="fa-solid fa-money-bill-wave"></i> Employee Salary</a>
+      </li>
 
       <li class="sidebar-menu-category">Public Site</li>
       <li class="sidebar-item">
@@ -114,16 +117,6 @@ $totalMechanicBalance = (float)($mechanicTotalsRow['mech_bal'] ?? 0);
       </div>
 
       <div class="user-profile-menu">
-        <!-- Theme Switcher Control -->
-        <div class="theme-switcher-control">
-          <i class="fa-solid fa-circle-half-stroke text-gold"></i>
-          <select class="theme-select-input" aria-label="Theme Preference">
-            <option value="light">☀️ Light</option>
-            <option value="dark">🌙 Dark</option>
-            <option value="system">💻 System</option>
-          </select>
-        </div>
-
         <div class="user-avatar">AD</div>
         <div>
           <div style="font-weight: 700; font-size: 0.95rem;"><?php echo e($_SESSION['user_name']); ?></div>
@@ -139,7 +132,7 @@ $totalMechanicBalance = (float)($mechanicTotalsRow['mech_bal'] ?? 0);
         <i class="fa-solid fa-list-check"></i> Operational Status Cards
       </div>
 
-      <div class="metrics-grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));">
+      <div class="metrics-grid" style="grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));">
         <div class="metric-card">
           <div class="metric-info">
             <div class="metric-label">Total Cars</div>
@@ -152,8 +145,8 @@ $totalMechanicBalance = (float)($mechanicTotalsRow['mech_bal'] ?? 0);
 
         <div class="metric-card">
           <div class="metric-info">
-            <div class="metric-label">New Cars</div>
-            <div class="metric-value"><?php echo $statusCounts['New']; ?></div>
+            <div class="metric-label">New</div>
+            <div class="metric-value"><?php echo $statusCounts['New'] ?? 0; ?></div>
           </div>
           <div class="metric-icon-box metric-icon-silver">
             <i class="fa-solid fa-sparkles"></i>
@@ -162,28 +155,48 @@ $totalMechanicBalance = (float)($mechanicTotalsRow['mech_bal'] ?? 0);
 
         <div class="metric-card">
           <div class="metric-info">
-            <div class="metric-label">Inspection</div>
-            <div class="metric-value"><?php echo $statusCounts['Inspection']; ?></div>
+            <div class="metric-label">Putty</div>
+            <div class="metric-value"><?php echo $statusCounts['Putty'] ?? 0; ?></div>
           </div>
           <div class="metric-icon-box metric-icon-silver">
-            <i class="fa-solid fa-magnifying-glass"></i>
+            <i class="fa-solid fa-fill-drip"></i>
           </div>
         </div>
 
         <div class="metric-card">
           <div class="metric-info">
-            <div class="metric-label">Denting</div>
-            <div class="metric-value"><?php echo $statusCounts['Denting']; ?></div>
+            <div class="metric-label">NC Putty</div>
+            <div class="metric-value"><?php echo $statusCounts['NC Putty'] ?? 0; ?></div>
           </div>
           <div class="metric-icon-box metric-icon-silver">
-            <i class="fa-solid fa-hammer"></i>
+            <i class="fa-solid fa-layer-group"></i>
+          </div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-info">
+            <div class="metric-label">Primer</div>
+            <div class="metric-value"><?php echo $statusCounts['Primer'] ?? 0; ?></div>
+          </div>
+          <div class="metric-icon-box metric-icon-silver">
+            <i class="fa-solid fa-paint-roller"></i>
+          </div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-info">
+            <div class="metric-label">Base Coat</div>
+            <div class="metric-value"><?php echo $statusCounts['Base Coat'] ?? 0; ?></div>
+          </div>
+          <div class="metric-icon-box metric-icon-silver">
+            <i class="fa-solid fa-brush"></i>
           </div>
         </div>
 
         <div class="metric-card">
           <div class="metric-info">
             <div class="metric-label">Painting</div>
-            <div class="metric-value"><?php echo $statusCounts['Painting']; ?></div>
+            <div class="metric-value"><?php echo $statusCounts['Painting'] ?? 0; ?></div>
           </div>
           <div class="metric-icon-box metric-icon-gold">
             <i class="fa-solid fa-spray-can"></i>
@@ -193,7 +206,7 @@ $totalMechanicBalance = (float)($mechanicTotalsRow['mech_bal'] ?? 0);
         <div class="metric-card">
           <div class="metric-info">
             <div class="metric-label">Polishing</div>
-            <div class="metric-value"><?php echo $statusCounts['Polishing']; ?></div>
+            <div class="metric-value"><?php echo $statusCounts['Polishing'] ?? 0; ?></div>
           </div>
           <div class="metric-icon-box metric-icon-silver">
             <i class="fa-solid fa-wand-magic-sparkles"></i>
@@ -203,7 +216,7 @@ $totalMechanicBalance = (float)($mechanicTotalsRow['mech_bal'] ?? 0);
         <div class="metric-card">
           <div class="metric-info">
             <div class="metric-label">Extra Work</div>
-            <div class="metric-value"><?php echo $statusCounts['Extra Work']; ?></div>
+            <div class="metric-value"><?php echo $statusCounts['Extra Work'] ?? 0; ?></div>
           </div>
           <div class="metric-icon-box metric-icon-silver">
             <i class="fa-solid fa-wrench"></i>
@@ -213,7 +226,7 @@ $totalMechanicBalance = (float)($mechanicTotalsRow['mech_bal'] ?? 0);
         <div class="metric-card">
           <div class="metric-info">
             <div class="metric-label">Completed</div>
-            <div class="metric-value"><?php echo $statusCounts['Completed']; ?></div>
+            <div class="metric-value"><?php echo $statusCounts['Completed'] ?? 0; ?></div>
           </div>
           <div class="metric-icon-box metric-icon-green">
             <i class="fa-solid fa-circle-check"></i>
@@ -223,7 +236,7 @@ $totalMechanicBalance = (float)($mechanicTotalsRow['mech_bal'] ?? 0);
         <div class="metric-card">
           <div class="metric-info">
             <div class="metric-label">Delivered</div>
-            <div class="metric-value"><?php echo $statusCounts['Delivered']; ?></div>
+            <div class="metric-value"><?php echo $statusCounts['Delivered'] ?? 0; ?></div>
           </div>
           <div class="metric-icon-box metric-icon-gold">
             <i class="fa-solid fa-truck-ramp-box"></i>

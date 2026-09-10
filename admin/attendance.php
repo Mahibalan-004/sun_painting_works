@@ -214,6 +214,9 @@ foreach ($allUsers as $u) {
       <li class="sidebar-item active">
         <a href="attendance.php"><i class="fa-solid fa-clipboard-user"></i> Attendance</a>
       </li>
+      <li class="sidebar-item">
+        <a href="salary.php"><i class="fa-solid fa-money-bill-wave"></i> Employee Salary</a>
+      </li>
 
       <li class="sidebar-menu-category">Public Site</li>
       <li class="sidebar-item">
@@ -236,15 +239,6 @@ foreach ($allUsers as $u) {
       </div>
 
       <div class="user-profile-menu">
-        <div class="theme-switcher-control">
-          <i class="fa-solid fa-circle-half-stroke text-gold"></i>
-          <select class="theme-select-input" aria-label="Theme Preference">
-            <option value="light">☀️ Light</option>
-            <option value="dark">🌙 Dark</option>
-            <option value="system">💻 System</option>
-          </select>
-        </div>
-
         <div class="user-avatar">AD</div>
         <div>
           <div style="font-weight: 700; font-size: 0.95rem;"><?php echo e($_SESSION['user_name']); ?></div>
@@ -373,6 +367,61 @@ foreach ($allUsers as $u) {
             </div>
           </form>
         </div>
+
+        <?php 
+        if ($empFilter > 0): 
+          $filteredWorker = null;
+          foreach ($allUsers as $u) {
+              if ((int)$u['id'] === $empFilter) {
+                  $filteredWorker = $u;
+                  break;
+              }
+          }
+          if ($filteredWorker):
+              $workerStats = ['Present' => 0, 'Absent' => 0, 'Half Day' => 0, 'Leave' => 0, 'Total' => count($attendanceList)];
+              foreach ($attendanceList as $aRow) {
+                  if (isset($workerStats[$aRow['status']])) {
+                      $workerStats[$aRow['status']]++;
+                  }
+              }
+              $eff = $workerStats['Present'] + ($workerStats['Half Day'] * 0.5);
+              $wPerc = $workerStats['Total'] > 0 ? round(($eff / $workerStats['Total']) * 100) : 0;
+        ?>
+        <div class="card-box" style="background: linear-gradient(135deg, rgba(212, 175, 55, 0.08), rgba(255, 255, 255, 0.95)); border: 1px solid var(--gold-primary);">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+            <div>
+              <div style="font-size: 0.85rem; color: var(--gold-dark); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">
+                <i class="fa-solid fa-user-check"></i> Worker Specific Attendance Summary
+              </div>
+              <div style="font-size: 1.3rem; font-weight: 800; color: #1E293B; margin-top: 4px;">
+                <?php echo e($filteredWorker['name']); ?> <span style="font-size: 0.9rem; font-weight: 600; color: var(--text-muted);">(Code: <?php echo e($filteredWorker['employee_id']); ?>)</span>
+              </div>
+            </div>
+            <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+              <div style="text-align: center; padding: 5px 15px; border-right: 1px solid #E2E8F0;">
+                <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600;">Total Logged</div>
+                <div style="font-size: 1.2rem; font-weight: 800; color: #1E293B;"><?php echo $workerStats['Total']; ?> Days</div>
+              </div>
+              <div style="text-align: center; padding: 5px 15px; border-right: 1px solid #E2E8F0;">
+                <div style="font-size: 0.75rem; color: #27AE60; text-transform: uppercase; font-weight: 600;">Present</div>
+                <div style="font-size: 1.2rem; font-weight: 800; color: #27AE60;"><?php echo $workerStats['Present']; ?></div>
+              </div>
+              <div style="text-align: center; padding: 5px 15px; border-right: 1px solid #E2E8F0;">
+                <div style="font-size: 0.75rem; color: #C0392B; text-transform: uppercase; font-weight: 600;">Absent</div>
+                <div style="font-size: 1.2rem; font-weight: 800; color: #C0392B;"><?php echo $workerStats['Absent']; ?></div>
+              </div>
+              <div style="text-align: center; padding: 5px 15px; border-right: 1px solid #E2E8F0;">
+                <div style="font-size: 0.75rem; color: #2980B9; text-transform: uppercase; font-weight: 600;">Half / Leave</div>
+                <div style="font-size: 1.2rem; font-weight: 800; color: #2980B9;"><?php echo $workerStats['Half Day'] + $workerStats['Leave']; ?></div>
+              </div>
+              <div style="text-align: center; padding: 5px 15px;">
+                <div style="font-size: 0.75rem; color: var(--gold-dark); text-transform: uppercase; font-weight: 600;">Attendance Rate</div>
+                <div style="font-size: 1.2rem; font-weight: 800; color: var(--gold-dark);"><?php echo $wPerc; ?>%</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <?php endif; endif; ?>
 
         <!-- Attendance Table -->
         <div class="card-box">
