@@ -64,10 +64,13 @@ $totalMechanicBalance = (float)($mechanicTotalsRow['mech_bal'] ?? 0);
   <aside class="sidebar">
     <div class="sidebar-header">
       <img src="../assets/images/logo.png" alt="Logo" class="sidebar-logo">
-      <div>
+      <div style="flex-grow: 1;">
         <div class="sidebar-brand-name">SUN PAINTING</div>
         <span class="sidebar-role-badge">ADMIN PORTAL</span>
       </div>
+      <button type="button" class="sidebar-close-btn" aria-label="Close navigation menu">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
     </div>
 
     <ul class="sidebar-menu">
@@ -110,7 +113,7 @@ $totalMechanicBalance = (float)($mechanicTotalsRow['mech_bal'] ?? 0);
   <main class="main-content">
     <header class="top-bar">
       <div style="display: flex; align-items: center; gap: 15px;">
-        <button type="button" class="sidebar-toggle-btn" aria-label="Toggle Sidebar Menu">
+        <button type="button" class="sidebar-toggle-btn" aria-label="Open navigation menu" aria-expanded="false">
           <i class="fa-solid fa-bars"></i>
         </button>
         <h1 class="top-bar-title"><i class="fa-solid fa-chart-column text-gold"></i> Operational Workshop Dashboard</h1>
@@ -449,51 +452,55 @@ $totalMechanicBalance = (float)($mechanicTotalsRow['mech_bal'] ?? 0);
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-  const ctx = document.getElementById('statusChart').getContext('2d');
-  const statusData = <?php echo json_encode(array_values($statusCounts)); ?>;
-  const statusLabels = <?php echo json_encode(array_keys($statusCounts)); ?>;
+  const chartCanvas = document.getElementById('statusChart');
+  if (chartCanvas) {
+    const ctx = chartCanvas.getContext('2d');
+    const statusData = <?php echo json_encode(array_values($statusCounts)); ?>;
+    const statusLabels = <?php echo json_encode(array_keys($statusCounts)); ?>;
 
-  new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: statusLabels,
-      datasets: [{
-        label: 'Number of Cars',
-        data: statusData,
-        backgroundColor: [
-          '#3498DB', '#9B59B6', '#E67E22', '#F1C40F', 
-          '#1ABC9C', '#E74C3C', '#2ECC71', '#D4AF37', '#9A7B1C'
-        ],
-        borderRadius: 6,
-        borderWidth: 1,
-        borderColor: 'rgba(0,0,0,0.06)'
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          callbacks: {
-            label: (context) => ` ${context.raw} Vehicles`
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: statusLabels,
+        datasets: [{
+          label: 'Number of Cars',
+          data: statusData,
+          backgroundColor: [
+            '#3498DB', '#9B59B6', '#E67E22', '#F1C40F', 
+            '#1ABC9C', '#E74C3C', '#2ECC71', '#D4AF37', '#9A7B1C'
+          ],
+          borderRadius: 6,
+          borderWidth: 1,
+          borderColor: 'rgba(0,0,0,0.06)'
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: (context) => ` ${context.raw} Vehicles`
+            }
+          }
+        },
+        scales: {
+          x: {
+            grid: { display: false },
+            ticks: { color: '#1E293B', font: { family: 'Outfit', weight: '600', size: 11 } }
+          },
+          y: {
+            beginAtZero: true,
+            grid: { color: 'rgba(0, 0, 0, 0.05)' },
+            ticks: { precision: 0, color: '#64748B', font: { family: 'Outfit' } }
           }
         }
-      },
-      scales: {
-        x: {
-          grid: { display: false },
-          ticks: { color: '#1E293B', font: { family: 'Outfit', weight: '600', size: 11 } }
-        },
-        y: {
-          beginAtZero: true,
-          grid: { color: 'rgba(0, 0, 0, 0.05)' },
-          ticks: { precision: 0, color: '#64748B', font: { family: 'Outfit' } }
-        }
       }
-    }
-  });
+    });
+  }
 });
 </script>
+<script src="../assets/js/main.js"></script>
 </body>
 </html>

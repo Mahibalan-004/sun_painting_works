@@ -89,10 +89,13 @@ $cars = $stmt->fetchAll();
   <aside class="sidebar">
     <div class="sidebar-header">
       <img src="../assets/images/logo.png" alt="Logo" class="sidebar-logo">
-      <div>
+      <div style="flex-grow: 1;">
         <div class="sidebar-brand-name">SUN PAINTING</div>
         <span class="sidebar-role-badge">ADMIN PORTAL</span>
       </div>
+      <button type="button" class="sidebar-close-btn" aria-label="Close navigation menu">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
     </div>
 
     <ul class="sidebar-menu">
@@ -135,7 +138,7 @@ $cars = $stmt->fetchAll();
   <main class="main-content">
     <header class="top-bar">
       <div style="display: flex; align-items: center; gap: 15px;">
-        <button type="button" class="sidebar-toggle-btn" aria-label="Toggle Sidebar Menu">
+        <button type="button" class="sidebar-toggle-btn" aria-label="Open navigation menu" aria-expanded="false">
           <i class="fa-solid fa-bars"></i>
         </button>
         <h1 class="top-bar-title"><i class="fa-solid fa-list-check text-gold"></i> Workshop Car Management List</h1>
