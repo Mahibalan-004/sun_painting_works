@@ -200,12 +200,20 @@ $workHistory = $stmtHistory->fetchAll();
 
           <?php if (!empty($car['selected_parts'])): ?>
             <div style="grid-column: 1 / -1; background: rgba(212, 175, 55, 0.08); padding: 18px; border-radius: var(--radius-sm); border: 1px solid var(--border-gold);">
-              <h4 style="color: var(--gold-primary); margin-bottom: 8px;"><i class="fa-solid fa-car-burst"></i> Vehicle Work / Damage Body Parts</h4>
+              <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 8px;">
+                <h4 style="color: var(--gold-primary); margin-bottom: 0;"><i class="fa-solid fa-car-burst"></i> Vehicle Work / Damage Body Parts</h4>
+                <?php if (strpos($car['selected_parts'], 'Full Painting') !== false): ?>
+                  <span class="full-painting-badge">
+                    <i class="fa-solid fa-spray-can-sparkles"></i> FULL PAINTING
+                  </span>
+                <?php endif; ?>
+              </div>
               <div style="font-weight: 700; font-size: 1rem; color: var(--gold-light); line-height: 1.6;">
                 <?php echo e($car['selected_parts']); ?>
               </div>
             </div>
           <?php endif; ?>
+
         </div>
 
         <!-- Extra Work & Financial Table -->

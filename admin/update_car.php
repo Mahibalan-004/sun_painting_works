@@ -31,6 +31,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $selected_parts      = trim($_POST['selected_parts'] ?? '');
 
+        if (!empty($selected_parts)) {
+            list($isValidParts, $partsError) = validateSelectedPartsInput($selected_parts);
+            if (!$isValidParts) {
+                header("Location: update_car.php?id={$car_id}&error=" . urlencode($partsError));
+                exit;
+            }
+        }
+
         $estimate_amount        = (float)($_POST['estimate_amount'] ?? 0);
         $advance_amount         = isset($_POST['advance_amount']) ? (float)$_POST['advance_amount'] : (float)($_POST['final_amount'] ?? 0);
         $final_amount           = $advance_amount;
@@ -39,10 +47,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $mechanic_given_amount  = (float)($_POST['mechanic_given_amount'] ?? 0);
         $mechanic_balance_amount= max(0, $mechanic_total_amount - $mechanic_given_amount);
 
-        // Fetch current status
-        $curCar = $pdo->prepare("SELECT status FROM cars WHERE id = ?");
+        // Fetch current status and selected_parts
+        $curCar = $pdo->prepare("SELECT status, selected_parts FROM cars WHERE id = ?");
         $curCar->execute([$car_id]);
-        $old_status = $curCar->fetchColumn();
+        $oldCarRow = $curCar->fetch(PDO::FETCH_ASSOC);
+        $old_status = $oldCarRow['status'] ?? '';
+        $old_parts = $oldCarRow['selected_parts'] ?? '';
 
         $updateStmt = $pdo->prepare("UPDATE cars SET 
             car_number = ?, car_name = ?, car_color = ?, status = ?, 
@@ -58,11 +68,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $car_id
         ]);
 
-        // If status changed or remarks provided, add to work history
-        if ($new_status !== $old_status || !empty($work_remarks)) {
-            $desc = !empty($work_remarks) ? $work_remarks : "Status updated to " . $new_status;
+        // If status changed, remarks provided, or work areas updated, add to work history
+        if ($new_status !== $old_status || !empty($work_remarks) || $selected_parts !== $old_parts) {
+            $desc = !empty($work_remarks) ? $work_remarks : ($new_status !== $old_status ? "Status updated to " . $new_status : "Work areas updated: " . ($selected_parts ?: "None"));
             logWorkHistory($pdo, $car_id, $new_status, $desc, $_SESSION['user_id']);
         }
+
 
         // Recalculate totals
         recalculateCarAmounts($pdo, $car_id);
@@ -397,14 +408,27 @@ $workHistory = $stmtHistory->fetchAll();
 
           <!-- Selected Body Work / Damage Parts -->
           <div class="form-group" style="margin-top: 15px; padding-top: 15px; border-top: 1px dashed var(--border-light);">
-            <label class="form-label" style="font-weight: 700; color: var(--gold-light);">
-              <i class="fa-solid fa-car-burst"></i> Selected Work / Damage Areas & Body Parts:
-            </label>
-            <input type="text" name="selected_parts" class="form-control" placeholder="e.g. Right Side (Right Fronter, Right Front Door) | Front Bumper (Front Bumper Main)" value="<?php echo e($car['selected_parts'] ?? ''); ?>">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 8px;">
+              <label class="form-label" style="font-weight: 700; color: var(--gold-light); margin-bottom: 0;">
+                <i class="fa-solid fa-car-burst"></i> Selected Work / Damage Areas & Body Parts:
+              </label>
+              
+              <!-- Quick Full Painting Toggle -->
+              <label class="side-card-btn full-painting-card" style="display: inline-block; cursor: pointer;" title="Toggle Full Painting option">
+                <input type="checkbox" id="update_full_painting_cb" <?php echo (strpos($car['selected_parts'] ?? '', 'Full Painting') !== false) ? 'checked' : ''; ?> onchange="toggleUpdateFullPainting(this.checked)">
+                <div class="side-card-content" style="padding: 6px 14px; flex-direction: row; gap: 8px; font-size: 0.85rem; border: 1px solid var(--border-gold); border-radius: 20px;">
+                  <i class="fa-solid fa-spray-can-sparkles text-gold"></i>
+                  <span>Full Painting</span>
+                </div>
+              </label>
+            </div>
+            
+            <input type="text" name="selected_parts" id="update_selected_parts_input" class="form-control" placeholder="e.g. Full Painting | Right Side (Right Front Door)" value="<?php echo e($car['selected_parts'] ?? ''); ?>">
             <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">
-              Specify vehicle sides & parts for painting, denting, or repair.
+              Specify vehicle sides & parts for painting, denting, or repair. Toggle "Full Painting" or edit text directly.
             </div>
           </div>
+
 
           <!-- Work Stage & Financial Inputs -->
           <div class="form-row" style="margin-top: 15px;">
@@ -681,6 +705,36 @@ function calculateUpdateAmounts() {
   const mechTotal = parseFloat(document.getElementById('mechanic_total_amount')?.value || 0);
   const mechGiven = parseFloat(document.getElementById('mechanic_given_amount')?.value || 0);
 }
+
+function toggleUpdateFullPainting(isChecked) {
+  const input = document.getElementById('update_selected_parts_input');
+  if (!input) return;
+  let val = input.value.trim();
+
+  if (isChecked) {
+    if (!val.includes('Full Painting')) {
+      input.value = val ? 'Full Painting | ' + val : 'Full Painting';
+    }
+  } else {
+    // Remove "Full Painting" cleanly from front, middle, or end
+    let cleaned = val.replace(/^Full Painting\s*\|\s*/i, '')
+                     .replace(/\s*\|\s*Full Painting/i, '')
+                     .replace(/^Full Painting$/i, '')
+                     .trim();
+    input.value = cleaned;
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const updateInput = document.getElementById('update_selected_parts_input');
+  const fullPaintingCb = document.getElementById('update_full_painting_cb');
+  if (updateInput && fullPaintingCb) {
+    updateInput.addEventListener('input', () => {
+      fullPaintingCb.checked = updateInput.value.includes('Full Painting');
+    });
+  }
+});
+
 </script>
 </body>
 </html>

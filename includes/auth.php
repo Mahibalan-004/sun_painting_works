@@ -311,5 +311,115 @@ function failIdempotencyToken($pdo, $token, $userId = null) {
     } catch (Exception $e) {}
 }
 
+/**
+ * Server-side validation for selected vehicle parts and work options (including Full Painting)
+ *
+ * @param string|null $input
+ * @return array [bool $isValid, string|null $errorMessage]
+ */
+function validateSelectedPartsInput($input) {
+    if ($input === null || trim($input) === '') {
+        return [true, null];
+    }
+
+    $input = trim($input);
+
+    // 1. Length check
+    if (strlen($input) > 2000) {
+        return [false, "Selected work areas description exceeds maximum allowed length (2000 characters)."];
+    }
+
+    // 2. Character whitelist: only letters, numbers, spaces, and punctuation: ( ) / - , | & .
+    if (!preg_match('/^[a-zA-Z0-9\s\(\)\/\-,\&\|\.]+$/', $input)) {
+        return [false, "Selected work areas contain invalid or disallowed characters."];
+    }
+
+    // 3. Supported options whitelist validation
+    $sections = array_map('trim', explode('|', $input));
+    if (empty($sections)) {
+        return [true, null];
+    }
+
+    $validSides = [
+        'Full Painting',
+        'Left Side',
+        'Right Side',
+        'Front Bumper',
+        'Back Bumper',
+        'Top / Roof',
+        'Bottom / Underbody',
+        'Boot Space'
+    ];
+
+    $validPartsBySide = [
+        'Full Painting' => [
+            'Full Painting', 'Complete Vehicle Body', 'Full Body Painting', 'Entire Vehicle'
+        ],
+        'Left Side' => [
+            'Entire Section', 'Left Fronter / Fender', 'Left Front Door', 'Left Rear Door', 'Left Back Door',
+            'Left Quarter Panel', 'Left Running Board', 'Left Side Mirror', 'Left Side Mirror (ORVM)',
+            'Left Pillars (A/B/C)', 'Left Pillars'
+        ],
+        'Right Side' => [
+            'Entire Section', 'Right Fronter / Fender', 'Right Front Door', 'Right Rear Door', 'Right Back Door',
+            'Right Quarter Panel', 'Right Running Board', 'Right Side Mirror', 'Right Side Mirror (ORVM)',
+            'Right Pillars (A/B/C)', 'Right Pillars'
+        ],
+        'Front Bumper' => [
+            'Entire Section', 'Front Bumper Main', 'Front Grille', 'Front Bumper Guard',
+            'Bonnet / Hood', 'Bonnet / Engine Hood', 'Headlight Right', 'Headlight Left'
+        ],
+        'Back Bumper' => [
+            'Entire Section', 'Back Bumper Main', 'Rear Bumper Guard', 'Tail Light Right',
+            'Tail Light Left', 'Rear License Plate Area', 'Rear License Plate Housing'
+        ],
+        'Top / Roof' => [
+            'Entire Section', 'Main Roof Panel', 'Sunroof Assembly', 'Sunroof Glass & Frame',
+            'Front Windshield Frame', 'Rear Windshield Frame', 'Roof Rails'
+        ],
+        'Bottom / Underbody' => [
+            'Entire Section', 'Underbody Engine Shield', 'Underside Running Board',
+            'Exhaust System Guard', 'Subframe Mounts', 'Subframe / Suspension Mounts'
+        ],
+        'Boot Space' => [
+            'Entire Section', 'Boot Lid / Dikki Door', 'Boot Inner Floor', 'Tailgate Assembly', 'Boot Lock & Hinge'
+        ]
+    ];
+
+    foreach ($sections as $section) {
+        if ($section === '') continue;
+
+        // Check if section is standalone 'Full Painting'
+        if ($section === 'Full Painting') {
+            continue;
+        }
+
+        // Parse "Side Name (Part 1, Part 2)"
+        if (preg_match('/^([^\(]+)\s*\((.+)\)$/', $section, $matches)) {
+            $sideName = trim($matches[1]);
+            $partsList = array_map('trim', explode(',', $matches[2]));
+
+            if (!in_array($sideName, $validSides, true)) {
+                return [false, "Invalid vehicle side or work category: '" . htmlspecialchars($sideName) . "'."];
+            }
+
+            $allowedForThisSide = $validPartsBySide[$sideName] ?? [];
+            foreach ($partsList as $p) {
+                if ($p === '') continue;
+                if (!in_array($p, $allowedForThisSide, true)) {
+                    return [false, "Invalid vehicle part or work item: '" . htmlspecialchars($p) . "' in " . htmlspecialchars($sideName) . "."];
+                }
+            }
+        } else {
+            if (!in_array($section, $validSides, true)) {
+                return [false, "Unrecognized work selection option: '" . htmlspecialchars($section) . "'."];
+            }
+        }
+    }
+
+    return [true, null];
+}
+
+
 
 

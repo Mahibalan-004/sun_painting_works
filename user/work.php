@@ -178,10 +178,18 @@ if ($car_id > 0) {
 
           <?php if (!empty($selectedCar['selected_parts'])): ?>
             <div style="margin-bottom: 20px; background: rgba(212, 175, 55, 0.08); padding: 14px 18px; border-radius: var(--radius-sm); border: 1px solid var(--border-gold);">
-              <div style="font-size: 0.8rem; font-weight: 700; text-transform: uppercase; color: var(--gold-primary);"><i class="fa-solid fa-car-burst"></i> Selected Work / Damage Areas:</div>
+              <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+                <div style="font-size: 0.8rem; font-weight: 700; text-transform: uppercase; color: var(--gold-primary);"><i class="fa-solid fa-car-burst"></i> Selected Work / Damage Areas:</div>
+                <?php if (strpos($selectedCar['selected_parts'], 'Full Painting') !== false): ?>
+                  <span class="full-painting-badge" style="font-size: 0.75rem; padding: 2px 8px;">
+                    <i class="fa-solid fa-spray-can-sparkles"></i> FULL PAINTING
+                  </span>
+                <?php endif; ?>
+              </div>
               <div style="font-size: 0.95rem; font-weight: 700; color: var(--gold-light); margin-top: 4px;"><?php echo e($selectedCar['selected_parts']); ?></div>
             </div>
           <?php endif; ?>
+
 
           <div class="responsive-two-col" style="margin-bottom: 25px;">
             <!-- Update Status Form -->

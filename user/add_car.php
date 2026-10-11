@@ -56,8 +56,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($error)) {
         if (empty($customer_id) || empty($customer_no) || empty($customer_name) || empty($car_number) || empty($car_name)) {
             $error = "Please fill in all required customer and car fields.";
+        } elseif (!empty($selected_parts)) {
+            list($isValidParts, $partsError) = validateSelectedPartsInput($selected_parts);
+            if (!$isValidParts) {
+                $error = $partsError;
+            }
         }
     }
+
 
     if (empty($error)) {
         // Fast-path idempotency check: was this exact token already committed successfully?
@@ -468,6 +474,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </label>
             <div class="side-selector-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px;">
               
+              <label class="side-card-btn full-painting-card" id="full-painting-card-label" title="Full Vehicle Painting Work">
+                <input type="checkbox" id="full_painting_cb" class="full-paint-toggle-cb" onchange="syncPartsSelection()">
+                <div class="side-card-content">
+                  <i class="fa-solid fa-spray-can-sparkles text-gold" style="font-size: 1.3rem;"></i>
+                  <span>Full Painting</span>
+                </div>
+              </label>
+
               <label class="side-card-btn">
                 <input type="checkbox" class="side-toggle-cb" data-side="left_side" onchange="toggleSideSection('left_side', this.checked)">
                 <div class="side-card-content">
@@ -475,6 +489,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                   <span>Left Side</span>
                 </div>
               </label>
+
 
               <label class="side-card-btn">
                 <input type="checkbox" class="side-toggle-cb" data-side="right_side" onchange="toggleSideSection('right_side', this.checked)">
@@ -825,6 +840,14 @@ function syncPartsSelection() {
   const grouped = {};
   let totalCount = 0;
 
+  // 1. Check Full Painting option
+  const fullPaintingCb = document.getElementById('full_painting_cb');
+  const isFullPainting = fullPaintingCb && fullPaintingCb.checked;
+  if (isFullPainting) {
+    totalCount += 1;
+  }
+
+  // 2. Check individual vehicle sides & parts
   document.querySelectorAll('.side-toggle-cb').forEach(sideCb => {
     const sideKey = sideCb.getAttribute('data-side');
     if (sideCb.checked) {
@@ -845,6 +868,10 @@ function syncPartsSelection() {
   });
 
   const formattedLines = [];
+  if (isFullPainting) {
+    formattedLines.push('Full Painting');
+  }
+
   for (const [side, parts] of Object.entries(grouped)) {
     formattedLines.push(side + ' (' + parts.join(', ') + ')');
   }
@@ -860,13 +887,55 @@ function syncPartsSelection() {
     textDisp.textContent = finalString !== '' ? finalString : 'No specific side/parts selected yet. Click any side above to choose parts.';
   }
   if (badgeDisp) {
-    badgeDisp.textContent = totalCount + (totalCount === 1 ? ' Part' : ' Parts');
+    badgeDisp.textContent = totalCount + (totalCount === 1 ? ' Option / Part' : ' Options / Parts');
   }
+}
+
+function restorePartsSelectionFromInput() {
+  const inputEl = document.getElementById('selected_parts_input');
+  if (!inputEl || !inputEl.value) return;
+
+  const rawVal = inputEl.value;
+
+  // 1. Restore Full Painting checkbox
+  if (rawVal.includes('Full Painting')) {
+    const fullPaintingCb = document.getElementById('full_painting_cb');
+    if (fullPaintingCb) fullPaintingCb.checked = true;
+  }
+
+  // 2. Restore Sub-parts and open active side sections
+  document.querySelectorAll('.part-cb').forEach(cb => {
+    if (cb.value && rawVal.includes(cb.value)) {
+      cb.checked = true;
+      const partsBox = cb.closest('.side-parts-box');
+      if (partsBox) {
+        partsBox.style.display = 'block';
+        const sideKey = partsBox.id.replace('parts-box-', '');
+        const sideToggle = document.querySelector(`.side-toggle-cb[data-side="${sideKey}"]`);
+        if (sideToggle) sideToggle.checked = true;
+      }
+    }
+  });
+
+  // 3. Restore sides selected as Entire Section
+  document.querySelectorAll('.side-toggle-cb').forEach(sideCb => {
+    const sideCardText = sideCb.closest('.side-card-btn')?.querySelector('span')?.textContent || '';
+    if (sideCardText && rawVal.includes(sideCardText)) {
+      sideCb.checked = true;
+      const sideKey = sideCb.getAttribute('data-side');
+      const partsBox = document.getElementById('parts-box-' + sideKey);
+      if (partsBox) partsBox.style.display = 'block';
+    }
+  });
+
+  syncPartsSelection();
 }
 
 document.addEventListener('DOMContentLoaded', () => {
   calculateVehicleAmounts();
+  restorePartsSelectionFromInput();
   syncPartsSelection();
+
 
   const cameraInput = document.getElementById('photo-camera-input');
   const uploadInput = document.getElementById('photo-upload-input');

@@ -673,9 +673,14 @@
   display: block;
   cursor: pointer;
   user-select: none;
+  position: relative;
 }
 .side-card-btn input[type="checkbox"] {
-  display: none;
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+  pointer-events: none;
 }
 .side-card-content {
   display: flex;
@@ -693,12 +698,53 @@
   font-size: 0.85rem;
   text-align: center;
 }
+.side-card-btn:hover .side-card-content {
+  border-color: rgba(212, 175, 55, 0.5);
+}
+.side-card-btn input[type="checkbox"]:focus-visible + .side-card-content {
+  outline: 2px solid var(--gold-primary);
+  outline-offset: 2px;
+}
 .side-card-btn input[type="checkbox"]:checked + .side-card-content {
   border-color: var(--gold-primary);
   background: rgba(212, 175, 55, 0.15);
   color: var(--gold-dark);
   box-shadow: 0 0 12px rgba(212, 175, 55, 0.25);
 }
+
+/* Full Painting Special Featured Styling */
+.side-card-btn.full-painting-card .side-card-content {
+  border-color: rgba(212, 175, 55, 0.45);
+  background: rgba(212, 175, 55, 0.05);
+}
+.side-card-btn.full-painting-card:hover .side-card-content {
+  border-color: var(--gold-primary);
+  background: rgba(212, 175, 55, 0.1);
+}
+.side-card-btn.full-painting-card input[type="checkbox"]:checked + .side-card-content {
+  border-color: var(--gold-primary);
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.28) 0%, rgba(184, 134, 11, 0.18) 100%);
+  color: #FFFFFF;
+  box-shadow: 0 0 16px rgba(212, 175, 55, 0.35);
+}
+.side-card-btn.full-painting-card input[type="checkbox"]:checked + .side-card-content span {
+  color: var(--gold-light);
+  font-weight: 800;
+}
+.full-painting-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  background: rgba(212, 175, 55, 0.18);
+  border: 1px solid var(--gold-primary);
+  color: var(--gold-primary);
+  letter-spacing: 0.5px;
+}
+
 .side-parts-box {
   margin-top: 15px;
   padding: 16px;
@@ -724,10 +770,20 @@
   align-items: center;
   cursor: pointer;
   user-select: none;
+  position: relative;
 }
 .part-pill-label input[type="checkbox"] {
-  display: none;
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+  pointer-events: none;
 }
+.part-pill-label input[type="checkbox"]:focus-visible + span {
+  outline: 2px solid var(--gold-primary);
+  outline-offset: 2px;
+}
+
 .part-pill-label span {
   display: inline-block;
   padding: 8px 16px;
