@@ -139,6 +139,24 @@ CREATE TABLE IF NOT EXISTS `work_history` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ------------------------------------------------------------
+-- 8. FORM SUBMISSIONS TABLE (IDEMPOTENCY & DUPLICATE PREVENTION)
+-- ------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `form_submissions` (
+  `id` INT AUTO_INCREMENT PRIMARY KEY,
+  `submission_token` CHAR(64) NOT NULL,
+  `user_id` INT NOT NULL,
+  `form_type` VARCHAR(50) NOT NULL DEFAULT 'add_car',
+  `status` ENUM('processing','success','failed') NOT NULL DEFAULT 'processing',
+  `result_car_id` INT DEFAULT NULL,
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  UNIQUE KEY `uk_submission_token` (`submission_token`),
+  INDEX `idx_fs_user_id` (`user_id`),
+  INDEX `idx_fs_status` (`status`),
+  INDEX `idx_fs_created` (`created_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ------------------------------------------------------------
 -- SEED INITIAL DATA
 -- Default Admin: admin / admin123
 -- Default Employee: john / user123

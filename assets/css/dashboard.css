@@ -515,6 +515,12 @@
   color: #FFFFFF;
 }
 
+.btn-loading {
+  opacity: 0.85 !important;
+  cursor: not-allowed !important;
+  pointer-events: none !important;
+}
+
 .sidebar-close-btn {
   display: none;
   background: transparent;

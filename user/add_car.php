@@ -8,7 +8,21 @@ $success = '';
 $nextCustomerId = generateNextCustomerID($pdo);
 $allCustomers = getAllCustomersList($pdo);
 
+// Token management: preserve token on validation error, create fresh one for new forms
+$submission_token = trim($_POST['submission_token'] ?? '');
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($submission_token) && strlen($submission_token) === 64 && ctype_xdigit($submission_token)) {
+    $submissionToken = $submission_token;
+} else {
+    $submissionToken = getOrCreateAddCarToken();
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // 0. Verify CSRF Token
+    $csrf_token = trim($_POST['csrf_token'] ?? '');
+    if (!verifyCSRFToken($csrf_token)) {
+        $error = "Security validation failed. Please refresh the page and submit again.";
+    }
+
     $customer_id = trim($_POST['customer_id'] ?? '');
     $customer_no = trim($_POST['customer_no'] ?? '');
     $alternate_phone = trim($_POST['alternate_phone'] ?? '');
@@ -39,22 +53,67 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $mechanic_given_amount  = isset($_POST['mechanic_given_amount']) && $_POST['mechanic_given_amount'] !== '' ? (float)$_POST['mechanic_given_amount'] : 0.00;
     $mechanic_balance_amount= max(0, $mechanic_total_amount - $mechanic_given_amount);
 
-    if (empty($customer_id) || empty($customer_no) || empty($customer_name) || empty($car_number) || empty($car_name)) {
-        $error = "Please fill in all required customer and car fields.";
-    } else {
+    if (empty($error)) {
+        if (empty($customer_id) || empty($customer_no) || empty($customer_name) || empty($car_number) || empty($car_name)) {
+            $error = "Please fill in all required customer and car fields.";
+        }
+    }
+
+    if (empty($error)) {
+        // Fast-path idempotency check: was this exact token already committed successfully?
+        $tokenCheck = checkIdempotencyToken($pdo, $submissionToken, $_SESSION['user_id'], 'add_car');
+        if ($tokenCheck['status'] === 'invalid' || $tokenCheck['status'] === 'unauthorized') {
+            $error = $tokenCheck['error'];
+        } elseif ($tokenCheck['status'] === 'already_success') {
+            header("Location: work.php?car_id=" . $tokenCheck['result_car_id'] . "&info=" . urlencode("This car entry was already processed."));
+            exit;
+        }
+    }
+
+    if (empty($error)) {
+        $newlyUploadedFiles = [];
         try {
             $pdo->beginTransaction();
 
-            // 1. Check if customer exists by ID or Phone
-            $custCheck = $pdo->prepare("SELECT id, customer_id FROM customers WHERE customer_id = ? OR customer_no = ?");
-            $custCheck->execute([$customer_id, $customer_no]);
+            // Atomically claim the idempotency token inside the transaction
+            $claim = claimIdempotencyToken($pdo, $submissionToken, $_SESSION['user_id'], 'add_car');
+            if (!$claim['claimed']) {
+                if (!empty($claim['already_success'])) {
+                    $pdo->rollBack();
+                    header("Location: work.php?car_id=" . $claim['result_car_id'] . "&info=" . urlencode("This car entry was already processed."));
+                    exit;
+                }
+                
+                // Concurrent request processing this token: wait briefly and recheck
+                $pdo->rollBack();
+                for ($w = 0; $w < 8; $w++) {
+                    usleep(500000); // 500ms
+                    $recheck = checkIdempotencyToken($pdo, $submissionToken, $_SESSION['user_id'], 'add_car');
+                    if ($recheck['status'] === 'already_success') {
+                        header("Location: work.php?car_id=" . $recheck['result_car_id'] . "&info=" . urlencode("This car entry was already processed."));
+                        exit;
+                    }
+                }
+                throw new Exception("Another submission is currently being processed for this form. Please check your work list.");
+            }
+
+            // 1. Check if customer exists by Phone or ID
+            $custCheck = $pdo->prepare("SELECT id, customer_id, customer_no FROM customers WHERE customer_no = ? OR customer_id = ?");
+            $custCheck->execute([$customer_no, $customer_id]);
             $existingCust = $custCheck->fetch();
 
             if ($existingCust) {
+                // If phone matched, update this existing customer
                 $customer_id = $existingCust['customer_id'];
                 $stmtCust = $pdo->prepare("UPDATE customers SET customer_no = ?, alternate_phone = ?, customer_name = ?, city = ? WHERE id = ?");
                 $stmtCust->execute([$customer_no, $alternate_phone, $customer_name, $city, $existingCust['id']]);
             } else {
+                // For a new customer, ensure customer_id is genuinely unique
+                $idCheck = $pdo->prepare("SELECT id FROM customers WHERE customer_id = ?");
+                $idCheck->execute([$customer_id]);
+                if ($idCheck->fetch()) {
+                    $customer_id = generateNextCustomerID($pdo);
+                }
                 $stmtCust = $pdo->prepare("INSERT INTO customers (customer_id, customer_no, alternate_phone, customer_name, city) VALUES (?, ?, ?, ?, ?)");
                 $stmtCust->execute([$customer_id, $customer_no, $alternate_phone, $customer_name, $city]);
             }
@@ -104,9 +163,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ]);
             $car_id = $pdo->lastInsertId();
 
-            // 4. Handle Damage Photo Uploads (both file picker & camera inputs)
+            // 4. Handle Damage Photo Uploads safely
             $allowedExts = ['jpg', 'jpeg', 'png', 'webp'];
+            $allowedMimes = ['image/jpeg', 'image/png', 'image/webp'];
             $uploadDir = __DIR__ . '/../uploads/damage/';
+            if (!is_dir($uploadDir)) {
+                @mkdir($uploadDir, 0755, true);
+            }
 
             if (!empty($_FILES['damage_photos']['name'][0])) {
                 $filesCount = count($_FILES['damage_photos']['name']);
@@ -116,14 +179,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $fileSize = $_FILES['damage_photos']['size'][$i];
                     $fileError = $_FILES['damage_photos']['error'][$i];
 
-                    if ($fileError === UPLOAD_ERR_OK) {
+                    if ($fileError === UPLOAD_ERR_OK && is_uploaded_file($fileTmp)) {
                         $ext = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
                         if (empty($ext)) $ext = 'jpg';
-                        if (in_array($ext, $allowedExts) && $fileSize <= 5 * 1024 * 1024) {
-                            $uniqueName = 'dmg_' . time() . '_' . rand(1000, 9999) . '.' . $ext;
+
+                        // Verify MIME type
+                        $mimeType = '';
+                        if (function_exists('finfo_open')) {
+                            $finfo = finfo_open(FILEINFO_MIME_TYPE);
+                            $mimeType = finfo_file($finfo, $fileTmp);
+                            finfo_close($finfo);
+                        } elseif (function_exists('mime_content_type')) {
+                            $mimeType = mime_content_type($fileTmp);
+                        } else {
+                            $imgInfo = @getimagesize($fileTmp);
+                            $mimeType = $imgInfo['mime'] ?? '';
+                        }
+
+                        if (in_array($ext, $allowedExts) && in_array($mimeType, $allowedMimes) && $fileSize <= 5 * 1024 * 1024) {
+                            $uniqueName = 'dmg_' . date('Ymd_His') . '_' . bin2hex(random_bytes(8)) . '.' . $ext;
                             $targetPath = $uploadDir . $uniqueName;
 
                             if (move_uploaded_file($fileTmp, $targetPath)) {
+                                $newlyUploadedFiles[] = $targetPath;
                                 $stmtPhoto = $pdo->prepare("INSERT INTO car_photos (car_id, photo_type, photo_path, uploaded_by) VALUES (?, 'damage', ?, ?)");
                                 $stmtPhoto->execute([$car_id, 'uploads/damage/' . $uniqueName, $_SESSION['user_id']]);
                             }
@@ -139,13 +217,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
             logWorkHistory($pdo, $car_id, 'New', $historyDesc, $_SESSION['user_id']);
 
+            // 6. Complete Idempotency Token
+            completeIdempotencyToken($pdo, $submissionToken, $car_id);
+
+            // 7. Commit Transaction as one atomic unit
             $pdo->commit();
+
+            // 8. Reset token in session for next fresh form
+            resetAddCarToken();
 
             header("Location: work.php?car_id=" . $car_id . "&success=" . urlencode("New car job registered successfully by staff!"));
             exit;
 
         } catch (Exception $e) {
-            $pdo->rollBack();
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+            // Clean up any newly uploaded files from failed attempt
+            foreach ($newlyUploadedFiles as $upFile) {
+                if (file_exists($upFile)) {
+                    @unlink($upFile);
+                }
+            }
+            // Mark token as failed to allow user to retry
+            failIdempotencyToken($pdo, $submissionToken);
+
+            error_log("Add car error: " . $e->getMessage());
             $error = "Error registering car job: " . $e->getMessage();
         }
     }
@@ -225,7 +322,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
       <?php endif; ?>
 
-      <form action="add_car.php" method="POST" enctype="multipart/form-data">
+      <form id="add-car-form" action="add_car.php" method="POST" enctype="multipart/form-data">
+        <input type="hidden" name="submission_token" value="<?php echo e($submissionToken); ?>">
+        <input type="hidden" name="csrf_token" value="<?php echo e(generateCSRFToken()); ?>">
         
         <!-- SECTION 1: CUSTOMER DETAILS -->
         <div class="card-box">
@@ -640,7 +739,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
 
         <div style="text-align: right; margin-top: 25px;">
-          <button type="submit" class="btn btn-gold" style="padding: 14px 40px; font-size: 1.05rem;">
+          <button type="submit" id="submit-car-btn" class="btn btn-gold" style="padding: 14px 40px; font-size: 1.05rem;">
             <i class="fa-solid fa-circle-check"></i> REGISTER CAR WORK ENTRY
           </button>
         </div>
@@ -790,6 +889,29 @@ document.addEventListener('DOMContentLoaded', () => {
       const event = new Event('change', { bubbles: true });
       uploadInput.dispatchEvent(event);
       cameraInput.value = '';
+    });
+  // Double-submission and rapid double-click prevention
+  const addCarForm = document.getElementById('add-car-form');
+  const submitCarBtn = document.getElementById('submit-car-btn');
+  let isCarSubmitting = false;
+
+  if (addCarForm && submitCarBtn) {
+    addCarForm.addEventListener('submit', function(e) {
+      if (!addCarForm.checkValidity()) {
+        return;
+      }
+      if (isCarSubmitting) {
+        e.preventDefault();
+        return false;
+      }
+      isCarSubmitting = true;
+      submitCarBtn.style.pointerEvents = 'none';
+      submitCarBtn.classList.add('btn-loading');
+      submitCarBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Registering car entry...';
+      
+      setTimeout(() => {
+        submitCarBtn.disabled = true;
+      }, 0);
     });
   }
 });
