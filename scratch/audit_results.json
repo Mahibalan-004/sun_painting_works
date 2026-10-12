@@ -1,0 +1,329 @@
+{
+    "passed": 38,
+    "failed": 0,
+    "not_tested": 1,
+    "config_required": 1,
+    "informational": 0,
+    "tests": [
+        {
+            "id": "ENV-01",
+            "category": "Environment",
+            "name": "PHP Runtime Version",
+            "status": "PASS",
+            "details": "PHP version is 8.5.9 (>= 8.0 required)",
+            "evidence": "Version: 8.5.9"
+        },
+        {
+            "id": "ENV-02",
+            "category": "Environment",
+            "name": "MySQL\/MariaDB Connectivity & Version",
+            "status": "PASS",
+            "details": "Database connected. Version: 8.0.46",
+            "evidence": "DB: 8.0.46"
+        },
+        {
+            "id": "ENV-03",
+            "category": "Environment",
+            "name": "Apache HTTP Endpoint",
+            "status": "PASS",
+            "details": "HTTP endpoint returned valid HTML content (13622 bytes)",
+            "evidence": "HTTP 200 OK"
+        },
+        {
+            "id": "ENV-04",
+            "category": "Environment",
+            "name": "HTTPS Port 443 Endpoint",
+            "status": "NOT TESTED",
+            "details": "Port 443 is not configured on local Apache. Marked as NOT PERFORMED per instructions.",
+            "evidence": "Port 443 closed"
+        },
+        {
+            "id": "DB-01",
+            "category": "Database",
+            "name": "All Required Core Tables Present",
+            "status": "PASS",
+            "details": "All 9 core tables exist with InnoDB engine",
+            "evidence": "attendance, car_photos, cars, customers, extra_work, form_submissions, salaries, users, work_history"
+        },
+        {
+            "id": "DB-02",
+            "category": "Database",
+            "name": "Customer-to-Car Relational Integrity",
+            "status": "PASS",
+            "details": "0 orphaned cars found",
+            "evidence": "Orphans: 0"
+        },
+        {
+            "id": "DB-03",
+            "category": "Database",
+            "name": "Car-to-Photos Relational Integrity",
+            "status": "PASS",
+            "details": "0 orphaned photos found",
+            "evidence": "Orphans: 0"
+        },
+        {
+            "id": "DB-04",
+            "category": "Database",
+            "name": "User-to-Attendance Relational Integrity",
+            "status": "PASS",
+            "details": "0 orphaned attendance records",
+            "evidence": "Orphans: 0"
+        },
+        {
+            "id": "DB-05",
+            "category": "Database",
+            "name": "User-to-Salary Relational Integrity",
+            "status": "PASS",
+            "details": "0 orphaned salary records",
+            "evidence": "Orphans: 0"
+        },
+        {
+            "id": "DB-06",
+            "category": "Database",
+            "name": "Car-to-WorkHistory Relational Integrity",
+            "status": "PASS",
+            "details": "0 orphaned work history records",
+            "evidence": "Orphans: 0"
+        },
+        {
+            "id": "AUTH-01",
+            "category": "Auth",
+            "name": "Logged-out Admin Access Protection",
+            "status": "PASS",
+            "details": "Unauthorized admin access redirects to login",
+            "evidence": "Redirect header verified"
+        },
+        {
+            "id": "AUTH-02",
+            "category": "Auth",
+            "name": "Logged-out User Access Protection",
+            "status": "PASS",
+            "details": "Unauthorized user access redirects to login",
+            "evidence": "Redirect header verified"
+        },
+        {
+            "id": "AUTH-03",
+            "category": "Auth",
+            "name": "Password Hashing & Verification (Bcrypt)",
+            "status": "PASS",
+            "details": "password_hash and password_verify function correctly",
+            "evidence": "Bcrypt validation verified"
+        },
+        {
+            "id": "AUTH-04",
+            "category": "Auth",
+            "name": "CSRF Generation & Verification",
+            "status": "PASS",
+            "details": "CSRF token matches session and rejects tampering",
+            "evidence": "Token: 64-hex verified"
+        },
+        {
+            "id": "CAR-01",
+            "category": "Workflow",
+            "name": "Customer ID Auto-Generation Format",
+            "status": "PASS",
+            "details": "Generated ID 'SPW000008' matches SPWxxxxxx format",
+            "evidence": "ID: SPW000008"
+        },
+        {
+            "id": "CAR-02",
+            "category": "Workflow",
+            "name": "Full Painting Part Selector Validation",
+            "status": "PASS",
+            "details": "Full Painting accepted as valid selection",
+            "evidence": "Result: Valid"
+        },
+        {
+            "id": "CAR-03",
+            "category": "Workflow",
+            "name": "Compound Part Selector Validation",
+            "status": "PASS",
+            "details": "Valid multi-part selection accepted",
+            "evidence": "Result: Valid"
+        },
+        {
+            "id": "CAR-04",
+            "category": "Workflow",
+            "name": "Disallowed Characters Rejection in Parts",
+            "status": "PASS",
+            "details": "Malicious characters rejected with validation message",
+            "evidence": "Rejected: Selected work areas contain invalid or disallowed characters."
+        },
+        {
+            "id": "CAR-05",
+            "category": "Idempotency",
+            "name": "Add Car Idempotency Token Format",
+            "status": "PASS",
+            "details": "64-hex token correctly generated and validated as new",
+            "evidence": "Token len: 64"
+        },
+        {
+            "id": "CAR-06",
+            "category": "Workflow",
+            "name": "Financial Balance & Status Calculation Rules",
+            "status": "PASS",
+            "details": "Calculations strictly conform to business rules",
+            "evidence": "Total: 17000, Bal: 12000, Status: Partial"
+        },
+        {
+            "id": "ATT-01",
+            "category": "Attendance",
+            "name": "Sunday Attendance Server-Side Enforcement",
+            "status": "PASS",
+            "details": "Server explicitly rejects non-Leave Sunday submissions",
+            "evidence": "Rule enforced in admin\/attendance.php"
+        },
+        {
+            "id": "ATT-02",
+            "category": "Attendance",
+            "name": "Attendance 10-Record Pagination & Controls",
+            "status": "PASS",
+            "details": "Daily history defaults to 10 per page with First, Prev, Next, Last",
+            "evidence": "Pagination configured"
+        },
+        {
+            "id": "STAFF-01",
+            "category": "Staff",
+            "name": "Staff Directory Data Access",
+            "status": "PASS",
+            "details": "Found 4 registered staff members in database",
+            "evidence": "Count: 4"
+        },
+        {
+            "id": "SAL-01",
+            "category": "Salary",
+            "name": "Salary Structure & User Relationship",
+            "status": "PASS",
+            "details": "Salaries table references user_id with foreign key constraint",
+            "evidence": "FK present"
+        },
+        {
+            "id": "PROF-01",
+            "category": "Profile",
+            "name": "Admin Profile Authentication Protection",
+            "status": "PASS",
+            "details": "admin\/profile.php includes admin_auth.php",
+            "evidence": "Protected"
+        },
+        {
+            "id": "PROF-02",
+            "category": "Profile",
+            "name": "Password Change Current-Password Verification",
+            "status": "PASS",
+            "details": "password_verify required before password change",
+            "evidence": "Verified"
+        },
+        {
+            "id": "PROF-03",
+            "category": "Profile",
+            "name": "CSRF Protection on Profile Updates",
+            "status": "PASS",
+            "details": "verifyCSRFToken enforced on form POST",
+            "evidence": "CSRF protected"
+        },
+        {
+            "id": "SOC-01",
+            "category": "Social",
+            "name": "Open Graph Title & Image Metadata",
+            "status": "PASS",
+            "details": "og:title and og:image present in public HTML",
+            "evidence": "Tags verified"
+        },
+        {
+            "id": "SOC-02",
+            "category": "Social",
+            "name": "Twitter \/ X Card Metadata",
+            "status": "PASS",
+            "details": "twitter:card tag present in public HTML",
+            "evidence": "Tags verified"
+        },
+        {
+            "id": "SOC-03",
+            "category": "Social",
+            "name": "Canonical URL Tag",
+            "status": "PASS",
+            "details": "Canonical URL link tag present",
+            "evidence": "Tags verified"
+        },
+        {
+            "id": "SOC-04",
+            "category": "Social",
+            "name": "Social Preview Image Asset",
+            "status": "PASS",
+            "details": "Social preview image asset exists on disk",
+            "evidence": "Found in assets\/images\/"
+        },
+        {
+            "id": "3D-01",
+            "category": "ThreeJS",
+            "name": "3D Passenger Car Asset (car.glb)",
+            "status": "PASS",
+            "details": "car.glb exists and is 67716 bytes",
+            "evidence": "car.glb verified"
+        },
+        {
+            "id": "3D-02",
+            "category": "ThreeJS",
+            "name": "3D Human Painter Asset (painter.glb)",
+            "status": "PASS",
+            "details": "painter.glb exists and is 59512 bytes",
+            "evidence": "painter.glb verified"
+        },
+        {
+            "id": "3D-03",
+            "category": "ThreeJS",
+            "name": "Paint Spray Mist Particle System",
+            "status": "PASS",
+            "details": "Atomization particle system implemented in three-car.js",
+            "evidence": "mistParticles verified"
+        },
+        {
+            "id": "3D-04",
+            "category": "ThreeJS",
+            "name": "OrbitControls 360\u00b0 Interaction",
+            "status": "PASS",
+            "details": "OrbitControls autoRotate and user drag configured",
+            "evidence": "OrbitControls verified"
+        },
+        {
+            "id": "3D-05",
+            "category": "ThreeJS",
+            "name": "WebGL Availability Fallback Handler",
+            "status": "PASS",
+            "details": "isWebGLAvailable check and fallback notice present",
+            "evidence": "Graceful WebGL fallback"
+        },
+        {
+            "id": "3D-06",
+            "category": "ThreeJS",
+            "name": "Procedural Car & Painter Fallbacks",
+            "status": "PASS",
+            "details": "Both car and painter have procedural fallbacks",
+            "evidence": "Dual fallback engines verified"
+        },
+        {
+            "id": "BKP-01",
+            "category": "Backup",
+            "name": "Database Schema Baseline Dump",
+            "status": "PASS",
+            "details": "sun_painting_works.sql exists (10360 bytes)",
+            "evidence": "SQL Dump found"
+        },
+        {
+            "id": "BKP-02",
+            "category": "Backup",
+            "name": "Customer Vehicle Photos Upload Directory",
+            "status": "PASS",
+            "details": "Uploads directory present for persistent storage",
+            "evidence": "uploads\/ present"
+        },
+        {
+            "id": "BKP-03",
+            "category": "Backup",
+            "name": "Automated Daily Database Backup Job",
+            "status": "CONFIG REQUIRED",
+            "details": "No automated OS cron\/task scheduler script detected for MySQL dumps. Recommended to configure Windows Task Scheduler with mysqldump.",
+            "evidence": "Missing task scheduler job"
+        }
+    ]
+}

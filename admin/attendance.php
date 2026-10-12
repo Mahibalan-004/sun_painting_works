@@ -1,6 +1,11 @@
 <?php
 require_once __DIR__ . '/../includes/admin_auth.php';
 
+// Ensure consistent local timezone
+if (function_exists('date_default_timezone_set')) {
+    date_default_timezone_set('Asia/Kolkata');
+}
+
 $error = '';
 $success = '';
 $activeTab = $_GET['tab'] ?? 'daily'; // 'daily', 'weekly', 'monthly'
@@ -10,24 +15,53 @@ $allUsers = $pdo->query("SELECT id, name, employee_id FROM users WHERE status = 
 
 // Handle Manual Attendance Entry/Update by Admin
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $user_id = (int)($_POST['user_id'] ?? 0);
-    $att_date = $_POST['attendance_date'] ?? date('Y-m-d');
-    $status = $_POST['status'] ?? 'Present';
-    $login_time = !empty($_POST['login_time']) ? $_POST['login_time'] : null;
+    $user_id     = (int)($_POST['user_id'] ?? 0);
+    $att_date    = trim($_POST['attendance_date'] ?? date('Y-m-d'));
+    $status      = trim($_POST['status'] ?? 'Present');
+    $login_time  = !empty($_POST['login_time']) ? $_POST['login_time'] : null;
     $logout_time = !empty($_POST['logout_time']) ? $_POST['logout_time'] : null;
-    $remarks = trim($_POST['remarks'] ?? '');
+    $remarks     = trim($_POST['remarks'] ?? '');
 
-    if ($user_id > 0) {
-        $stmt = $pdo->prepare("INSERT INTO attendance (user_id, attendance_date, login_time, logout_time, status, remarks) 
-                               VALUES (?, ?, ?, ?, ?, ?) 
-                               ON DUPLICATE KEY UPDATE login_time = VALUES(login_time), logout_time = VALUES(logout_time), status = VALUES(status), remarks = VALUES(remarks)");
-        $stmt->execute([$user_id, $att_date, $login_time, $logout_time, $status, $remarks]);
-        $success = "Attendance record updated for " . date('d-m-Y', strtotime($att_date));
+    if ($user_id <= 0) {
+        $error = "Please select a valid employee.";
+    } elseif (empty($att_date) || !strtotime($att_date)) {
+        $error = "Please provide a valid attendance date.";
+    } else {
+        $timestamp = strtotime($att_date);
+        $dayOfWeek = (int)date('w', $timestamp); // 0 = Sunday
+
+        if ($dayOfWeek === 0) {
+            // Sunday Attendance Rule: Sunday is not a working day. Only 'Leave' status is permitted.
+            if ($status !== 'Leave') {
+                $error = "Sunday is not a working day. Sunday attendance allows only 'Leave' status. Present, Absent, and Half Day are not allowed.";
+            } else {
+                // Allowed: Leave on Sunday
+                $login_time = null;
+                $logout_time = null;
+                $stmt = $pdo->prepare("INSERT INTO attendance (user_id, attendance_date, login_time, logout_time, status, remarks) 
+                                       VALUES (?, ?, ?, ?, ?, ?) 
+                                       ON DUPLICATE KEY UPDATE login_time = VALUES(login_time), logout_time = VALUES(logout_time), status = VALUES(status), remarks = VALUES(remarks)");
+                $stmt->execute([$user_id, $att_date, $login_time, $logout_time, 'Leave', $remarks]);
+                $success = "Attendance record updated for " . date('d-m-Y', $timestamp) . " (Sunday - Leave).";
+            }
+        } else {
+            // Normal Working Day (Monday through Saturday)
+            $allowedStatuses = ['Present', 'Absent', 'Half Day', 'Leave'];
+            if (!in_array($status, $allowedStatuses, true)) {
+                $error = "Invalid attendance status selected.";
+            } else {
+                $stmt = $pdo->prepare("INSERT INTO attendance (user_id, attendance_date, login_time, logout_time, status, remarks) 
+                                       VALUES (?, ?, ?, ?, ?, ?) 
+                                       ON DUPLICATE KEY UPDATE login_time = VALUES(login_time), logout_time = VALUES(logout_time), status = VALUES(status), remarks = VALUES(remarks)");
+                $stmt->execute([$user_id, $att_date, $login_time, $logout_time, $status, $remarks]);
+                $success = "Attendance record updated for " . date('d-m-Y', $timestamp);
+            }
+        }
     }
 }
 
 // -------------------------------------------------------------
-// 1. DATA FOR DAILY LOG VIEW
+// 1. DATA FOR DAILY LOG VIEW WITH SERVER-SIDE PAGINATION
 // -------------------------------------------------------------
 $empFilter = (int)($_GET['employee_id'] ?? 0);
 $dateFilter = trim($_GET['date'] ?? '');
@@ -58,21 +92,64 @@ if (!empty($statusFilter)) {
 }
 
 $whereSql = implode(" AND ", $where);
+
+// Count total matching records for pagination
+$countQuery = "SELECT COUNT(*) FROM attendance a JOIN users u ON a.user_id = u.id WHERE {$whereSql}";
+$countStmt = $pdo->prepare($countQuery);
+$countStmt->execute($params);
+$totalRecords = (int)$countStmt->fetchColumn();
+
+// 10 records per page
+$perPage = 10;
+$totalPages = $totalRecords > 0 ? (int)ceil($totalRecords / $perPage) : 1;
+
+// Validate and normalize page parameter
+$pageInput = $_GET['page'] ?? 1;
+if (!is_numeric($pageInput)) {
+    $page = 1;
+} else {
+    $page = (int)$pageInput;
+    if ($page < 1) {
+        $page = 1;
+    } elseif ($page > $totalPages) {
+        $page = $totalPages;
+    }
+}
+
+$offset = ($page - 1) * $perPage;
+
+// Deterministic query with LIMIT and OFFSET using safe integer parameters
 $query = "SELECT a.*, u.name AS employee_name, u.employee_id AS emp_code, u.role 
           FROM attendance a 
           JOIN users u ON a.user_id = u.id 
           WHERE {$whereSql} 
-          ORDER BY a.attendance_date DESC, a.id DESC";
+          ORDER BY a.attendance_date DESC, a.id DESC 
+          LIMIT ? OFFSET ?";
 
 $stmt = $pdo->prepare($query);
-$stmt->execute($params);
+$paramIdx = 1;
+foreach ($params as $p) {
+    $stmt->bindValue($paramIdx++, $p);
+}
+$stmt->bindValue($paramIdx++, (int)$perPage, PDO::PARAM_INT);
+$stmt->bindValue($paramIdx++, (int)$offset, PDO::PARAM_INT);
+$stmt->execute();
 $attendanceList = $stmt->fetchAll();
+
+// Helper to preserve active filter parameters across pagination links
+function buildAttendancePageUrl($targetPage) {
+    $q = $_GET;
+    $q['tab'] = 'daily';
+    $q['page'] = $targetPage;
+    return 'attendance.php?' . http_build_query($q);
+}
 
 // -------------------------------------------------------------
 // 2. DATA FOR WEEKLY ATTENDANCE REPORT
 // -------------------------------------------------------------
 $weekDate = trim($_GET['week_date'] ?? date('Y-m-d'));
 $weekStart = date('Y-m-d', strtotime('monday this week', strtotime($weekDate)));
+
 $weekEnd = date('Y-m-d', strtotime('sunday this week', strtotime($weekDate)));
 
 $weeklyStaffStats = [];
@@ -134,6 +211,18 @@ for ($i = 0; $i < 7; $i++) {
 $selectedMonth = trim($_GET['report_month'] ?? date('Y-m'));
 $daysInMonth = (int)date('t', strtotime($selectedMonth . '-01'));
 
+// Working days calculation: Exclude Sundays from working-day total and denominator
+$workingDaysInMonth = 0;
+for ($d = 1; $d <= $daysInMonth; $d++) {
+    $curDayTs = strtotime(sprintf('%s-%02d', $selectedMonth, $d));
+    if ((int)date('w', $curDayTs) !== 0) { // 0 = Sunday
+        $workingDaysInMonth++;
+    }
+}
+if ($workingDaysInMonth <= 0) {
+    $workingDaysInMonth = 26; // Fallback safety
+}
+
 $monthlyStaffStats = [];
 $monthlyStatusTotals = ['Present' => 0, 'Absent' => 0, 'Half Day' => 0, 'Leave' => 0];
 
@@ -147,7 +236,7 @@ foreach ($allUsers as $u) {
         $monthlyStatusTotals[$row['status']] += (int)$row['cnt'];
     }
     $effectiveDays = $counts['Present'] + ($counts['Half Day'] * 0.5);
-    $percent = round(($effectiveDays / 26) * 100);
+    $percent = round(($effectiveDays / $workingDaysInMonth) * 100);
     $percent = min(100, $percent);
 
     $monthlyStaffStats[] = [
@@ -257,6 +346,12 @@ foreach ($allUsers as $u) {
         </div>
       <?php endif; ?>
 
+      <?php if (!empty($error)): ?>
+        <div style="background: rgba(231, 76, 60, 0.12); border: 1px solid #E74C3C; color: #C0392B; padding: 14px; border-radius: var(--radius-sm); margin-bottom: 25px;">
+          <i class="fa-solid fa-triangle-exclamation"></i> <?php echo e($error); ?>
+        </div>
+      <?php endif; ?>
+
       <!-- Tab Navigation -->
       <div class="report-tabs">
         <a href="attendance.php?tab=daily" class="report-tab-btn <?php echo $activeTab === 'daily' ? 'active' : ''; ?>">
@@ -294,12 +389,15 @@ foreach ($allUsers as $u) {
 
               <div class="form-group">
                 <label class="form-label">Date *</label>
-                <input type="date" name="attendance_date" class="form-control" value="<?php echo date('Y-m-d'); ?>" required>
+                <input type="date" name="attendance_date" id="attendance_date" class="form-control" value="<?php echo date('Y-m-d'); ?>" required onchange="checkSundayAttendance(this.value)">
+                <div id="sunday_notice" style="display: none; margin-top: 6px; font-size: 0.8rem; color: #C0392B; font-weight: 600;">
+                  <i class="fa-solid fa-circle-info"></i> Sunday is not a working day. Only 'Leave' status is permitted.
+                </div>
               </div>
 
               <div class="form-group">
                 <label class="form-label">Status *</label>
-                <select name="status" class="form-control" required>
+                <select name="status" id="attendance_status" class="form-control" required>
                   <option value="Present">Present</option>
                   <option value="Absent">Absent</option>
                   <option value="Half Day">Half Day</option>
@@ -381,14 +479,28 @@ foreach ($allUsers as $u) {
               }
           }
           if ($filteredWorker):
-              $workerStats = ['Present' => 0, 'Absent' => 0, 'Half Day' => 0, 'Leave' => 0, 'Total' => count($attendanceList)];
-              foreach ($attendanceList as $aRow) {
-                  if (isset($workerStats[$aRow['status']])) {
-                      $workerStats[$aRow['status']]++;
+              $wStatsStmt = $pdo->prepare("SELECT a.status, DAYOFWEEK(a.attendance_date) as dow 
+                                           FROM attendance a 
+                                           JOIN users u ON a.user_id = u.id 
+                                           WHERE {$whereSql}");
+              $wStatsStmt->execute($params);
+              $workerRows = $wStatsStmt->fetchAll();
+
+              $workerStats = ['Present' => 0, 'Absent' => 0, 'Half Day' => 0, 'Leave' => 0, 'Total' => count($workerRows)];
+              $workerWorkingDays = 0;
+              foreach ($workerRows as $wRow) {
+                  if (isset($workerStats[$wRow['status']])) {
+                      $workerStats[$wRow['status']]++;
+                  }
+                  // Sunday has DAYOFWEEK = 1 in MySQL. Exclude Sunday from working-day count and denominator.
+                  if ((int)$wRow['dow'] !== 1) {
+                      $workerWorkingDays++;
                   }
               }
               $eff = $workerStats['Present'] + ($workerStats['Half Day'] * 0.5);
-              $wPerc = $workerStats['Total'] > 0 ? round(($eff / $workerStats['Total']) * 100) : 0;
+              $denom = $workerWorkingDays > 0 ? $workerWorkingDays : ($workerStats['Total'] > 0 ? $workerStats['Total'] : 1);
+              $wPerc = round(($eff / $denom) * 100);
+              $wPerc = min(100, $wPerc);
         ?>
         <div class="card-box" style="background: linear-gradient(135deg, rgba(212, 175, 55, 0.08), rgba(255, 255, 255, 0.95)); border: 1px solid var(--gold-primary);">
           <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
@@ -402,8 +514,8 @@ foreach ($allUsers as $u) {
             </div>
             <div style="display: flex; gap: 20px; flex-wrap: wrap;">
               <div style="text-align: center; padding: 5px 15px; border-right: 1px solid #E2E8F0;">
-                <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600;">Total Logged</div>
-                <div style="font-size: 1.2rem; font-weight: 800; color: #1E293B;"><?php echo $workerStats['Total']; ?> Days</div>
+                <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600;">Working Days Logged</div>
+                <div style="font-size: 1.2rem; font-weight: 800; color: #1E293B;"><?php echo $workerWorkingDays; ?> Days</div>
               </div>
               <div style="text-align: center; padding: 5px 15px; border-right: 1px solid #E2E8F0;">
                 <div style="font-size: 0.75rem; color: #27AE60; text-transform: uppercase; font-weight: 600;">Present</div>
@@ -430,7 +542,7 @@ foreach ($allUsers as $u) {
         <div class="card-box">
           <div class="card-box-header">
             <div class="card-box-title"><i class="fa-solid fa-clipboard-check text-gold"></i> Daily Attendance History Log</div>
-            <span style="font-size: 0.85rem; color: var(--text-muted);"><?php echo count($attendanceList); ?> records found</span>
+            <span style="font-size: 0.85rem; color: var(--text-muted);"><?php echo $totalRecords; ?> records found &bull; Page <?php echo $page; ?> of <?php echo $totalPages; ?></span>
           </div>
 
           <div class="table-responsive">
@@ -469,6 +581,66 @@ foreach ($allUsers as $u) {
               </tbody>
             </table>
           </div>
+
+          <!-- Pagination Navigation Controls (10 records per page) -->
+          <?php if ($totalRecords > 0): ?>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding-top: 15px; border-top: 1px solid var(--border-color, #E2E8F0); flex-wrap: wrap; gap: 12px;">
+            <div style="font-size: 0.85rem; color: var(--text-muted);">
+              Showing <?php echo ($offset + 1); ?> to <?php echo min($offset + $perPage, $totalRecords); ?> of <?php echo $totalRecords; ?> records
+            </div>
+            
+            <div style="display: flex; gap: 6px; align-items: center;">
+              <!-- First -->
+              <?php if ($page > 1): ?>
+                <a href="<?php echo htmlspecialchars(buildAttendancePageUrl(1)); ?>" class="btn btn-silver" style="padding: 7px 14px; font-size: 0.82rem;" title="Go to first page">
+                  <i class="fa-solid fa-angles-left"></i> First
+                </a>
+              <?php else: ?>
+                <span class="btn btn-silver" style="padding: 7px 14px; font-size: 0.82rem; opacity: 0.45; cursor: not-allowed; pointer-events: none;">
+                  <i class="fa-solid fa-angles-left"></i> First
+                </span>
+              <?php endif; ?>
+
+              <!-- Previous -->
+              <?php if ($page > 1): ?>
+                <a href="<?php echo htmlspecialchars(buildAttendancePageUrl($page - 1)); ?>" class="btn btn-silver" style="padding: 7px 14px; font-size: 0.82rem;" title="Go to previous page">
+                  <i class="fa-solid fa-angle-left"></i> Previous
+                </a>
+              <?php else: ?>
+                <span class="btn btn-silver" style="padding: 7px 14px; font-size: 0.82rem; opacity: 0.45; cursor: not-allowed; pointer-events: none;">
+                  <i class="fa-solid fa-angle-left"></i> Previous
+                </span>
+              <?php endif; ?>
+
+              <!-- Current Page Indicator -->
+              <span style="padding: 7px 14px; font-size: 0.82rem; font-weight: 700; background: var(--gold-primary, #D4AF37); color: #000; border-radius: var(--radius-sm, 6px);">
+                Page <?php echo $page; ?> of <?php echo $totalPages; ?>
+              </span>
+
+              <!-- Next -->
+              <?php if ($page < $totalPages): ?>
+                <a href="<?php echo htmlspecialchars(buildAttendancePageUrl($page + 1)); ?>" class="btn btn-silver" style="padding: 7px 14px; font-size: 0.82rem;" title="Go to next page">
+                  Next <i class="fa-solid fa-angle-right"></i>
+                </a>
+              <?php else: ?>
+                <span class="btn btn-silver" style="padding: 7px 14px; font-size: 0.82rem; opacity: 0.45; cursor: not-allowed; pointer-events: none;">
+                  Next <i class="fa-solid fa-angle-right"></i>
+                </span>
+              <?php endif; ?>
+
+              <!-- Last -->
+              <?php if ($page < $totalPages): ?>
+                <a href="<?php echo htmlspecialchars(buildAttendancePageUrl($totalPages)); ?>" class="btn btn-silver" style="padding: 7px 14px; font-size: 0.82rem;" title="Go to last page">
+                  Last <i class="fa-solid fa-angles-right"></i>
+                </a>
+              <?php else: ?>
+                <span class="btn btn-silver" style="padding: 7px 14px; font-size: 0.82rem; opacity: 0.45; cursor: not-allowed; pointer-events: none;">
+                  Last <i class="fa-solid fa-angles-right"></i>
+                </span>
+              <?php endif; ?>
+            </div>
+          </div>
+          <?php endif; ?>
         </div>
 
       <?php elseif ($activeTab === 'weekly'): ?>
@@ -694,6 +866,45 @@ foreach ($allUsers as $u) {
 </div>
 
 <script src="../assets/js/main.js"></script>
+
+<script>
+function checkSundayAttendance(dateStr) {
+  if (!dateStr) return;
+  const parts = dateStr.split('-');
+  if (parts.length === 3) {
+    const d = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+    const isSunday = d.getDay() === 0;
+    const statusSelect = document.getElementById('attendance_status');
+    const notice = document.getElementById('sunday_notice');
+    if (statusSelect) {
+      const options = statusSelect.querySelectorAll('option');
+      options.forEach(opt => {
+        if (isSunday) {
+          if (opt.value !== 'Leave') {
+            opt.disabled = true;
+          } else {
+            opt.disabled = false;
+          }
+        } else {
+          opt.disabled = false;
+        }
+      });
+      if (isSunday) {
+        statusSelect.value = 'Leave';
+        if (notice) notice.style.display = 'block';
+      } else {
+        if (notice) notice.style.display = 'none';
+      }
+    }
+  }
+}
+document.addEventListener('DOMContentLoaded', () => {
+  const dInput = document.getElementById('attendance_date');
+  if (dInput) {
+    checkSundayAttendance(dInput.value);
+  }
+});
+</script>
 
 <?php if ($activeTab === 'weekly'): ?>
 <script>
