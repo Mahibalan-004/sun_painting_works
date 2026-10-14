@@ -22,6 +22,12 @@ $completedCarsCount = $pdo->query("SELECT COUNT(*) FROM cars WHERE status IN ('C
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="../assets/images/favicon.png">
+  <link rel="icon" type="image/x-icon" href="../assets/images/favicon.ico">
+  <link rel="shortcut icon" href="../assets/images/favicon.ico">
+  <link rel="apple-touch-icon" href="../assets/images/apple-touch-icon.png">
+
   <link rel="stylesheet" href="../assets/css/style.css">
   <link rel="stylesheet" href="../assets/css/dashboard.css">
   <script src="../assets/js/theme.js"></script>

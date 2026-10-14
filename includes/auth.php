@@ -356,12 +356,12 @@ function validateSelectedPartsInput($input) {
             'Full Painting', 'Complete Vehicle Body', 'Full Body Painting', 'Entire Vehicle'
         ],
         'Left Side' => [
-            'Entire Section', 'Left Fronter / Fender', 'Left Front Door', 'Left Rear Door', 'Left Back Door',
+            'Entire Section', 'Left Front Fender', 'Left Fronter / Fender', 'Left Front Door', 'Left Rear Door', 'Left Back Door',
             'Left Quarter Panel', 'Left Running Board', 'Left Side Mirror', 'Left Side Mirror (ORVM)',
             'Left Pillars (A/B/C)', 'Left Pillars'
         ],
         'Right Side' => [
-            'Entire Section', 'Right Fronter / Fender', 'Right Front Door', 'Right Rear Door', 'Right Back Door',
+            'Entire Section', 'Right Front Fender', 'Right Fronter / Fender', 'Right Front Door', 'Right Rear Door', 'Right Back Door',
             'Right Quarter Panel', 'Right Running Board', 'Right Side Mirror', 'Right Side Mirror (ORVM)',
             'Right Pillars (A/B/C)', 'Right Pillars'
         ],

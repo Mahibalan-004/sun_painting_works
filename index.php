@@ -6,9 +6,9 @@ require_once __DIR__ . '/includes/header.php';
 <section id="home" class="hero">
   <div class="hero-container">
     <div class="hero-content">
-      <div class="hero-badge">
+      <!-- <div class="hero-badge">
         <i class="fa-solid fa-crown"></i> Premier Workshop
-      </div>
+      </div> -->
       <h1 class="hero-title">SUN PAINTING <span class="text-gold">WORKS</span></h1>
       <div class="hero-motto">"PAINTED TO PERFECTION"</div>
       <p class="hero-subtitle">Professional Car Painting & Auto Body Works in Gobichettipalayam. Restoring your vehicle to immaculate showroom elegance.</p>
@@ -24,11 +24,18 @@ require_once __DIR__ . '/includes/header.php';
       </div>
     </div>
 
-    <!-- 3D Interactive Car Showroom Canvas -->
-    <div class="hero-3d-wrapper">
-      <div id="car3d-canvas"></div>
-      <div class="car-3d-controls-hint">
-        <i class="fa-solid fa-hand-pointer text-gold"></i> Drag to Rotate 360° | Scroll to Zoom
+    <!-- Realistic Red Sports Sedan Showcase Presentation -->
+    <div class="hero-car-image hero-car-wrapper">
+      <img 
+        src="assets/images/hero-car.png" 
+        alt="Sun Painting Works - Showroom Finish High-Gloss Red Sports Sedan" 
+        width="1672"
+        height="941"
+        fetchpriority="high"
+        loading="eager"
+      >
+      <div class="hero-car-badge">
+        <i class="fa-solid fa-crown text-gold"></i> Premium High-Gloss Finish
       </div>
     </div>
   </div>

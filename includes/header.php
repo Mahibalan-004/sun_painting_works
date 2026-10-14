@@ -80,12 +80,13 @@ $ogDescription = 'Give your car a fresh, flawless finish at Sun Painting Works. 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
   <!-- Favicon -->
-  <link rel="icon" type="image/png" href="assets/images/logo.png">
-  <link rel="shortcut icon" href="assets/images/logo.png" type="image/png">
-  <link rel="apple-touch-icon" href="assets/images/logo.png">
+  <link rel="icon" type="image/png" href="assets/images/favicon.png">
+  <link rel="icon" type="image/x-icon" href="assets/images/favicon.ico">
+  <link rel="shortcut icon" href="assets/images/favicon.ico">
+  <link rel="apple-touch-icon" href="assets/images/apple-touch-icon.png">
 
   <!-- Global Stylesheet & Theme Engine -->
-  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="stylesheet" href="assets/css/style.css?v=<?php echo filemtime(__DIR__ . '/../assets/css/style.css'); ?>">
   <script src="assets/js/theme.js"></script>
 </head>
 <body>

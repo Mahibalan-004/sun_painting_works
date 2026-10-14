@@ -265,6 +265,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="../assets/images/favicon.png">
+  <link rel="icon" type="image/x-icon" href="../assets/images/favicon.ico">
+  <link rel="shortcut icon" href="../assets/images/favicon.ico">
+  <link rel="apple-touch-icon" href="../assets/images/apple-touch-icon.png">
+
   <link rel="stylesheet" href="../assets/css/style.css">
   <link rel="stylesheet" href="../assets/css/dashboard.css">
   <script src="../assets/js/theme.js"></script>
@@ -309,6 +315,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       </li>
       <li class="sidebar-item">
         <a href="salary.php"><i class="fa-solid fa-money-bill-wave"></i> Employee Salary</a>
+      </li>
+      <li class="sidebar-item">
+        <a href="profile.php"><i class="fa-solid fa-user-shield"></i> Profile & Security</a>
       </li>
 
       <li class="sidebar-menu-category">Public Site</li>
@@ -489,6 +498,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </label>
             <div class="side-selector-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px;">
               
+              <!-- 1. Full Painting -->
               <label class="side-card-btn full-painting-card" id="full-painting-card-label" title="Full Vehicle Painting Work">
                 <input type="checkbox" id="full_painting_cb" class="full-paint-toggle-cb" onchange="syncPartsSelection()">
                 <div class="side-card-content">
@@ -497,62 +507,68 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
               </label>
 
-              <label class="side-card-btn">
-                <input type="checkbox" class="side-toggle-cb" data-side="left_side" onchange="toggleSideSection('left_side', this.checked)">
+              <!-- 2. Left Side -->
+              <button type="button" class="side-card-btn side-section-btn" id="side-btn-left_side" data-side="left_side" onclick="selectSection('left_side')" title="Click to view & select Left Side parts" aria-expanded="false">
                 <div class="side-card-content">
+                  <span class="side-count-badge" id="badge-left_side" style="display: none;">0</span>
                   <i class="fa-solid fa-car-side" style="transform: scaleX(-1); font-size: 1.3rem;"></i>
                   <span>Left Side</span>
                 </div>
-              </label>
+              </button>
 
-
-              <label class="side-card-btn">
-                <input type="checkbox" class="side-toggle-cb" data-side="right_side" onchange="toggleSideSection('right_side', this.checked)">
+              <!-- 3. Right Side -->
+              <button type="button" class="side-card-btn side-section-btn" id="side-btn-right_side" data-side="right_side" onclick="selectSection('right_side')" title="Click to view & select Right Side parts" aria-expanded="false">
                 <div class="side-card-content">
+                  <span class="side-count-badge" id="badge-right_side" style="display: none;">0</span>
                   <i class="fa-solid fa-car-side" style="font-size: 1.3rem;"></i>
                   <span>Right Side</span>
                 </div>
-              </label>
+              </button>
 
-              <label class="side-card-btn">
-                <input type="checkbox" class="side-toggle-cb" data-side="front_bumper" onchange="toggleSideSection('front_bumper', this.checked)">
+              <!-- 4. Front Bumper -->
+              <button type="button" class="side-card-btn side-section-btn" id="side-btn-front_bumper" data-side="front_bumper" onclick="selectSection('front_bumper')" title="Click to view & select Front Bumper parts" aria-expanded="false">
                 <div class="side-card-content">
+                  <span class="side-count-badge" id="badge-front_bumper" style="display: none;">0</span>
                   <i class="fa-solid fa-bullseye" style="font-size: 1.3rem;"></i>
                   <span>Front Bumper</span>
                 </div>
-              </label>
+              </button>
 
-              <label class="side-card-btn">
-                <input type="checkbox" class="side-toggle-cb" data-side="back_bumper" onchange="toggleSideSection('back_bumper', this.checked)">
+              <!-- 5. Back Bumper -->
+              <button type="button" class="side-card-btn side-section-btn" id="side-btn-back_bumper" data-side="back_bumper" onclick="selectSection('back_bumper')" title="Click to view & select Back Bumper parts" aria-expanded="false">
                 <div class="side-card-content">
+                  <span class="side-count-badge" id="badge-back_bumper" style="display: none;">0</span>
                   <i class="fa-solid fa-shield-halved" style="font-size: 1.3rem;"></i>
                   <span>Back Bumper</span>
                 </div>
-              </label>
+              </button>
 
-              <label class="side-card-btn">
-                <input type="checkbox" class="side-toggle-cb" data-side="top_roof" onchange="toggleSideSection('top_roof', this.checked)">
+              <!-- 6. Top / Roof -->
+              <button type="button" class="side-card-btn side-section-btn" id="side-btn-top_roof" data-side="top_roof" onclick="selectSection('top_roof')" title="Click to view & select Top / Roof parts" aria-expanded="false">
                 <div class="side-card-content">
+                  <span class="side-count-badge" id="badge-top_roof" style="display: none;">0</span>
                   <i class="fa-solid fa-arrow-up-from-ground-water" style="font-size: 1.3rem;"></i>
                   <span>Top / Roof</span>
                 </div>
-              </label>
+              </button>
 
-              <label class="side-card-btn">
-                <input type="checkbox" class="side-toggle-cb" data-side="bottom_underbody" onchange="toggleSideSection('bottom_underbody', this.checked)">
+              <!-- 7. Bottom / Underbody -->
+              <button type="button" class="side-card-btn side-section-btn" id="side-btn-bottom_underbody" data-side="bottom_underbody" onclick="selectSection('bottom_underbody')" title="Click to view & select Bottom / Underbody parts" aria-expanded="false">
                 <div class="side-card-content">
+                  <span class="side-count-badge" id="badge-bottom_underbody" style="display: none;">0</span>
                   <i class="fa-solid fa-arrow-down-up-lock" style="font-size: 1.3rem;"></i>
                   <span>Bottom / Underbody</span>
                 </div>
-              </label>
+              </button>
 
-              <label class="side-card-btn">
-                <input type="checkbox" class="side-toggle-cb" data-side="boot_space" onchange="toggleSideSection('boot_space', this.checked)">
+              <!-- 8. Boot Space -->
+              <button type="button" class="side-card-btn side-section-btn" id="side-btn-boot_space" data-side="boot_space" onclick="selectSection('boot_space')" title="Click to view & select Boot Space parts" aria-expanded="false">
                 <div class="side-card-content">
+                  <span class="side-count-badge" id="badge-boot_space" style="display: none;">0</span>
                   <i class="fa-solid fa-box-open" style="font-size: 1.3rem;"></i>
                   <span>Boot Space</span>
                 </div>
-              </label>
+              </button>
 
             </div>
           </div>
@@ -563,108 +579,171 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <!-- LEFT SIDE PARTS -->
             <div class="side-parts-box" id="parts-box-left_side" style="display: none;">
               <div class="side-parts-header">
-                <div style="font-weight: 700; color: var(--gold-primary);"><i class="fa-solid fa-car-side" style="transform: scaleX(-1);"></i> Left Side Parts</div>
-                <button type="button" class="btn btn-silver" style="padding: 3px 10px; font-size: 0.75rem;" onclick="selectAllPartsInSide('left_side', true)">Select All Parts</button>
+                <div style="font-weight: 700; color: var(--gold-primary); display: flex; align-items: center; gap: 8px;">
+                  <i class="fa-solid fa-car-side" style="transform: scaleX(-1);"></i> Left Side Parts
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <button type="button" id="select-all-btn-left_side" class="btn btn-silver" style="padding: 4px 12px; font-size: 0.78rem;" onclick="toggleSelectAllInSide('left_side')">
+                    <i class="fa-solid fa-check-double"></i> Select All Parts
+                  </button>
+                  <button type="button" class="btn btn-outline-silver" style="padding: 4px 10px; font-size: 0.78rem;" onclick="closeSideSection('left_side')" title="Close Panel">
+                    <i class="fa-solid fa-xmark"></i>
+                  </button>
+                </div>
               </div>
               <div class="parts-pill-grid">
-                <label class="part-pill-label"><input type="checkbox" class="part-cb" data-side-label="Left Side" value="Left Fronter / Fender" onchange="syncPartsSelection()"><span>Left Fronter / Fender</span></label>
-                <label class="part-pill-label"><input type="checkbox" class="part-cb" data-side-label="Left Side" value="Left Front Door" onchange="syncPartsSelection()"><span>Left Front Door</span></label>
-                <label class="part-pill-label"><input type="checkbox" class="part-cb" data-side-label="Left Side" value="Left Rear Door" onchange="syncPartsSelection()"><span>Left Back Door</span></label>
-                <label class="part-pill-label"><input type="checkbox" class="part-cb" data-side-label="Left Side" value="Left Quarter Panel" onchange="syncPartsSelection()"><span>Left Quarter Panel</span></label>
-                <label class="part-pill-label"><input type="checkbox" class="part-cb" data-side-label="Left Side" value="Left Running Board" onchange="syncPartsSelection()"><span>Left Running Board</span></label>
-                <label class="part-pill-label"><input type="checkbox" class="part-cb" data-side-label="Left Side" value="Left Side Mirror" onchange="syncPartsSelection()"><span>Left Side Mirror (ORVM)</span></label>
-                <label class="part-pill-label"><input type="checkbox" class="part-cb" data-side-label="Left Side" value="Left Pillars (A/B/C)" onchange="syncPartsSelection()"><span>Left Pillars</span></label>
+                <label class="part-pill-label"><input type="checkbox" class="part-cb" data-side-key="left_side" data-side-label="Left Side" value="Left Front Fender" onchange="syncPartsSelection()"><span>Left Front Fender</span></label>
+                <label class="part-pill-label"><input type="checkbox" class="part-cb" data-side-key="left_side" data-side-label="Left Side" value="Left Front Door" onchange="syncPartsSelection()"><span>Left Front Door</span></label>
+                <label class="part-pill-label"><input type="checkbox" class="part-cb" data-side-key="left_side" data-side-label="Left Side" value="Left Back Door" onchange="syncPartsSelection()"><span>Left Back Door</span></label>
+                <label class="part-pill-label"><input type="checkbox" class="part-cb" data-side-key="left_side" data-side-label="Left Side" value="Left Quarter Panel" onchange="syncPartsSelection()"><span>Left Quarter Panel</span></label>
+                <label class="part-pill-label"><input type="checkbox" class="part-cb" data-side-key="left_side" data-side-label="Left Side" value="Left Running Board" onchange="syncPartsSelection()"><span>Left Running Board</span></label>
+                <label class="part-pill-label"><input type="checkbox" class="part-cb" data-side-key="left_side" data-side-label="Left Side" value="Left Side Mirror (ORVM)" onchange="syncPartsSelection()"><span>Left Side Mirror (ORVM)</span></label>
+                <label class="part-pill-label"><input type="checkbox" class="part-cb" data-side-key="left_side" data-side-label="Left Side" value="Left Pillars" onchange="syncPartsSelection()"><span>Left Pillars</span></label>
               </div>
             </div>
 
             <!-- RIGHT SIDE PARTS -->
             <div class="side-parts-box" id="parts-box-right_side" style="display: none;">
               <div class="side-parts-header">
-                <div style="font-weight: 700; color: var(--gold-primary);"><i class="fa-solid fa-car-side"></i> Right Side Parts</div>
-                <button type="button" class="btn btn-silver" style="padding: 3px 10px; font-size: 0.75rem;" onclick="selectAllPartsInSide('right_side', true)">Select All Parts</button>
+                <div style="font-weight: 700; color: var(--gold-primary); display: flex; align-items: center; gap: 8px;">
+                  <i class="fa-solid fa-car-side"></i> Right Side Parts
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <button type="button" id="select-all-btn-right_side" class="btn btn-silver" style="padding: 4px 12px; font-size: 0.78rem;" onclick="toggleSelectAllInSide('right_side')">
+                    <i class="fa-solid fa-check-double"></i> Select All Parts
+                  </button>
+                  <button type="button" class="btn btn-outline-silver" style="padding: 4px 10px; font-size: 0.78rem;" onclick="closeSideSection('right_side')" title="Close Panel">
+                    <i class="fa-solid fa-xmark"></i>
+                  </button>
+                </div>
               </div>
               <div class="parts-pill-grid">
-                <label class="part-pill-label"><input type="checkbox" class="part-cb" data-side-label="Right Side" value="Right Fronter / Fender" onchange="syncPartsSelection()"><span>Right Fronter / Fender</span></label>
-                <label class="part-pill-label"><input type="checkbox" class="part-cb" data-side-label="Right Side" value="Right Front Door" onchange="syncPartsSelection()"><span>Right Front Door</span></label>
-                <label class="part-pill-label"><input type="checkbox" class="part-cb" data-side-label="Right Side" value="Right Rear Door" onchange="syncPartsSelection()"><span>Right Back Door</span></label>
-                <label class="part-pill-label"><input type="checkbox" class="part-cb" data-side-label="Right Side" value="Right Quarter Panel" onchange="syncPartsSelection()"><span>Right Quarter Panel</span></label>
-                <label class="part-pill-label"><input type="checkbox" class="part-cb" data-side-label="Right Side" value="Right Running Board" onchange="syncPartsSelection()"><span>Right Running Board</span></label>
-                <label class="part-pill-label"><input type="checkbox" class="part-cb" data-side-label="Right Side" value="Right Side Mirror" onchange="syncPartsSelection()"><span>Right Side Mirror (ORVM)</span></label>
-                <label class="part-pill-label"><input type="checkbox" class="part-cb" data-side-label="Right Side" value="Right Pillars (A/B/C)" onchange="syncPartsSelection()"><span>Right Pillars</span></label>
+                <label class="part-pill-label"><input type="checkbox" class="part-cb" data-side-key="right_side" data-side-label="Right Side" value="Right Front Fender" onchange="syncPartsSelection()"><span>Right Front Fender</span></label>
+                <label class="part-pill-label"><input type="checkbox" class="part-cb" data-side-key="right_side" data-side-label="Right Side" value="Right Front Door" onchange="syncPartsSelection()"><span>Right Front Door</span></label>
+                <label class="part-pill-label"><input type="checkbox" class="part-cb" data-side-key="right_side" data-side-label="Right Side" value="Right Back Door" onchange="syncPartsSelection()"><span>Right Back Door</span></label>
+                <label class="part-pill-label"><input type="checkbox" class="part-cb" data-side-key="right_side" data-side-label="Right Side" value="Right Quarter Panel" onchange="syncPartsSelection()"><span>Right Quarter Panel</span></label>
+                <label class="part-pill-label"><input type="checkbox" class="part-cb" data-side-key="right_side" data-side-label="Right Side" value="Right Running Board" onchange="syncPartsSelection()"><span>Right Running Board</span></label>
+                <label class="part-pill-label"><input type="checkbox" class="part-cb" data-side-key="right_side" data-side-label="Right Side" value="Right Side Mirror (ORVM)" onchange="syncPartsSelection()"><span>Right Side Mirror (ORVM)</span></label>
+                <label class="part-pill-label"><input type="checkbox" class="part-cb" data-side-key="right_side" data-side-label="Right Side" value="Right Pillars" onchange="syncPartsSelection()"><span>Right Pillars</span></label>
               </div>
             </div>
 
             <!-- FRONT BUMPER PARTS -->
             <div class="side-parts-box" id="parts-box-front_bumper" style="display: none;">
               <div class="side-parts-header">
-                <div style="font-weight: 700; color: var(--gold-primary);"><i class="fa-solid fa-bullseye"></i> Front Bumper & Front Parts</div>
-                <button type="button" class="btn btn-silver" style="padding: 3px 10px; font-size: 0.75rem;" onclick="selectAllPartsInSide('front_bumper', true)">Select All Parts</button>
+                <div style="font-weight: 700; color: var(--gold-primary); display: flex; align-items: center; gap: 8px;">
+                  <i class="fa-solid fa-bullseye"></i> Front Bumper & Front Parts
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <button type="button" id="select-all-btn-front_bumper" class="btn btn-silver" style="padding: 4px 12px; font-size: 0.78rem;" onclick="toggleSelectAllInSide('front_bumper')">
+                    <i class="fa-solid fa-check-double"></i> Select All Parts
+                  </button>
+                  <button type="button" class="btn btn-outline-silver" style="padding: 4px 10px; font-size: 0.78rem;" onclick="closeSideSection('front_bumper')" title="Close Panel">
+                    <i class="fa-solid fa-xmark"></i>
+                  </button>
+                </div>
               </div>
               <div class="parts-pill-grid">
-                <label class="part-pill-label"><input type="checkbox" class="part-cb" data-side-label="Front Bumper" value="Front Bumper Main" onchange="syncPartsSelection()"><span>Front Bumper Main</span></label>
-                <label class="part-pill-label"><input type="checkbox" class="part-cb" data-side-label="Front Bumper" value="Front Grille" onchange="syncPartsSelection()"><span>Front Grille</span></label>
-                <label class="part-pill-label"><input type="checkbox" class="part-cb" data-side-label="Front Bumper" value="Front Bumper Guard" onchange="syncPartsSelection()"><span>Front Bumper Guard</span></label>
-                <label class="part-pill-label"><input type="checkbox" class="part-cb" data-side-label="Front Bumper" value="Bonnet / Hood" onchange="syncPartsSelection()"><span>Bonnet / Engine Hood</span></label>
-                <label class="part-pill-label"><input type="checkbox" class="part-cb" data-side-label="Front Bumper" value="Headlight Right" onchange="syncPartsSelection()"><span>Headlight Right</span></label>
-                <label class="part-pill-label"><input type="checkbox" class="part-cb" data-side-label="Front Bumper" value="Headlight Left" onchange="syncPartsSelection()"><span>Headlight Left</span></label>
+                <label class="part-pill-label"><input type="checkbox" class="part-cb" data-side-key="front_bumper" data-side-label="Front Bumper" value="Front Bumper Main" onchange="syncPartsSelection()"><span>Front Bumper Main</span></label>
+                <label class="part-pill-label"><input type="checkbox" class="part-cb" data-side-key="front_bumper" data-side-label="Front Bumper" value="Front Grille" onchange="syncPartsSelection()"><span>Front Grille</span></label>
+                <label class="part-pill-label"><input type="checkbox" class="part-cb" data-side-key="front_bumper" data-side-label="Front Bumper" value="Front Bumper Guard" onchange="syncPartsSelection()"><span>Front Bumper Guard</span></label>
+                <label class="part-pill-label"><input type="checkbox" class="part-cb" data-side-key="front_bumper" data-side-label="Front Bumper" value="Bonnet / Engine Hood" onchange="syncPartsSelection()"><span>Bonnet / Engine Hood</span></label>
+                <label class="part-pill-label"><input type="checkbox" class="part-cb" data-side-key="front_bumper" data-side-label="Front Bumper" value="Headlight Right" onchange="syncPartsSelection()"><span>Headlight Right</span></label>
+                <label class="part-pill-label"><input type="checkbox" class="part-cb" data-side-key="front_bumper" data-side-label="Front Bumper" value="Headlight Left" onchange="syncPartsSelection()"><span>Headlight Left</span></label>
               </div>
             </div>
 
             <!-- BACK BUMPER PARTS -->
             <div class="side-parts-box" id="parts-box-back_bumper" style="display: none;">
               <div class="side-parts-header">
-                <div style="font-weight: 700; color: var(--gold-primary);"><i class="fa-solid fa-shield-halved"></i> Back Bumper & Rear Parts</div>
-                <button type="button" class="btn btn-silver" style="padding: 3px 10px; font-size: 0.75rem;" onclick="selectAllPartsInSide('back_bumper', true)">Select All Parts</button>
+                <div style="font-weight: 700; color: var(--gold-primary); display: flex; align-items: center; gap: 8px;">
+                  <i class="fa-solid fa-shield-halved"></i> Back Bumper & Rear Parts
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <button type="button" id="select-all-btn-back_bumper" class="btn btn-silver" style="padding: 4px 12px; font-size: 0.78rem;" onclick="toggleSelectAllInSide('back_bumper')">
+                    <i class="fa-solid fa-check-double"></i> Select All Parts
+                  </button>
+                  <button type="button" class="btn btn-outline-silver" style="padding: 4px 10px; font-size: 0.78rem;" onclick="closeSideSection('back_bumper')" title="Close Panel">
+                    <i class="fa-solid fa-xmark"></i>
+                  </button>
+                </div>
               </div>
               <div class="parts-pill-grid">
-                <label class="part-pill-label"><input type="checkbox" class="part-cb" data-side-label="Back Bumper" value="Back Bumper Main" onchange="syncPartsSelection()"><span>Back Bumper Main</span></label>
-                <label class="part-pill-label"><input type="checkbox" class="part-cb" data-side-label="Back Bumper" value="Rear Bumper Guard" onchange="syncPartsSelection()"><span>Rear Bumper Guard</span></label>
-                <label class="part-pill-label"><input type="checkbox" class="part-cb" data-side-label="Back Bumper" value="Tail Light Right" onchange="syncPartsSelection()"><span>Tail Light Right</span></label>
-                <label class="part-pill-label"><input type="checkbox" class="part-cb" data-side-label="Back Bumper" value="Tail Light Left" onchange="syncPartsSelection()"><span>Tail Light Left</span></label>
-                <label class="part-pill-label"><input type="checkbox" class="part-cb" data-side-label="Back Bumper" value="Rear License Plate Area" onchange="syncPartsSelection()"><span>Rear License Plate Housing</span></label>
+                <label class="part-pill-label"><input type="checkbox" class="part-cb" data-side-key="back_bumper" data-side-label="Back Bumper" value="Back Bumper Main" onchange="syncPartsSelection()"><span>Back Bumper Main</span></label>
+                <label class="part-pill-label"><input type="checkbox" class="part-cb" data-side-key="back_bumper" data-side-label="Back Bumper" value="Rear Bumper Guard" onchange="syncPartsSelection()"><span>Rear Bumper Guard</span></label>
+                <label class="part-pill-label"><input type="checkbox" class="part-cb" data-side-key="back_bumper" data-side-label="Back Bumper" value="Tail Light Right" onchange="syncPartsSelection()"><span>Tail Light Right</span></label>
+                <label class="part-pill-label"><input type="checkbox" class="part-cb" data-side-key="back_bumper" data-side-label="Back Bumper" value="Tail Light Left" onchange="syncPartsSelection()"><span>Tail Light Left</span></label>
+                <label class="part-pill-label"><input type="checkbox" class="part-cb" data-side-key="back_bumper" data-side-label="Back Bumper" value="Rear License Plate Housing" onchange="syncPartsSelection()"><span>Rear License Plate Housing</span></label>
               </div>
             </div>
 
             <!-- TOP / ROOF PARTS -->
             <div class="side-parts-box" id="parts-box-top_roof" style="display: none;">
               <div class="side-parts-header">
-                <div style="font-weight: 700; color: var(--gold-primary);"><i class="fa-solid fa-arrow-up-from-ground-water"></i> Top / Roof Parts</div>
-                <button type="button" class="btn btn-silver" style="padding: 3px 10px; font-size: 0.75rem;" onclick="selectAllPartsInSide('top_roof', true)">Select All Parts</button>
+                <div style="font-weight: 700; color: var(--gold-primary); display: flex; align-items: center; gap: 8px;">
+                  <i class="fa-solid fa-arrow-up-from-ground-water"></i> Top / Roof Parts
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <button type="button" id="select-all-btn-top_roof" class="btn btn-silver" style="padding: 4px 12px; font-size: 0.78rem;" onclick="toggleSelectAllInSide('top_roof')">
+                    <i class="fa-solid fa-check-double"></i> Select All Parts
+                  </button>
+                  <button type="button" class="btn btn-outline-silver" style="padding: 4px 10px; font-size: 0.78rem;" onclick="closeSideSection('top_roof')" title="Close Panel">
+                    <i class="fa-solid fa-xmark"></i>
+                  </button>
+                </div>
               </div>
               <div class="parts-pill-grid">
-                <label class="part-pill-label"><input type="checkbox" class="part-cb" data-side-label="Top / Roof" value="Main Roof Panel" onchange="syncPartsSelection()"><span>Main Roof Panel</span></label>
-                <label class="part-pill-label"><input type="checkbox" class="part-cb" data-side-label="Top / Roof" value="Sunroof Assembly" onchange="syncPartsSelection()"><span>Sunroof Glass & Frame</span></label>
-                <label class="part-pill-label"><input type="checkbox" class="part-cb" data-side-label="Top / Roof" value="Front Windshield Frame" onchange="syncPartsSelection()"><span>Front Windshield Frame</span></label>
-                <label class="part-pill-label"><input type="checkbox" class="part-cb" data-side-label="Top / Roof" value="Rear Windshield Frame" onchange="syncPartsSelection()"><span>Rear Windshield Frame</span></label>
-                <label class="part-pill-label"><input type="checkbox" class="part-cb" data-side-label="Top / Roof" value="Roof Rails" onchange="syncPartsSelection()"><span>Roof Rails</span></label>
+                <label class="part-pill-label"><input type="checkbox" class="part-cb" data-side-key="top_roof" data-side-label="Top / Roof" value="Main Roof Panel" onchange="syncPartsSelection()"><span>Main Roof Panel</span></label>
+                <label class="part-pill-label"><input type="checkbox" class="part-cb" data-side-key="top_roof" data-side-label="Top / Roof" value="Sunroof Glass & Frame" onchange="syncPartsSelection()"><span>Sunroof Glass & Frame</span></label>
+                <label class="part-pill-label"><input type="checkbox" class="part-cb" data-side-key="top_roof" data-side-label="Top / Roof" value="Front Windshield Frame" onchange="syncPartsSelection()"><span>Front Windshield Frame</span></label>
+                <label class="part-pill-label"><input type="checkbox" class="part-cb" data-side-key="top_roof" data-side-label="Top / Roof" value="Rear Windshield Frame" onchange="syncPartsSelection()"><span>Rear Windshield Frame</span></label>
+                <label class="part-pill-label"><input type="checkbox" class="part-cb" data-side-key="top_roof" data-side-label="Top / Roof" value="Roof Rails" onchange="syncPartsSelection()"><span>Roof Rails</span></label>
               </div>
             </div>
 
             <!-- BOTTOM / UNDERBODY PARTS -->
             <div class="side-parts-box" id="parts-box-bottom_underbody" style="display: none;">
               <div class="side-parts-header">
-                <div style="font-weight: 700; color: var(--gold-primary);"><i class="fa-solid fa-arrow-down-up-lock"></i> Bottom / Underbody Parts</div>
-                <button type="button" class="btn btn-silver" style="padding: 3px 10px; font-size: 0.75rem;" onclick="selectAllPartsInSide('bottom_underbody', true)">Select All Parts</button>
+                <div style="font-weight: 700; color: var(--gold-primary); display: flex; align-items: center; gap: 8px;">
+                  <i class="fa-solid fa-arrow-down-up-lock"></i> Bottom / Underbody Parts
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <button type="button" id="select-all-btn-bottom_underbody" class="btn btn-silver" style="padding: 4px 12px; font-size: 0.78rem;" onclick="toggleSelectAllInSide('bottom_underbody')">
+                    <i class="fa-solid fa-check-double"></i> Select All Parts
+                  </button>
+                  <button type="button" class="btn btn-outline-silver" style="padding: 4px 10px; font-size: 0.78rem;" onclick="closeSideSection('bottom_underbody')" title="Close Panel">
+                    <i class="fa-solid fa-xmark"></i>
+                  </button>
+                </div>
               </div>
               <div class="parts-pill-grid">
-                <label class="part-pill-label"><input type="checkbox" class="part-cb" data-side-label="Bottom / Underbody" value="Underbody Engine Shield" onchange="syncPartsSelection()"><span>Underbody Engine Shield</span></label>
-                <label class="part-pill-label"><input type="checkbox" class="part-cb" data-side-label="Bottom / Underbody" value="Underside Running Board" onchange="syncPartsSelection()"><span>Underside Running Board</span></label>
-                <label class="part-pill-label"><input type="checkbox" class="part-cb" data-side-label="Bottom / Underbody" value="Exhaust System Guard" onchange="syncPartsSelection()"><span>Exhaust System Guard</span></label>
-                <label class="part-pill-label"><input type="checkbox" class="part-cb" data-side-label="Bottom / Underbody" value="Subframe Mounts" onchange="syncPartsSelection()"><span>Subframe / Suspension Mounts</span></label>
+                <label class="part-pill-label"><input type="checkbox" class="part-cb" data-side-key="bottom_underbody" data-side-label="Bottom / Underbody" value="Underbody Engine Shield" onchange="syncPartsSelection()"><span>Underbody Engine Shield</span></label>
+                <label class="part-pill-label"><input type="checkbox" class="part-cb" data-side-key="bottom_underbody" data-side-label="Bottom / Underbody" value="Underside Running Board" onchange="syncPartsSelection()"><span>Underside Running Board</span></label>
+                <label class="part-pill-label"><input type="checkbox" class="part-cb" data-side-key="bottom_underbody" data-side-label="Bottom / Underbody" value="Exhaust System Guard" onchange="syncPartsSelection()"><span>Exhaust System Guard</span></label>
+                <label class="part-pill-label"><input type="checkbox" class="part-cb" data-side-key="bottom_underbody" data-side-label="Bottom / Underbody" value="Subframe / Suspension Mounts" onchange="syncPartsSelection()"><span>Subframe / Suspension Mounts</span></label>
               </div>
             </div>
 
             <!-- BOOT SPACE PARTS -->
             <div class="side-parts-box" id="parts-box-boot_space" style="display: none;">
               <div class="side-parts-header">
-                <div style="font-weight: 700; color: var(--gold-primary);"><i class="fa-solid fa-box-open"></i> Boot Space & Dikki Parts</div>
-                <button type="button" class="btn btn-silver" style="padding: 3px 10px; font-size: 0.75rem;" onclick="selectAllPartsInSide('boot_space', true)">Select All Parts</button>
+                <div style="font-weight: 700; color: var(--gold-primary); display: flex; align-items: center; gap: 8px;">
+                  <i class="fa-solid fa-box-open"></i> Boot Space & Dikki Parts
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <button type="button" id="select-all-btn-boot_space" class="btn btn-silver" style="padding: 4px 12px; font-size: 0.78rem;" onclick="toggleSelectAllInSide('boot_space')">
+                    <i class="fa-solid fa-check-double"></i> Select All Parts
+                  </button>
+                  <button type="button" class="btn btn-outline-silver" style="padding: 4px 10px; font-size: 0.78rem;" onclick="closeSideSection('boot_space')" title="Close Panel">
+                    <i class="fa-solid fa-xmark"></i>
+                  </button>
+                </div>
               </div>
               <div class="parts-pill-grid">
-                <label class="part-pill-label"><input type="checkbox" class="part-cb" data-side-label="Boot Space" value="Boot Lid / Dikki Door" onchange="syncPartsSelection()"><span>Boot Lid / Dikki Door</span></label>
-                <label class="part-pill-label"><input type="checkbox" class="part-cb" data-side-label="Boot Space" value="Boot Inner Floor" onchange="syncPartsSelection()"><span>Boot Inner Floor</span></label>
-                <label class="part-pill-label"><input type="checkbox" class="part-cb" data-side-label="Boot Space" value="Tailgate Assembly" onchange="syncPartsSelection()"><span>Tailgate Assembly</span></label>
-                <label class="part-pill-label"><input type="checkbox" class="part-cb" data-side-label="Boot Space" value="Boot Lock & Hinge" onchange="syncPartsSelection()"><span>Boot Lock & Hinge</span></label>
+                <label class="part-pill-label"><input type="checkbox" class="part-cb" data-side-key="boot_space" data-side-label="Boot Space" value="Boot Lid / Dikki Door" onchange="syncPartsSelection()"><span>Boot Lid / Dikki Door</span></label>
+                <label class="part-pill-label"><input type="checkbox" class="part-cb" data-side-key="boot_space" data-side-label="Boot Space" value="Boot Inner Floor" onchange="syncPartsSelection()"><span>Boot Inner Floor</span></label>
+                <label class="part-pill-label"><input type="checkbox" class="part-cb" data-side-key="boot_space" data-side-label="Boot Space" value="Tailgate Assembly" onchange="syncPartsSelection()"><span>Tailgate Assembly</span></label>
+                <label class="part-pill-label"><input type="checkbox" class="part-cb" data-side-key="boot_space" data-side-label="Boot Space" value="Boot Lock & Hinge" onchange="syncPartsSelection()"><span>Boot Lock & Hinge</span></label>
               </div>
             </div>
 
@@ -672,15 +751,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
           <!-- Live Selected Summary Banner -->
           <div id="selected-parts-summary-box" style="margin-top: 20px; padding: 14px 18px; border-radius: var(--radius-sm); background: rgba(212, 175, 55, 0.08); border: 1px solid var(--border-gold); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
-            <div>
+            <div style="flex: 1; min-width: 220px;">
               <div style="font-size: 0.8rem; font-weight: 700; text-transform: uppercase; color: var(--gold-primary); letter-spacing: 0.5px;">
                 <i class="fa-solid fa-list-check"></i> Selected Work / Damage Areas:
               </div>
-              <div id="selected-parts-text" style="font-size: 0.95rem; font-weight: 600; color: var(--text-main); margin-top: 4px;">
+              <div id="selected-parts-text" style="font-size: 0.95rem; font-weight: 600; color: var(--text-main); margin-top: 4px; word-break: break-word;">
                 No specific side/parts selected yet. Click any side above to choose parts.
               </div>
             </div>
-            <span id="selected-parts-badge" class="badge" style="background: var(--gold-primary); color: #000; font-weight: 800; font-size: 0.9rem; padding: 6px 14px;">0 Parts</span>
+            <span id="selected-parts-badge" class="badge" style="background: var(--gold-primary); color: #000; font-weight: 800; font-size: 0.9rem; padding: 6px 14px; white-space: nowrap;">0 Parts</span>
           </div>
         </div>
 
@@ -836,22 +915,62 @@ function calculateVehicleAmounts() {
   }
 }
 
-function toggleSideSection(sideKey, isChecked) {
-  const partsBox = document.getElementById('parts-box-' + sideKey);
-  if (partsBox) {
-    partsBox.style.display = isChecked ? 'block' : 'none';
+let currentActiveSide = null;
+
+function selectSection(sideKey) {
+  const panel = document.getElementById('parts-box-' + sideKey);
+  const btn = document.getElementById('side-btn-' + sideKey);
+  if (!panel || !btn) return;
+
+  const isCurrentlyOpen = (panel.style.display === 'block');
+
+  if (isCurrentlyOpen) {
+    panel.style.display = 'none';
+    btn.classList.remove('is-active');
+    btn.setAttribute('aria-expanded', 'false');
+    currentActiveSide = null;
+    return;
   }
-  if (!isChecked && partsBox) {
-    partsBox.querySelectorAll('.part-cb').forEach(cb => cb.checked = false);
-  }
-  syncPartsSelection();
+
+  // Hide other panels and deactivate other section buttons
+  document.querySelectorAll('.side-parts-box').forEach(p => p.style.display = 'none');
+  document.querySelectorAll('.side-section-btn').forEach(b => {
+    b.classList.remove('is-active');
+    b.setAttribute('aria-expanded', 'false');
+  });
+
+  // Open clicked panel and activate its button
+  panel.style.display = 'block';
+  btn.classList.add('is-active');
+  btn.setAttribute('aria-expanded', 'true');
+  currentActiveSide = sideKey;
 }
 
-function selectAllPartsInSide(sideKey, checkVal) {
-  const partsBox = document.getElementById('parts-box-' + sideKey);
-  if (partsBox) {
-    partsBox.querySelectorAll('.part-cb').forEach(cb => cb.checked = checkVal);
+function closeSideSection(sideKey) {
+  const panel = document.getElementById('parts-box-' + sideKey);
+  const btn = document.getElementById('side-btn-' + sideKey);
+  if (panel) panel.style.display = 'none';
+  if (btn) {
+    btn.classList.remove('is-active');
+    btn.setAttribute('aria-expanded', 'false');
   }
+  if (currentActiveSide === sideKey) currentActiveSide = null;
+}
+
+function toggleSelectAllInSide(sideKey) {
+  const partsBox = document.getElementById('parts-box-' + sideKey);
+  if (!partsBox) return;
+
+  const checkboxes = Array.from(partsBox.querySelectorAll('.part-cb'));
+  if (checkboxes.length === 0) return;
+
+  const allChecked = checkboxes.every(cb => cb.checked);
+  const targetState = !allChecked;
+
+  checkboxes.forEach(cb => {
+    cb.checked = targetState;
+  });
+
   syncPartsSelection();
 }
 
@@ -859,33 +978,69 @@ function syncPartsSelection() {
   const grouped = {};
   let totalCount = 0;
 
-  // 1. Check Full Painting option
+  // 1. Full Painting option
   const fullPaintingCb = document.getElementById('full_painting_cb');
-  const isFullPainting = fullPaintingCb && fullPaintingCb.checked;
+  const isFullPainting = !!(fullPaintingCb && fullPaintingCb.checked);
   if (isFullPainting) {
     totalCount += 1;
   }
 
-  // 2. Check individual vehicle sides & parts
-  document.querySelectorAll('.side-toggle-cb').forEach(sideCb => {
-    const sideKey = sideCb.getAttribute('data-side');
-    if (sideCb.checked) {
-      const partsBox = document.getElementById('parts-box-' + sideKey);
-      if (partsBox) {
-        const checkedSubParts = Array.from(partsBox.querySelectorAll('.part-cb:checked'));
-        if (checkedSubParts.length > 0) {
-          const sideLabel = checkedSubParts[0].getAttribute('data-side-label') || sideKey;
-          grouped[sideLabel] = checkedSubParts.map(cb => cb.value);
-          totalCount += checkedSubParts.length;
+  // 2. Sections and their sub-parts
+  const allSideKeys = [
+    'left_side',
+    'right_side',
+    'front_bumper',
+    'back_bumper',
+    'top_roof',
+    'bottom_underbody',
+    'boot_space'
+  ];
+
+  allSideKeys.forEach(sideKey => {
+    const partsBox = document.getElementById('parts-box-' + sideKey);
+    const sideBtn = document.getElementById('side-btn-' + sideKey);
+    const countBadge = document.getElementById('badge-' + sideKey);
+    const selectAllBtn = document.getElementById('select-all-btn-' + sideKey);
+
+    if (partsBox) {
+      const allCbs = Array.from(partsBox.querySelectorAll('.part-cb'));
+      const checkedCbs = allCbs.filter(cb => cb.checked);
+      const checkedCount = checkedCbs.length;
+
+      // Update section badge and has-parts state
+      if (checkedCount > 0) {
+        totalCount += checkedCount;
+        const sideLabel = checkedCbs[0].getAttribute('data-side-label') || sideKey;
+        grouped[sideLabel] = checkedCbs.map(cb => cb.value);
+
+        if (countBadge) {
+          countBadge.textContent = checkedCount;
+          countBadge.style.display = 'flex';
+        }
+        if (sideBtn) {
+          sideBtn.classList.add('has-parts');
+        }
+      } else {
+        if (countBadge) {
+          countBadge.style.display = 'none';
+        }
+        if (sideBtn) {
+          sideBtn.classList.remove('has-parts');
+        }
+      }
+
+      // Update Select All / Deselect All button text
+      if (selectAllBtn && allCbs.length > 0) {
+        if (checkedCount === allCbs.length) {
+          selectAllBtn.innerHTML = '<i class="fa-solid fa-xmark"></i> Deselect All Parts';
         } else {
-          const sideCardText = sideCb.closest('.side-card-btn')?.querySelector('span')?.textContent || sideKey;
-          grouped[sideCardText] = ['Entire Section'];
-          totalCount += 1;
+          selectAllBtn.innerHTML = '<i class="fa-solid fa-check-double"></i> Select All Parts';
         }
       }
     }
   });
 
+  // Build serialized formatted string
   const formattedLines = [];
   if (isFullPainting) {
     formattedLines.push('Full Painting');
@@ -906,7 +1061,13 @@ function syncPartsSelection() {
     textDisp.textContent = finalString !== '' ? finalString : 'No specific side/parts selected yet. Click any side above to choose parts.';
   }
   if (badgeDisp) {
-    badgeDisp.textContent = totalCount + (totalCount === 1 ? ' Option / Part' : ' Options / Parts');
+    if (totalCount === 0) {
+      badgeDisp.textContent = '0 Parts';
+    } else if (totalCount === 1) {
+      badgeDisp.textContent = isFullPainting && Object.keys(grouped).length === 0 ? 'Full Painting' : '1 Part';
+    } else {
+      badgeDisp.textContent = totalCount + ' Parts';
+    }
   }
 }
 
@@ -916,36 +1077,47 @@ function restorePartsSelectionFromInput() {
 
   const rawVal = inputEl.value;
 
-  // 1. Restore Full Painting checkbox
+  // 1. Restore Full Painting
   if (rawVal.includes('Full Painting')) {
     const fullPaintingCb = document.getElementById('full_painting_cb');
     if (fullPaintingCb) fullPaintingCb.checked = true;
   }
 
-  // 2. Restore Sub-parts and open active side sections
+  // 2. Restore individual part checkboxes
+  const aliasMap = {
+    'Left Front Fender': ['Left Front Fender', 'Left Fronter / Fender'],
+    'Left Back Door': ['Left Back Door', 'Left Rear Door'],
+    'Left Side Mirror (ORVM)': ['Left Side Mirror (ORVM)', 'Left Side Mirror'],
+    'Left Pillars': ['Left Pillars', 'Left Pillars (A/B/C)'],
+    'Right Front Fender': ['Right Front Fender', 'Right Fronter / Fender'],
+    'Right Back Door': ['Right Back Door', 'Right Rear Door'],
+    'Right Side Mirror (ORVM)': ['Right Side Mirror (ORVM)', 'Right Side Mirror'],
+    'Right Pillars': ['Right Pillars', 'Right Pillars (A/B/C)'],
+    'Bonnet / Engine Hood': ['Bonnet / Engine Hood', 'Bonnet / Hood'],
+    'Rear License Plate Housing': ['Rear License Plate Housing', 'Rear License Plate Area'],
+    'Sunroof Glass & Frame': ['Sunroof Glass & Frame', 'Sunroof Assembly'],
+    'Subframe / Suspension Mounts': ['Subframe / Suspension Mounts', 'Subframe Mounts']
+  };
+
+  let firstSideWithSelection = null;
+
   document.querySelectorAll('.part-cb').forEach(cb => {
-    if (cb.value && rawVal.includes(cb.value)) {
+    const val = cb.value;
+    const aliases = aliasMap[val] || [val];
+    const isMatched = aliases.some(a => rawVal.includes(a));
+    if (isMatched) {
       cb.checked = true;
-      const partsBox = cb.closest('.side-parts-box');
-      if (partsBox) {
-        partsBox.style.display = 'block';
-        const sideKey = partsBox.id.replace('parts-box-', '');
-        const sideToggle = document.querySelector(`.side-toggle-cb[data-side="${sideKey}"]`);
-        if (sideToggle) sideToggle.checked = true;
+      const sideKey = cb.getAttribute('data-side-key');
+      if (sideKey && !firstSideWithSelection) {
+        firstSideWithSelection = sideKey;
       }
     }
   });
 
-  // 3. Restore sides selected as Entire Section
-  document.querySelectorAll('.side-toggle-cb').forEach(sideCb => {
-    const sideCardText = sideCb.closest('.side-card-btn')?.querySelector('span')?.textContent || '';
-    if (sideCardText && rawVal.includes(sideCardText)) {
-      sideCb.checked = true;
-      const sideKey = sideCb.getAttribute('data-side');
-      const partsBox = document.getElementById('parts-box-' + sideKey);
-      if (partsBox) partsBox.style.display = 'block';
-    }
-  });
+  // Open the first section that has selections
+  if (firstSideWithSelection) {
+    selectSection(firstSideWithSelection);
+  }
 
   syncPartsSelection();
 }
@@ -979,6 +1151,8 @@ document.addEventListener('DOMContentLoaded', () => {
       uploadInput.dispatchEvent(event);
       cameraInput.value = '';
     });
+  }
+
   // Double-submission and rapid double-click prevention
   const addCarForm = document.getElementById('add-car-form');
   const submitCarBtn = document.getElementById('submit-car-btn');

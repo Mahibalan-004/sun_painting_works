@@ -37,7 +37,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Edit permitted profile fields
             $name  = trim($_POST['name'] ?? '');
             $phone = trim($_POST['phone'] ?? '');
-            $email = trim($_POST['email'] ?? '');
 
             if (empty($name)) {
                 $error = "Display name is required.";
@@ -47,8 +46,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $error = "Phone number is required.";
             } elseif (!preg_match('/^[0-9\s\+\-]{7,15}$/', $phone)) {
                 $error = "Please enter a valid phone number (digits only, 7-15 characters).";
-            } elseif (isset($_POST['email']) && $email !== '' && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                $error = "Please enter a valid email address.";
             } else {
                 // Update ONLY permitted profile fields for the authenticated administrator
                 // Never trust account IDs from POST/GET; strictly bind session admin ID
@@ -116,6 +113,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="../assets/images/favicon.png">
+  <link rel="icon" type="image/x-icon" href="../assets/images/favicon.ico">
+  <link rel="shortcut icon" href="../assets/images/favicon.ico">
+  <link rel="apple-touch-icon" href="../assets/images/apple-touch-icon.png">
+
   <link rel="stylesheet" href="../assets/css/style.css">
   <link rel="stylesheet" href="../assets/css/dashboard.css">
   <script src="../assets/js/theme.js"></script>
@@ -162,7 +165,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <a href="salary.php"><i class="fa-solid fa-money-bill-wave"></i> Employee Salary</a>
       </li>
       <li class="sidebar-item active">
-        <a href="profile.php"><i class="fa-solid fa-user-shield"></i> Admin Profile</a>
+        <a href="profile.php"><i class="fa-solid fa-user-shield"></i> Profile & Security</a>
       </li>
 
       <li class="sidebar-menu-category">Public Site</li>
@@ -182,7 +185,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <button type="button" class="sidebar-toggle-btn" aria-label="Open navigation menu" aria-expanded="false">
           <i class="fa-solid fa-bars"></i>
         </button>
-        <h1 class="top-bar-title"><i class="fa-solid fa-user-shield text-gold"></i> Admin Profile Settings</h1>
+        <h1 class="top-bar-title"><i class="fa-solid fa-user-shield text-gold"></i> Profile & Security Settings</h1>
       </div>
 
       <div class="user-profile-menu">
@@ -280,12 +283,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               <label class="form-label">Phone Number *</label>
               <input type="text" name="phone" class="form-control" value="<?php echo e($adminProfile['phone']); ?>" required maxlength="20">
               <small style="color: var(--text-muted); font-size: 0.75rem;">Primary contact number for workshop notifications.</small>
-            </div>
-
-            <div class="form-group">
-              <label class="form-label">Email Address (Optional)</label>
-              <input type="email" name="email" class="form-control" placeholder="admin@sunpainting.com">
-              <small style="color: var(--text-muted); font-size: 0.75rem;">Verified email format required if specified.</small>
             </div>
 
             <div class="form-group">

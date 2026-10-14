@@ -674,6 +674,17 @@
   cursor: pointer;
   user-select: none;
   position: relative;
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin: 0;
+  width: 100%;
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+  text-align: inherit;
+  -webkit-appearance: none;
+  appearance: none;
 }
 .side-card-btn input[type="checkbox"] {
   position: absolute;
@@ -697,10 +708,16 @@
   font-weight: 600;
   font-size: 0.85rem;
   text-align: center;
+  position: relative;
+}
+.side-card-content * {
+  pointer-events: none;
 }
 .side-card-btn:hover .side-card-content {
   border-color: rgba(212, 175, 55, 0.5);
+  background: rgba(212, 175, 55, 0.05);
 }
+.side-card-btn:focus-visible .side-card-content,
 .side-card-btn input[type="checkbox"]:focus-visible + .side-card-content {
   outline: 2px solid var(--gold-primary);
   outline-offset: 2px;
@@ -710,6 +727,40 @@
   background: rgba(212, 175, 55, 0.15);
   color: var(--gold-dark);
   box-shadow: 0 0 12px rgba(212, 175, 55, 0.25);
+}
+.side-card-btn.is-active .side-card-content {
+  border-color: var(--gold-primary);
+  background: rgba(212, 175, 55, 0.2);
+  color: #FFFFFF;
+  box-shadow: 0 0 14px rgba(212, 175, 55, 0.35);
+}
+.side-card-btn.is-active .side-card-content i {
+  color: var(--gold-primary);
+}
+.side-card-btn.has-parts:not(.is-active) .side-card-content {
+  border-color: rgba(212, 175, 55, 0.65);
+  background: rgba(212, 175, 55, 0.08);
+  color: var(--gold-light);
+}
+.side-count-badge {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  background: var(--gold-primary);
+  color: #000000;
+  font-size: 0.72rem;
+  font-weight: 800;
+  min-width: 20px;
+  height: 20px;
+  line-height: 20px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+  z-index: 2;
+  pointer-events: none;
 }
 
 /* Full Painting Special Featured Styling */
@@ -914,9 +965,27 @@
     height: 60px;
   }
   .content-body {
-    padding: 15px 12px;
-  }
 }
 
-
-
+@media (max-width: 480px) {
+  .side-selector-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px !important;
+  }
+  .side-card-content {
+    padding: 10px 6px;
+    font-size: 0.78rem;
+    gap: 6px;
+  }
+  .side-parts-box {
+    padding: 12px 10px;
+  }
+  .part-pill-label span {
+    padding: 6px 12px;
+    font-size: 0.78rem;
+  }
+  .side-parts-header {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+}

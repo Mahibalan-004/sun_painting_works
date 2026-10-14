@@ -154,7 +154,12 @@ $workshopDirectory = $pdo->query("SELECT
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Mechanics & Workshops Portal | Sun Painting Works</title>
-  <link rel="icon" type="image/png" href="../assets/images/logo.png">
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="../assets/images/favicon.png">
+  <link rel="icon" type="image/x-icon" href="../assets/images/favicon.ico">
+  <link rel="shortcut icon" href="../assets/images/favicon.ico">
+  <link rel="apple-touch-icon" href="../assets/images/apple-touch-icon.png">
   
   <!-- Fonts & Icons -->
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -310,6 +315,9 @@ $workshopDirectory = $pdo->query("SELECT
       </li>
       <li class="sidebar-item">
         <a href="salary.php"><i class="fa-solid fa-money-bill-wave"></i> Employee Salary</a>
+      </li>
+      <li class="sidebar-item">
+        <a href="profile.php"><i class="fa-solid fa-user-shield"></i> Profile & Security</a>
       </li>
 
       <li class="sidebar-menu-category">Public Site</li>

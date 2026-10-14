@@ -48,8 +48,12 @@ $totalMechanicBalance = (float)($mechanicTotalsRow['mech_bal'] ?? 0);
   <title>Admin Dashboard | Sun Painting Works</title>
   
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="../assets/images/favicon.png">
+  <link rel="icon" type="image/x-icon" href="../assets/images/favicon.ico">
+  <link rel="shortcut icon" href="../assets/images/favicon.ico">
+  <link rel="apple-touch-icon" href="../assets/images/apple-touch-icon.png">
+
   <link rel="stylesheet" href="../assets/css/style.css">
   <link rel="stylesheet" href="../assets/css/dashboard.css">
   <script src="../assets/js/theme.js"></script>
@@ -98,6 +102,9 @@ $totalMechanicBalance = (float)($mechanicTotalsRow['mech_bal'] ?? 0);
       <li class="sidebar-item">
         <a href="salary.php"><i class="fa-solid fa-money-bill-wave"></i> Employee Salary</a>
       </li>
+      <li class="sidebar-item">
+        <a href="profile.php"><i class="fa-solid fa-user-shield"></i> Profile & Security</a>
+      </li>
 
       <li class="sidebar-menu-category">Public Site</li>
       <li class="sidebar-item">
@@ -119,13 +126,13 @@ $totalMechanicBalance = (float)($mechanicTotalsRow['mech_bal'] ?? 0);
         <h1 class="top-bar-title"><i class="fa-solid fa-chart-column text-gold"></i> Operational Workshop Dashboard</h1>
       </div>
 
-      <div class="user-profile-menu">
-        <div class="user-avatar">AD</div>
+      <a href="profile.php" class="user-profile-menu" style="text-decoration: none; color: inherit;" title="View Profile & Security">
+        <div class="user-avatar"><?php echo strtoupper(substr($_SESSION['user_name'] ?? 'AD', 0, 2)); ?></div>
         <div>
           <div style="font-weight: 700; font-size: 0.95rem;"><?php echo e($_SESSION['user_name']); ?></div>
           <div style="font-size: 0.75rem; color: var(--gold-primary);"><i class="fa-solid fa-shield"></i> Administrator</div>
         </div>
-      </div>
+      </a>
     </header>
 
     <div class="content-body">

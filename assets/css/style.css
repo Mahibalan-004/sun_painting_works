@@ -308,14 +308,16 @@ h1, h2, h3, h4, h5, h6 {
   margin: 0 auto;
   padding: 0 5%;
   display: grid;
-  grid-template-columns: 1.1fr 1fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   align-items: center;
   gap: 40px;
   z-index: 2;
 }
 
 .hero-content {
-  max-width: 620px;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .hero-badge {
@@ -335,9 +337,9 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .hero-title {
-  font-size: 3.5rem;
+  font-size: clamp(2.3rem, 3.2vw, 3.4rem);
   font-weight: 800;
-  line-height: 1.1;
+  line-height: 1.15;
   margin-bottom: 16px;
   text-transform: uppercase;
   color: var(--text-dark);
@@ -378,16 +380,66 @@ h1, h2, h3, h4, h5, h6 {
   flex-wrap: wrap;
 }
 
-/* 3D Viewer Canvas */
-.hero-3d-wrapper {
+/* Hero Car Showcase Presentation */
+.hero-3d-wrapper,
+.hero-car-wrapper,
+.hero-car-image {
   position: relative;
   width: 100%;
+  min-width: 0;
+  max-width: 100%;
   height: 520px;
   border-radius: var(--radius-lg);
-  background: radial-gradient(circle at center, rgba(255, 255, 255, 0.95) 0%, rgba(241, 245, 249, 1) 100%);
+  background: radial-gradient(circle at center, #1a1c24 0%, #0c0d12 100%);
   border: 1px solid var(--border-gold);
-  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.08), inset 0 0 30px rgba(212, 175, 55, 0.08);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.45), inset 0 0 30px rgba(212, 175, 55, 0.12);
   overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hero-car-image img,
+.hero-car-wrapper img,
+img.hero-car-image {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  height: auto;
+  object-fit: contain;
+  object-position: center;
+  border-radius: inherit;
+  filter: drop-shadow(0 12px 28px rgba(0, 0, 0, 0.65));
+  transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.hero-car-image img:hover,
+.hero-car-wrapper img:hover {
+  transform: scale(1.025);
+}
+
+.hero-car-badge {
+  position: absolute;
+  bottom: 15px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(13, 14, 18, 0.85);
+  border: 1px solid var(--border-gold);
+  padding: 6px 18px;
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  color: #FFFFFF;
+  font-weight: 600;
+  letter-spacing: 1px;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+  text-transform: uppercase;
+  white-space: nowrap;
 }
 
 #car3d-canvas {
@@ -746,12 +798,18 @@ h1, h2, h3, h4, h5, h6 {
   .hero-container {
     grid-template-columns: 1fr;
     text-align: center;
+    gap: 30px;
   }
   .hero-content {
     margin: 0 auto;
+    max-width: 600px;
   }
   .hero-actions {
     justify-content: center;
+  }
+  .hero-location {
+    justify-content: center;
+    text-align: left;
   }
   .about-container {
     grid-template-columns: 1fr;
@@ -763,9 +821,20 @@ h1, h2, h3, h4, h5, h6 {
     grid-template-columns: 1fr;
     gap: 30px;
   }
+  .hero-3d-wrapper,
+  .hero-car-wrapper,
+  .hero-car-image {
+    height: 420px;
+    margin: 0 auto;
+  }
 }
 
 @media (max-width: 768px) {
+  .hero {
+    padding-top: 90px;
+    min-height: auto;
+    padding-bottom: 50px;
+  }
   .nav-links {
     position: fixed;
     top: 78px;
@@ -787,9 +856,57 @@ h1, h2, h3, h4, h5, h6 {
     display: block;
   }
   .hero-title {
-    font-size: 2.4rem;
+    font-size: 2.2rem;
   }
-  .hero-3d-wrapper {
-    height: 380px;
+  .hero-3d-wrapper,
+  .hero-car-wrapper,
+  .hero-car-image {
+    height: 340px;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-title {
+    font-size: 1.85rem;
+  }
+  .hero-motto {
+    font-size: 1.15rem;
+    letter-spacing: 1.5px;
+  }
+  .hero-subtitle {
+    font-size: 0.95rem;
+  }
+  .hero-location {
+    font-size: 0.85rem;
+    padding: 10px 14px;
+  }
+  .hero-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+  .hero-actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
+  .hero-3d-wrapper,
+  .hero-car-wrapper,
+  .hero-car-image {
+    height: 250px;
+  }
+  .hero-car-badge {
+    font-size: 0.65rem;
+    padding: 4px 12px;
+    bottom: 8px;
+  }
+}
+
+@media (max-width: 360px) {
+  .hero-title {
+    font-size: 1.65rem;
+  }
+  .hero-3d-wrapper,
+  .hero-car-wrapper,
+  .hero-car-image {
+    height: 210px;
   }
 }
